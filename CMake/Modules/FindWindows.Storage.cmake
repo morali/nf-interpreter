@@ -33,11 +33,10 @@ set(Windows.Storage_SRCS
     Target_Windows_Storage.c
 )
 
-if(RTOS_CHIBIOS_CHECK)
-    foreach(SRC_FILE ${Windows.Storage_SRCS})
-        set(Windows.Storage_SRC_FILE SRC_FILE-NOTFOUND)
-        find_file(Windows.Storage_SRC_FILE ${SRC_FILE}
-            PATHS
+foreach(SRC_FILE ${Windows.Storage_SRCS})
+    set(Windows.Storage_SRC_FILE SRC_FILE-NOTFOUND)
+    find_file(Windows.Storage_SRC_FILE ${SRC_FILE}
+        PATHS
 
             ${BASE_PATH_FOR_THIS_MODULE}
             ${TARGET_BASE_LOCATION}
