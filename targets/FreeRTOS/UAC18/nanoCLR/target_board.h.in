@@ -13,6 +13,9 @@
 
 #include <target_common.h>
 
+// set when SD card is enabled
+#define HAL_USE_SDC @HAL_USE_SDC_OPTION@
+
 // set preference to enable (or not) the RTC subsystem
 #define NXP_USE_RTC @HAL_USE_RTC_OPTION@
 
