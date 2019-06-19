@@ -51,24 +51,32 @@ static void  boot_nanoCLR(void){
     uint32_t button = 0;
 
     /* Define the init structure for the output TP6 pin*/
-    gpio_pin_config_t tp6_config = {kGPIO_DigitalOutput, 0, kGPIO_NoIntmode};
+    gpio_pin_config_t tp6_config = {
+        .direction      = kGPIO_DigitalOutput, 
+        .outputLogic    = 0, 
+        .interruptMode  = kGPIO_NoIntmode
+    };
 
     /* Init input GPIO*/
     GPIO_PinInit(BOARD_USER_TP6_GPIO, BOARD_USER_TP6_GPIO_PIN, &tp6_config);
 
     /* Define the init structure for the input TP7 pin*/
-    gpio_pin_config_t button_config = {kGPIO_DigitalInput, 0, kGPIO_NoIntmode};
+    gpio_pin_config_t button_config = {
+        .direction      = kGPIO_DigitalInput, 
+        .outputLogic    = 0, 
+        .interruptMode  = kGPIO_NoIntmode
+    };
 
     /* Init input GPIO*/
-    GPIO_PinInit(BOARD_USER_BUTTON_GPIO, BOARD_USER_BUTTON_GPIO_PIN, &button_config);
-    button = GPIO_PinRead(BOARD_USER_BUTTON_GPIO, BOARD_USER_BUTTON_GPIO_PIN);
+    GPIO_PinInit(BOARD_USER_TP7_GPIO, BOARD_USER_TP7_GPIO_PIN, &button_config);
+    button = GPIO_PinRead(BOARD_USER_TP7_GPIO, BOARD_USER_TP7_GPIO_PIN);
 
     /* Button is active low.
        Load nanoCLR program through resetISR or if button is pressed init reciver Task */
     if (button) 
     {
         void (*nanoCLR)(void);
-        nanoCLR = (void *) *((uint32_t *) __nanoCLR_start__ + 4); // resetISR address
+        nanoCLR = (void *) *(&__nanoCLR_start__ + 1); // resetISR address
         nanoCLR();
     } 
 }

@@ -532,6 +532,16 @@ void BOARD_InitPins(void) {
       | IOMUXC_GPR_GPR29_GPIO_MUX4_GPIO_SEL(0x00U) /* GPIO4 and GPIO9 share same IO MUX function, GPIO_MUX4 selects one GPIO function: 0x00U */
     );
   IOMUXC_SetPinConfig(
+      IOMUXC_GPIO_AD_B0_00_GPIO1_IO00,        /* GPIO_AD_B0_00 PAD functional properties : */
+      0xF0B0U);                               /* Slew Rate Field: Slow Slew Rate
+                                                 Drive Strength Field: R0/6
+                                                 Speed Field: medium(100MHz)
+                                                 Open Drain Enable Field: Open Drain Disabled
+                                                 Pull / Keep Enable Field: Pull/Keeper Enabled
+                                                 Pull / Keep Select Field: Pull
+                                                 Pull Up / Down Config. Field: 22K Ohm Pull Up
+                                                 Hyst. Enable Field: Hysteresis Disabled */
+  IOMUXC_SetPinConfig(
       IOMUXC_GPIO_AD_B0_08_GPIO1_IO08,        /* GPIO_AD_B0_08 PAD functional properties : */
       0xB0B0U);                               /* Slew Rate Field: Slow Slew Rate
                                                  Drive Strength Field: R0/6

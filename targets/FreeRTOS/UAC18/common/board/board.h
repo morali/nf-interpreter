@@ -53,11 +53,11 @@
                   0x1 ^ GPIO_PinRead(BOARD_USER_LED_GPIO, BOARD_USER_LED_GPIO_PIN)) /*!< Toggle target USER_LED */
 
 /*! @brief Define the port interrupt number for the board switches */
-#ifndef BOARD_USER_BUTTON_GPIO
-#define BOARD_USER_BUTTON_GPIO GPIO1
+#ifndef BOARD_USER_TP7_GPIO
+#define BOARD_USER_TP7_GPIO GPIO1
 #endif
-#ifndef BOARD_USER_BUTTON_GPIO_PIN
-#define BOARD_USER_BUTTON_GPIO_PIN (0U)
+#ifndef BOARD_USER_TP7_GPIO_PIN
+#define BOARD_USER_TP7_GPIO_PIN (0U)
 #endif
 #ifndef BOARD_USER_TP6_GPIO
 #define BOARD_USER_TP6_GPIO GPIO1
