@@ -25,7 +25,7 @@ __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 
 #define LED_GPIO GPIO1
-#define LED_GPIO_PIN (9U)
+#define LED_GPIO_PIN (8U)
 
 static void blink_task(void *pvParameters)
 {
@@ -47,13 +47,19 @@ static void blink_task(void *pvParameters)
 }
 
 static void  boot_nanoCLR(void){
+    extern uint32_t __nanoCLR_start__;
+    uint32_t button = 0;
 
-    uint32_t button = 1;
+    /* Define the init structure for the output TP6 pin*/
+    gpio_pin_config_t tp6_config = {kGPIO_DigitalOutput, 0, kGPIO_NoIntmode};
 
-    /* Define the init structure for the input button pin*/
+    /* Init input GPIO*/
+    GPIO_PinInit(BOARD_USER_TP6_GPIO, BOARD_USER_TP6_GPIO_PIN, &tp6_config);
+
+    /* Define the init structure for the input TP7 pin*/
     gpio_pin_config_t button_config = {kGPIO_DigitalInput, 0, kGPIO_NoIntmode};
 
-     /* Init input GPIO*/
+    /* Init input GPIO*/
     GPIO_PinInit(BOARD_USER_BUTTON_GPIO, BOARD_USER_BUTTON_GPIO_PIN, &button_config);
     button = GPIO_PinRead(BOARD_USER_BUTTON_GPIO, BOARD_USER_BUTTON_GPIO_PIN);
 
@@ -62,18 +68,24 @@ static void  boot_nanoCLR(void){
     if (button) 
     {
         void (*nanoCLR)(void);
-        nanoCLR = (void *) *((uint32_t *) 0x60020004); // resetISR address
+        nanoCLR = (void *) *((uint32_t *) __nanoCLR_start__ + 4); // resetISR address
         nanoCLR();
     } 
 }
 
 int main(void)
 {
+
+    //delay for development purposes
+    for (volatile uint32_t i = 0; i < 100000000; i++) {
+        __asm("nop");
+    }
+
+    BOARD_ConfigMPU();
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
-    BOARD_InitBootPeripherals();
 
-   // SCB_DisableDCache();
+    //SCB_DisableDCache();
 
     boot_nanoCLR();
 

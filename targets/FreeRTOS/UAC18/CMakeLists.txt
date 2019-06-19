@@ -13,7 +13,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/nanoBooter/target_board.h.in"
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/target_common.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/target_common.h" @ONLY)
 configure_file("${CMAKE_SOURCE_DIR}/CMake/FreeRTOS_target_os.h.in"
-               "${CMAKE_BINARY_DIR}/targets/FreeRTOS/NXP_MIMXRT1060_EVK/target_os.h" @ONLY)
+               "${CMAKE_BINARY_DIR}/targets/FreeRTOS/UAC18/target_os.h" @ONLY)
 
 set(NANOBOOTER_PROJECT_NAME "nanoBooter")
 set(NANOCLR_PROJECT_NAME "nanoCLR")

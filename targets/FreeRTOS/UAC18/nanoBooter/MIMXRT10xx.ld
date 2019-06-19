@@ -16,8 +16,9 @@ GROUP (
 MEMORY
 {
   /* Define each memory region */
-  BOARD_FLASH (rx) : ORIGIN = 0x60000000, LENGTH = 0x10000 /* 64k bytes (alias Flash) */  
-  CONFIG_FLASH (r) : ORIGIN = 0x60010000, LENGTH = 0x10000 /* 64k bytes space reserved for configuration block */  
+  BOARD_FLASH (rx) : ORIGIN = 0x60000000, LENGTH = 0x20000 /* 64k bytes (alias Flash) */  
+  CONFIG_FLASH (r) : ORIGIN = 0x60020000, LENGTH = 0x10000 /* 64k bytes space reserved for configuration block */  
+  FIRMWARE_FLASH (rx) : ORIGIN = 0x60030000, LENGTH = 0x1D0000 /* 1856k bytes space reserved for firmware Firmware */
   DEPLOYMENT_FLASH (r) : ORIGIN = 0x60200000, LENGTH = 0x100000 /* 1M bytes */  
   SRAM_DTC (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20000 /* 128K bytes (alias RAM) */  
   SRAM_ITC (rwx) : ORIGIN = 0x0, LENGTH = 0x20000 /* 128K bytes (alias RAM2) */  
@@ -42,10 +43,6 @@ MEMORY
   __base_RAM3 = 0x20200000 ; /* RAM3 */  
   __top_SRAM_OC = 0x20200000 + 0xc0000 ; /* 768K bytes */  
   __top_RAM3 = 0x20200000 + 0xc0000 ; /* 768K bytes */  
-  __base_BOARD_SDRAM = 0x80000000  ; /* BOARD_SDRAM */  
-  __base_RAM4 = 0x80000000 ; /* RAM4 */  
-  __top_BOARD_SDRAM = 0x80000000 + 0x2000000 ; /* 32M bytes */  
-  __top_RAM4 = 0x80000000 + 0x2000000 ; /* 32M bytes */  
 
 __flash_start__         = ORIGIN(BOARD_FLASH);
 __nanoImage_start__     = ORIGIN(BOARD_FLASH);
@@ -54,6 +51,9 @@ __nanoImage_end__       = __nanoImage_start__ + __nanoImage_size__;
 __nanoConfig_start__    = ORIGIN(CONFIG_FLASH);
 __nanoConfig_size__     = LENGTH(CONFIG_FLASH);
 __nanoConfig_end__      = __nanoConfig_start__ + __nanoConfig_size__;
+__nanoCLR_start__       = ORIGIN(FIRMWARE_FLASH);
+__nanoCLR_size__        = LENGTH(FIRMWARE_FLASH);
+__nanoCLR_end__         = __nanoCLR_start__ + __nanoCLR_size__;
 __deployment_start__    = ORIGIN(DEPLOYMENT_FLASH);
 __deployment_size__     = LENGTH(DEPLOYMENT_FLASH);
 __deployment_end__      = __deployment_start__ + __deployment_size__;

@@ -46,7 +46,7 @@ bool WP_Initialise()
     NVIC_SetPriority(BOARD_UART_IRQ, 5);
 
     lpuart_config.srcclk = BOARD_DebugConsoleSrcFreq();
-    lpuart_config.base = LPUART1;
+    lpuart_config.base = LPUART8;
 
     int ret = LPUART_RTOS_Init(&handle, &t_handle, &lpuart_config);
     WP_Port_Intitialised = (ret == 0);
