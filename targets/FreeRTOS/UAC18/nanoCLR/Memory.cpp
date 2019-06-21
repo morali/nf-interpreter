@@ -5,11 +5,12 @@
 //
 
 #include <nanoHAL.h>
+#include "board.h"
 
 void HeapLocation(unsigned char*& baseAddress, unsigned int& sizeInBytes)
 {
     NATIVE_PROFILE_PAL_HEAP();
 
-    baseAddress = (unsigned char*)0x80000000U;  //start of SDRAM
-    sizeInBytes = 0x2000000;                    //32MB
+    baseAddress = (unsigned char*)FlexSPI2_AMBA_BASE;   //start of Hyper RAM
+    sizeInBytes = 0x800000;                             //8MB
 }

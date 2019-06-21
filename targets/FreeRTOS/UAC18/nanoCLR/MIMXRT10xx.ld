@@ -22,7 +22,7 @@ MEMORY
   SRAM_DTC (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20000 /* 128K bytes (alias RAM) */  
   SRAM_ITC (rwx) : ORIGIN = 0x0, LENGTH = 0x20000 /* 128K bytes (alias RAM2) */  
   SRAM_OC (rwx) : ORIGIN = 0x20200000, LENGTH = 0xc0000 /* 768K bytes (alias RAM3) */  
-  BOARD_SDRAM (rwx) : ORIGIN = 0x80000000, LENGTH = 0x2000000 /* 32M bytes (alias RAM4) */  
+  BOARD_SDRAM (rwx) : ORIGIN = 0x70000000, LENGTH = 0x800000 /* 8M bytes (alias RAM4) */  
 }
 
   /* Define a symbol for the top of each memory region */
@@ -42,10 +42,10 @@ MEMORY
   __base_RAM3 = 0x20200000 ; /* RAM3 */  
   __top_SRAM_OC = 0x20200000 + 0xc0000 ; /* 768K bytes */  
   __top_RAM3 = 0x20200000 + 0xc0000 ; /* 768K bytes */  
-  __base_BOARD_SDRAM = 0x80000000  ; /* BOARD_SDRAM */  
-  __base_RAM4 = 0x80000000 ; /* RAM4 */  
-  __top_BOARD_SDRAM = 0x80000000 + 0x2000000 ; /* 32M bytes */  
-  __top_RAM4 = 0x80000000 + 0x2000000 ; /* 32M bytes */  
+  __base_BOARD_SDRAM = 0x70000000  ; /* BOARD_SDRAM */  
+  __base_RAM4 = 0x70000000 ; /* RAM4 */  
+  __top_BOARD_SDRAM = 0x70000000 + 0x800000 ; /* 32M bytes */  
+  __top_RAM4 = 0x70000000 + 0x800000 ; /* 32M bytes */  
 
 __flash_start__         = __base_BOARD_FLASH;
 __nanoImage_start__     = ORIGIN(BOARD_FLASH);

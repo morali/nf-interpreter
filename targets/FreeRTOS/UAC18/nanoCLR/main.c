@@ -10,6 +10,7 @@
 #include "clock_config.h"
 #include "MIMXRT1062.h"
 #include "fsl_debug_console.h"
+#include "hyperRAM.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -31,10 +32,11 @@ int main(void)
 {
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
-    // BOARD_InitSEMC();
+    BOARD_InitHyperRAM();
     // BOARD_USDHCClockConfiguration();
     // BOARD_InitRTC();
-    //SCB_DisableDCache();
+    SCB_DisableDCache();
+    SCB_DisableICache();
 
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
     

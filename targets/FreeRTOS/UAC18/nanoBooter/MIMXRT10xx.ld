@@ -23,7 +23,7 @@ MEMORY
   SRAM_DTC (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20000 /* 128K bytes (alias RAM) */  
   SRAM_ITC (rwx) : ORIGIN = 0x0, LENGTH = 0x20000 /* 128K bytes (alias RAM2) */  
   SRAM_OC (rwx) : ORIGIN = 0x20200000, LENGTH = 0xc0000 /* 768K bytes (alias RAM3) */  
-  BOARD_SDRAM (rwx) : ORIGIN = 0x80000000, LENGTH = 0x2000000 /* 32M bytes (alias RAM4) */  
+  BOARD_SDRAM (rwx) : ORIGIN = 0x70000000, LENGTH = 0x800000 /* 8M bytes (alias RAM4) */  
 }
 
   /* Define a symbol for the top of each memory region */
