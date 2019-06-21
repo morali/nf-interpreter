@@ -8,7 +8,7 @@
 
 #include "fsl_flexspi.h"
 
-#define FLASH_SIZE 0x1C00 /* 7168kB */
+#define FLASH_SIZE 0x2000 /* 7168kB */
 #define FLASH_PAGE_SIZE 256
 #define SECTOR_SIZE 0x1000 /* 4K */
 

@@ -35,7 +35,7 @@ flexspi_device_config_t deviceconfig = {
     .AHBWriteWaitUnit = kFLEXSPI_AhbWriteWaitUnit2AhbCycle,
     .AHBWriteWaitInterval = 0,
 };
-uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
+static const uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
         /* Normal read mode -SDR */
         [4 * NOR_CMD_LUT_SEQ_IDX_READ_NORMAL] =
             FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
@@ -64,7 +64,7 @@ uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
 
         /* Erase Sector  */
         [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-            FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0xD7, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+            FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
 
         /* Page Program - single mode */
         [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_SINGLE] =
@@ -351,7 +351,7 @@ void flexspi_nor_flash_init(FLEXSPI_Type *base)
     config.ahbConfig.enableAHBBufferable = true;
     config.ahbConfig.enableReadAddressOpt = true;
     config.ahbConfig.enableAHBCachable = true;
-    config.rxSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+    config.rxSampleClock = kFLEXSPI_ReadSampleClkLoopbackInternally;
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */
