@@ -36,7 +36,6 @@ int main(void)
     // BOARD_USDHCClockConfiguration();
     // BOARD_InitRTC();
     SCB_DisableDCache();
-    SCB_DisableICache();
 
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
     
