@@ -71,7 +71,7 @@ void nanoHAL_Initialize()
     //PalEvent_Initialize();
 	
 	// Init Networking
-	Network_Initialize();
+	//Network_Initialize();
     
 	// Start Network Debugger
    // SOCKETS_DbgInitialize( 0 );
