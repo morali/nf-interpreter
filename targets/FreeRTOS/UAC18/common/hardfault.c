@@ -4,6 +4,7 @@
 //
 
 #include "MIMXRT1062.h"
+#include "cmsis_gcc.h"
 
 __attribute__((used))
 void prvGetRegistersFromStack( unsigned int *pulFaultStackAddress ) 
@@ -42,7 +43,7 @@ void prvGetRegistersFromStack( unsigned int *pulFaultStackAddress )
 
     // forces a breakpoint causing the debugger to stop
     // if no debugger is attached this is ignored
-    __asm volatile("BKPT #0\n");
+    __BKPT(0);
 
     // If no debugger connected, just reset the board
     NVIC_SystemReset();
