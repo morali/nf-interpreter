@@ -35,7 +35,7 @@ int main(void)
     BOARD_InitHyperRAM();
     // BOARD_USDHCClockConfiguration();
     // BOARD_InitRTC();
-    SCB_DisableDCache();
+    //SCB_DisableDCache();
 
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
     
