@@ -42,15 +42,6 @@ static void BOARD_InitModuleClock(void)
     CLOCK_InitEnetPll(&config);
 }
 
-static void delay(void)
-{
-    volatile uint32_t i = 0;
-    for (i = 0; i < 1000000; ++i)
-    {
-        __asm("NOP"); /* delay */
-    }
-}
-
 static void stack_init(const lwipthread_opts_t *opts)
 {
     ip4_addr_t fsl_netif0_ipaddr, fsl_netif0_netmask, fsl_netif0_gw;
@@ -65,9 +56,6 @@ static void stack_init(const lwipthread_opts_t *opts)
     fsl_netif0_ipaddr.addr = opts->address;
     fsl_netif0_netmask.addr = opts->netmask;
     fsl_netif0_gw.addr = opts->gateway;
-    // IP4_ADDR(&fsl_netif0_ipaddr, configIP_ADDR0, configIP_ADDR1, configIP_ADDR2, configIP_ADDR3);
-    // IP4_ADDR(&fsl_netif0_netmask, configNET_MASK0, configNET_MASK1, configNET_MASK2, configNET_MASK3);
-    // IP4_ADDR(&fsl_netif0_gw, configGW_ADDR0, configGW_ADDR1, configGW_ADDR2, configGW_ADDR3);
 
     netifapi_netif_add(&thisif, &fsl_netif0_ipaddr, &fsl_netif0_netmask, &fsl_netif0_gw, &fsl_enet_config0,
                        ethernetif0_init, tcpip_input);
@@ -95,19 +83,11 @@ static void stack_init(const lwipthread_opts_t *opts)
 
 void lwipInit(const lwipthread_opts_t *opts) {
 
-    gpio_pin_config_t gpio_config = {kGPIO_DigitalOutput, 0, kGPIO_NoIntmode};
-
     BOARD_InitModuleClock();
 
-    IOMUXC_EnableMode(IOMUXC_GPR, kIOMUXC_GPR_ENET1TxClkOutputDir, true);
-
-    GPIO_PinInit(GPIO1, 9, &gpio_config);
-    GPIO_PinInit(GPIO1, 10, &gpio_config);
-    /* pull up the ENET_INT before RESET. */
-    GPIO_WritePinOutput(GPIO1, 10, 1);
-    GPIO_WritePinOutput(GPIO1, 9, 0);
-    delay();
-    GPIO_WritePinOutput(GPIO1, 9, 1);
+    //enable source reference clock for CPU
+    IOMUXC_EnableMode(IOMUXC_GPR, kIOMUXC_GPR_ENET1TxClkOutputDir, false);
+    IOMUXC_EnableMode(IOMUXC_GPR, kIOMUXC_GPR_ENET1RefClkMode, true);
 
     stack_init(opts);
 

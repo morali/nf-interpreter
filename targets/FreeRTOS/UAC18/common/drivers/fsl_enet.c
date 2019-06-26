@@ -78,7 +78,7 @@
 /*! @brief Ethernet VLAN header length. */
 #define ENET_FRAME_VLAN_TAGLEN 4U
 /*! @brief MDC frequency. */
-#define ENET_MDC_FREQUENCY 2500000U
+#define ENET_MDC_FREQUENCY 1000000U
 /*! @brief NanoSecond in one second. */
 #define ENET_NANOSECOND_ONE_SECOND 1000000000U
 /*! @brief Define a common clock cycle delays used for time stamp capture. */

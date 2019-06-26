@@ -32,7 +32,7 @@ int main(void)
 {
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
-    BOARD_InitHyperRAM();
+    // BOARD_InitHyperRAM();
     // BOARD_USDHCClockConfiguration();
     // BOARD_InitRTC();
     //SCB_DisableDCache();

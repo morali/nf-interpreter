@@ -179,6 +179,10 @@ void sys_mbox_post( sys_mbox_t *pxMailBox, void *pxMessageToPost )
 err_t sys_mbox_trypost( sys_mbox_t *pxMailBox, void *pxMessageToPost )
 {
     portBASE_TYPE taskToWake = pdFALSE;
+    if( xQueueIsQueueFullFromISR( *pxMailBox ))
+    {
+        return ERR_VAL;
+    }
 #ifdef __CA7_REV
     if (SystemGetIRQNestingLevel())
 #else
