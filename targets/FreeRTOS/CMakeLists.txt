@@ -413,18 +413,18 @@ else()
 endif()
 
 # Define base path for the class libraries
-set(BASE_PATH_FOR_CLASS_LIBRARIES_MODULES "${PROJECT_SOURCE_DIR}/targets/FreeRTOS/NXP/nanoCLR")
+set(BASE_PATH_FOR_CLASS_LIBRARIES_MODULES "${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/nanoCLR")
 
 # set target base location
 # this has to be set before the class library modules are pulled in
-if(EXISTS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/NXP/${FREERTOS_BOARD})
+if(EXISTS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/${FREERTOS_BOARD})
     # set target base location
-    set(TARGET_BASE_LOCATION "${PROJECT_SOURCE_DIR}/targets/FreeRTOS/NXP/${FREERTOS_BOARD}")
+    set(TARGET_BASE_LOCATION "${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/${FREERTOS_BOARD}")
 else()
     # try to find board in the Community targets folder
     if(EXISTS ${PROJECT_SOURCE_DIR}/targets-community/FreeRTOS/NXP/${FREERTOS_BOARD})
         # set target base location
-        set(TARGET_BASE_LOCATION "${PROJECT_SOURCE_DIR}/targets-community/FreeRTOS/NXP/${FREERTOS_BOARD}")
+        set(TARGET_BASE_LOCATION "${PROJECT_SOURCE_DIR}/targets-community/FreeRTOS/GC5/${FREERTOS_BOARD}")
     else()
         # board NOT found in targets folder
         # can't continue
@@ -434,4 +434,4 @@ endif()
 
 # board folder will be added in main CMakeList
 
-add_subdirectory(NXP)
+add_subdirectory(GC5)
