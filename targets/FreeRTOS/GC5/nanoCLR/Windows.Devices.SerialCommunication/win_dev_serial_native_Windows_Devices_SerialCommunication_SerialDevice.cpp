@@ -99,12 +99,10 @@ static void UART_Handle(LPUART_Type *base, uint8_t uartNum)
 */
 extern "C"
 {
-    /* LPUART1 is currently used for debugging, disable it or will collide with debugger */
-    /* void LPUART1_IRQHandler(void)
+   void LPUART1_IRQHandler(void)
     {
-        RX_Handle(LPUART1);
+        UART_Handle(LPUART1, 1);
     }
-    */
     void LPUART2_IRQHandler(void)
     {
         UART_Handle(LPUART2, 2);
@@ -129,10 +127,11 @@ extern "C"
     {
         UART_Handle(LPUART7, 7);
     }
-    void LPUART8_IRQHandler(void)
-    {
-        UART_Handle(LPUART8, 8);
-    }
+    /* LPUART8 is currently used for debugging, disable it or will collide with debugger */
+    // void LPUART8_IRQHandler(void)
+    // {
+    //     UART_Handle(LPUART8, 8);
+    // }
 }
 
 /* Deinitialize serial port and allocated free memory */
