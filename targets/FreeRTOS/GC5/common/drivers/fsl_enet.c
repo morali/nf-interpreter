@@ -262,7 +262,7 @@ static uint8_t ENET_GetTxRingId(ENET_Type *base, uint8_t *data, enet_handle_t *h
  ******************************************************************************/
 
 /*! @brief Pointers to enet handles for each instance. */
-static enet_handle_t *s_ENETHandle[FSL_FEATURE_SOC_ENET_COUNT] = {NULL};
+static enet_handle_t *s_ENETHandle[FSL_FEATURE_SOC_ENET_COUNT + 1] = {NULL};
 
 /*! @brief Pointers to enet clocks for each instance. */
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
