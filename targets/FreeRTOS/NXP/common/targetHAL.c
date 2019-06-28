@@ -7,6 +7,10 @@
 #include "stdbool.h"
 #include "cmsis_gcc.h"
 #include <nanoWeak.h>
+<<<<<<< HEAD
+=======
+#include <platform_target_capabilities.h>
+>>>>>>> 9cb2323b44b74e57dca1f46f1b2a8875c10c49b6
 
 void HAL_AssertEx()
 {
@@ -36,3 +40,19 @@ bool Target_HasNanoBooter()
 { 
     return true; 
 };
+<<<<<<< HEAD
+=======
+
+// declarations of platform capabilities
+uint32_t GetPlatformCapabilities()
+{ 
+    return 0; 
+};
+
+// declarations of target capabilities
+// If a target has something to declare it has to provide a 'strong' implementation of this.
+__nfweak uint32_t GetTargetCapabilities()
+{ 
+    return TargetCapabilities_JtagUpdate; 
+};
+>>>>>>> 9cb2323b44b74e57dca1f46f1b2a8875c10c49b6
