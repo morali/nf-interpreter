@@ -313,7 +313,7 @@ bool ConfigurationManager_UpdateConfigurationBlock(void* configurationBlock, Dev
             blockAddressInCopy = configSectorCopy + blockOffset;
             
             // replace config block with new content by replacing memory
-            memcpy(blockAddressInCopy, configSectorCopy, blockSize);
+            memcpy(blockAddressInCopy, configurationBlock, blockSize);
 
             // copy the config block copy back to the config block storage
             success = iMXRTFlexSPIDriver_Write(NULL, (uint32_t)&__nanoConfig_start__, sizeOfConfigSector, (unsigned char*)configSectorCopy, false);
