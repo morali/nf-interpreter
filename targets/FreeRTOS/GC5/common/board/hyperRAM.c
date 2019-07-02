@@ -96,10 +96,6 @@ void BOARD_InitHyperRAM(void) {
   flexspi_config.ahbConfig.enableAHBBufferable = true;
   flexspi_config.ahbConfig.enableAHBCachable = true;
   flexspi_config.ahbConfig.enableReadAddressOpt = true;
-  flexspi_config.ahbConfig.buffer[0].enablePrefetch = true;
-  flexspi_config.ahbConfig.buffer[1].enablePrefetch = true;
-  flexspi_config.ahbConfig.buffer[2].enablePrefetch = true;
-  flexspi_config.ahbConfig.buffer[3].enablePrefetch = true;
 
   FLEXSPI_Init(FLEXSPI2, &flexspi_config);
 
@@ -131,4 +127,5 @@ void BOARD_InitHyperRAM(void) {
 
   /* Do software reset. */
   FLEXSPI_SoftwareReset(FLEXSPI2);
+  delay();
 }

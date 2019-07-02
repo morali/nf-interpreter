@@ -10,7 +10,6 @@
 void HeapLocation(unsigned char*& baseAddress, unsigned int& sizeInBytes)
 {
     NATIVE_PROFILE_PAL_HEAP();
-
-    baseAddress = (unsigned char*)0x20240000;       //OC RAM
-    sizeInBytes = 0x80000;                          //0.5MB
+    baseAddress = (unsigned char*)FlexSPI2_AMBA_BASE;   //start of Hyper RAM
+    sizeInBytes = 0x800000;                             //8MB
 }
