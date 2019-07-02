@@ -20,7 +20,7 @@ MEMORY
   BOARD_FLASH (rx) : ORIGIN = 0x60030000, LENGTH = 0x1D0000 /* 1920kB bytes (alias Flash) */  
   DEPLOYMENT_FLASH (r) : ORIGIN = 0x60200000, LENGTH = 0x100000 /* 1M bytes space reserved for application deployment */  
   SRAM_DTC (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20000 /* 128K bytes (alias RAM) */  
-  SRAM_ITC (rwx) : ORIGIN = 0x0, LENGTH = 0x20000 /* 128K bytes (alias RAM2) */  
+  SRAM_ITC (rwx) : ORIGIN = 0x10, LENGTH = 0x1FFF0 /* 128K bytes (alias RAM2) */  
   SRAM_OC (rwx) : ORIGIN = 0x20200000, LENGTH = 0xc0000 /* 768K bytes (alias RAM3) */  
   BOARD_SDRAM (rwx) : ORIGIN = 0x70000000, LENGTH = 0x800000 /* 8M bytes (alias RAM4) */  
 }
@@ -34,8 +34,8 @@ MEMORY
   __base_RAM = 0x20000000 ; /* RAM */  
   __top_SRAM_DTC = 0x20000000 + 0x20000 ; /* 128K bytes */  
   __top_RAM = 0x20000000 + 0x20000 ; /* 128K bytes */  
-  __base_SRAM_ITC = 0x0  ; /* SRAM_ITC */  
-  __base_RAM2 = 0x0 ; /* RAM2 */  
+  __base_SRAM_ITC = 0x10  ; /* SRAM_ITC */  
+  __base_RAM2 = 0x10 ; /* RAM2 */  
   __top_SRAM_ITC = 0x0 + 0x20000 ; /* 128K bytes */  
   __top_RAM2 = 0x0 + 0x20000 ; /* 128K bytes */  
   __base_SRAM_OC = 0x20200000  ; /* SRAM_OC */  
