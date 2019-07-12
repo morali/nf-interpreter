@@ -14,7 +14,7 @@ if(RTOS_CHIBIOS_CHECK)
 elseif(RTOS_FREERTOS_CHECK)
     list(APPEND Windows.Storage_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/FatFS_Source/source)
     # TODO: this needs to be changed so it's not platform & target dependent
-    set( PROJECT_COMMON_PATH ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/NXP/common)
+    set( PROJECT_COMMON_PATH ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/common)
 endif()
 
 list(APPEND Windows.Storage_INCLUDE_DIRS ${TARGET_BASE_LOCATION}/Include)

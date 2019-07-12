@@ -92,7 +92,7 @@ outputs:
 - {id: TRACE_CLK_ROOT.outFreq, value: 88 MHz}
 - {id: UART_CLK_ROOT.outFreq, value: 80 MHz}
 - {id: USBPHY1_CLK.outFreq, value: 480 MHz}
-- {id: USDHC1_CLK_ROOT.outFreq, value: 49.5 MHz}
+- {id: USDHC1_CLK_ROOT.outFreq, value: 198 MHz}
 - {id: USDHC2_CLK_ROOT.outFreq, value: 49.5 MHz}
 settings:
 - {id: CCM.AHB_PODF.scale, value: '1', locked: true}
@@ -106,7 +106,7 @@ settings:
 - {id: CCM.LPSPI_PODF.scale, value: '8'}
 - {id: CCM.PERCLK_PODF.scale, value: '2'}
 - {id: CCM.SEMC_PODF.scale, value: '5'}
-- {id: CCM.USDHC1_PODF.scale, value: '8'}
+- {id: CCM.USDHC1_PODF.scale, value: '2', locked: true}
 - {id: CCM.USDHC2_PODF.scale, value: '8'}
 - {id: CCM_ANALOG.PLL1_BYPASS.sel, value: CCM_ANALOG.PLL1}
 - {id: CCM_ANALOG.PLL1_PREDIV.scale, value: '1', locked: true}
@@ -220,7 +220,7 @@ void BOARD_BootClockRUN(void)
     /* Disable USDHC1 clock gate. */
     CLOCK_DisableClock(kCLOCK_Usdhc1);
     /* Set USDHC1_PODF. */
-    CLOCK_SetDiv(kCLOCK_Usdhc1Div, 7);
+    CLOCK_SetDiv(kCLOCK_Usdhc1Div, 1);
     /* Set Usdhc1 clock source. */
     CLOCK_SetMux(kCLOCK_Usdhc1Mux, 0);
     /* Disable USDHC2 clock gate. */
