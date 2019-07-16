@@ -31,7 +31,7 @@
         "short": "UAC18",
         "settings": {
           "BUILD_VERSION": "0.9.99.999",
-          "TOOLCHAIN_PREFIX": "C:/nanoFramework_Tools/GNU_ARM_Toolchain/7 2018-q2-update",
+          "TOOLCHAIN_PREFIX": "C:/nanoFramework_Tools/GNU_ARM_Toolchain/8 2019-q3-update",
           "TARGET_SERIES": "IMXRT10xx",
           "SUPPORT_ANY_BASE_CONVERSION": "ON",
           "RTOS": "FREERTOS",
@@ -42,7 +42,7 @@
           "LWIP_VERSION": "STABLE-2_0_3_RELEASE",
           "NF_BUILD_RTM": "OFF",
           "NF_FEATURE_DEBUGGER": "ON",
-          "NF_FEATURE_HAS_SDCARD": "OFF",
+          "NF_FEATURE_HAS_SDCARD": "ON",
           "NF_FEATURE_RTC": "OFF",
           "NF_FEATURE_HAS_CONFIG_BLOCK": "ON",
           "NF_SECURITY_OPENSSL": "OFF",
