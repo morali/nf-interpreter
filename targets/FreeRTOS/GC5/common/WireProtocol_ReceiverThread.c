@@ -7,17 +7,20 @@
 #include "task.h"
 #include "WireProtocol_HAL_Interface.h"
 
+#include "usb_vcom.h"
+
 extern WP_Message inboundMessage;
 
 void WP_Message_Initialize(WP_Message* a);
 void WP_Message_PrepareReception(WP_Message* a);
 void WP_Message_Process(WP_Message* a);
 
-
 void ReceiverThread(void * argument)
 {
   (void)argument;
-
+  
+  configASSERT(USB_Init() == kStatus_USB_Success);
+  
   // loop forever
   while (1) {
 

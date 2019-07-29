@@ -98,8 +98,6 @@ function(NF_SET_OPTIMIZATION_OPTIONS TARGET)
 
     target_compile_options(${TARGET} PRIVATE
         $<$<CONFIG:Debug>:-Og -femit-class-debug-always -g3 -ggdb>
-        $<$<CONFIG:Release>:-O3>
-        $<$<CONFIG:MinSizeRel>:-Os>
         $<$<CONFIG:RelWithDebInfo>:-Os -femit-class-debug-always -g3 -ggdb>
     )
 

@@ -116,6 +116,10 @@
 /* define for SD/MMC config IO driver strength dynamic */
 void BOARD_SD_Pin_Config(uint32_t speed, uint32_t strength);
 
+/* define for enabling USB serial debugging and disable caching of dma buffers */
+#define ENDIANNESS USB_LITTLE_ENDIAN
+#define HAL_USE_SERIAL_USB
+#define USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE (1U)
 
 #if defined(__cplusplus)
 extern "C" {

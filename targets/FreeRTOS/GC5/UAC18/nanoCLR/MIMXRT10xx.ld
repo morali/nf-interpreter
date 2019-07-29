@@ -181,7 +181,7 @@ SECTIONS
        _data = . ;
        *(vtable)
        *(.ramfunc*)
-       *(.data*)
+       *(.data*)       
        . = ALIGN(4) ;
        _edata = . ;
     } > SRAM_DTC AT>BOARD_FLASH
