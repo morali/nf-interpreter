@@ -29,7 +29,7 @@
 #define BOARD_UART_IRQ_HANDLER LPUART8_IRQHandler
 
 #ifndef BOARD_DEBUG_UART_BAUDRATE
-#define BOARD_DEBUG_UART_BAUDRATE (115200U)
+#define BOARD_DEBUG_UART_BAUDRATE (921600U)
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
 /*! @brief Define the port interrupt number for the board switches */
