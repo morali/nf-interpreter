@@ -32,6 +32,18 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 #define LED_GPIO GPIO1
 #define LED_GPIO_PIN (8U)
 
+// Need to have calls to these two functions in C code.
+// Because they are called only on asm code, GCC linker with LTO option thinks they are not used and just removes them.
+// Having them called from a dummy function that is never called it a workaround for this.
+// The clean alternative would be to add the GCC attribute used in those functions, but that's not our code to touch.
+
+void dummyFunction(void) __attribute__((used));
+
+// Never called.
+void dummyFunction(void) {
+    vTaskSwitchContext();
+}
+
 static void blink_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -90,9 +102,9 @@ int main(void)
 {
 
     //delay for development purposes
-    for (volatile uint32_t i = 0; i < 100000000; i++) {
-        __asm("nop");
-    }
+    // for (volatile uint32_t i = 0; i < 100000000; i++) {
+    //     __asm("nop");
+    // }
 
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
