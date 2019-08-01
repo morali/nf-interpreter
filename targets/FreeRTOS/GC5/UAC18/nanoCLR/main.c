@@ -22,6 +22,10 @@
 #include "Target_BlockStorage_iMXRTFlashDriver.h"
 #include "CLR_Startup_Thread.h"
 
+#include "External_RTC.h"
+
+
+
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
@@ -43,6 +47,7 @@ int main(void)
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitHyperRAM();
+    I2C3_InitPeripheral();
     //SCB_DisableDCache();
 
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
@@ -50,6 +55,7 @@ int main(void)
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);
     xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 15, NULL);
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 14, NULL);
+    xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     
     vTaskStartScheduler();
 

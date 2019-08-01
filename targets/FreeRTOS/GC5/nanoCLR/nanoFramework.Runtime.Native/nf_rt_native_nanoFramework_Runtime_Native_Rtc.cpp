@@ -13,7 +13,7 @@
     #error "Need the RTC to be enabled. Please set CMake option NF_FEATURE_RTC to ON."
 #endif
 
-#include "fsl_snvs_lp.h"
+#include "External_RTC.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // these functions are the real implementation of the 'weak' ones declared at src\CLR\Runtime.Native\nf_rt_native_nanoFramework_Runtime_Native_Rtc_stubs.cpp //
@@ -24,18 +24,20 @@ HRESULT Library_nf_rt_native_nanoFramework_Runtime_Native_Rtc::Native_RTC_SetSys
 {
     NANOCLR_HEADER();
     {
-        snvs_lp_srtc_datetime_t srtcDate;
+        struct tm rtcTime;
 
-        srtcDate.year = (uint16_t) stack.Arg0().NumericByRef().s4;  
-        srtcDate.month = (uint8_t) stack.Arg1().NumericByRef().u1; 
-        srtcDate.day = (uint8_t) stack.Arg2().NumericByRef().u1;   
-        srtcDate.hour = (uint8_t) stack.Arg4().NumericByRef().u1;  
-        srtcDate.minute = (uint8_t )stack.Arg5().NumericByRef().u1;
-        srtcDate.second = (uint8_t) stack.Arg6().NumericByRef().u1; 
+        rtcTime.tm_year  = (uint16_t) stack.Arg0().NumericByRef().s4;  
+        rtcTime.tm_mon   = (uint8_t) stack.Arg1().NumericByRef().u1; 
+        rtcTime.tm_mday  = (uint8_t) stack.Arg2().NumericByRef().u1;   
+        rtcTime.tm_hour  = (uint8_t) stack.Arg4().NumericByRef().u1;  
+        rtcTime.tm_min   = (uint8_t )stack.Arg5().NumericByRef().u1;
+        rtcTime.tm_sec   = (uint8_t) stack.Arg6().NumericByRef().u1;
+        rtcTime.tm_isdst = 0;
+        rtcTime.tm_wday  = 0;
+        rtcTime.tm_yday  = 0; 
 
-        // Set new date and start RTC        
-        SNVS_LP_SRTC_SetDatetime(SNVS, &srtcDate);
-
+        RTC_SetTime(&rtcTime);
+        
         // Return value to the managed application
         stack.SetResult_Boolean(true);
     }
