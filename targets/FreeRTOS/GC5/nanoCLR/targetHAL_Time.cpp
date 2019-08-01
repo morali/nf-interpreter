@@ -10,6 +10,7 @@
 
 #if defined(NXP_USE_RTC)
     #include "fsl_snvs_lp.h"
+    #include "External_RTC.h"
 #else
     #include "time.h"
     #include <sys/time.h>
@@ -20,32 +21,26 @@ uint64_t  HAL_Time_CurrentDateTime(bool datePartOnly)
 {
 #ifdef NXP_USE_RTC
     
-    SYSTEMTIME st;
-    snvs_lp_srtc_datetime_t rtcDate;
- 
-    SNVS_LP_SRTC_GetDatetime(SNVS, &rtcDate);
+    SYSTEMTIME systemTime;
+    struct tm *pRtcRealTime = RTC_ReadTime();
 
-    st.wYear = rtcDate.year;
-    st.wMonth = rtcDate.month;
-    st.wDay = rtcDate.day;
+    systemTime.wMilliseconds = xTaskGetTickCount() % 1000;
+    systemTime.wSecond       = pRtcRealTime->tm_sec;
+    systemTime.wMinute       = pRtcRealTime->tm_min;
+    systemTime.wHour         = pRtcRealTime->tm_hour;
+    systemTime.wDay          = pRtcRealTime->tm_mday;
+    systemTime.wMonth        = pRtcRealTime->tm_mon + 1;        // Add missing 1 month (for more information check: External_RTC.c)
+    systemTime.wYear         = pRtcRealTime->tm_year + 1900;    // Add missing 1900 years (for more information check: External_RTC.c)
 
     // zero 'time' fields if date part only is required
     if(datePartOnly)
     {
-        st.wHour = 0;
-        st.wMinute = 0;
-        st.wSecond = 0; 
+        systemTime.wHour   = 0;
+        systemTime.wMinute = 0;
+        systemTime.wSecond = 0; 
     }
-    else 
-    {
-        st.wHour = rtcDate.hour;
-        st.wMinute = rtcDate.minute;
-        st.wSecond = rtcDate.second;
-    }
-
-    st.wMilliseconds = 0;
-
-	return HAL_Time_ConvertFromSystemTime( &st );
+    
+	return HAL_Time_ConvertFromSystemTime( &systemTime );
 #else
     if (datePartOnly)
 	{
@@ -75,18 +70,10 @@ void HAL_Time_SetUtcTime(uint64_t utcTime)
 
   #if defined(NXP_USE_RTC)
 
-    snvs_lp_srtc_datetime_t srtcDate;
-
-    srtcDate.year = systemTime.wYear;  
-    srtcDate.month = systemTime.wMonth; 
-    srtcDate.day = systemTime.wDay;   
-    srtcDate.hour = systemTime.wHour;  
-    srtcDate.minute = systemTime.wMinute;
-    srtcDate.second = systemTime.wSecond; 
-
-    // Set new date and start RTC        
-    SNVS_LP_SRTC_SetDatetime(SNVS, &srtcDate);
     
+    // TODO
+
+
   #else
     // TODO FIXME
     // need to add implementation when RTC is not being used
