@@ -80,7 +80,7 @@
 #endif
 #else
 #ifndef ENET_PRIORITY
-    #define ENET_PRIORITY       (6U)
+    #define ENET_PRIORITY       (3U)
 #endif
 #ifndef ENET_1588_PRIORITY
     #define ENET_1588_PRIORITY  (5U)

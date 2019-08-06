@@ -3,32 +3,28 @@
 // See LICENSE file in the project root for full license information.
 //
 
-#define HAL_USE_SERIAL_USB
-
 #include "board.h"
+
 #include <nanoHAL_v2.h>
 #include <WireProtocol.h>
 #include <WireProtocol_Message.h>
 #include <WireProtocol_HAL_interface.h>
 
+/* Debugging through USB port */
 #ifdef HAL_USE_SERIAL_USB
-
 #include "usb.h"
 #include "usb_vcom.h"
 #include "stream_buffer.h"
+#include "usb_device_config.h"
 
-#elif defined HAL_USE_SERIAL
 /* Debugging through serial port */
+#elif defined HAL_USE_SERIAL
 #include "fsl_lpuart_freertos.h"
 #include "fsl_lpuart.h"
-
 #endif
 
 WP_Message inboundMessage;
 
-USB_LINK_NONCACHE_NONINIT_DATA static uint8_t s_currSendBuf[0x1000];
-
-bool WP_Port_Intitialised = false;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // The functions bellow are the ones that need to be ported to new channels/HALs when required
@@ -41,59 +37,65 @@ bool WP_Port_Intitialised = false;
 
 #ifdef HAL_USE_SERIAL_USB
 
-extern usb_cdc_vcom_struct_t s_cdcVcom;
-extern usb_data_t s_cdc_data;
+extern usb_data_t * s_cdc_data_p;
+extern usb_device_composite_struct_t * g_composite_p;
 
 int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
-{
-    
+{    
     size_t bytes_received = 0;
     uint16_t requested_bytes = *size;
 
     if (requested_bytes == 0)
     {
-        vTaskDelay(pdMS_TO_TICKS(5)); /* Decide how responsive USB is, vs how much processing time it consumes */
-        return 1;
+        /* TODO: Check if this safecheck is needed. */
+        /* Wire Protocol may starve other threads while receiving zero bytes packets. */
+
+        // vTaskDelay(pdMS_TO_TICKS(20)); /* Decide how responsive USB is, vs how much processing time it consumes */
+        return true;
     }
     
+    xStreamBufferSetTriggerLevel(s_cdc_data_p->data_in[0], requested_bytes);
+    bytes_received = xStreamBufferReceive(s_cdc_data_p->data_in[0], (void *) ptr, requested_bytes, portMAX_DELAY);
 
-    xStreamBufferSetTriggerLevel(s_cdc_data.data_in, requested_bytes);
-    bytes_received = xStreamBufferReceive(s_cdc_data.data_in, (void *) ptr, requested_bytes, portMAX_DELAY);
-
-    if (bytes_received == requested_bytes)
-    {
-        *size -= bytes_received;
-        return 1;
-    }
-    return 0;
+    ptr  += bytes_received;
+    *size -= bytes_received;
+    return (bytes_received > 0); /* Watch performance and how this affects transmission */
 }
 
 int WP_TransmitMessage(WP_Message* message)
 {
     usb_status_t error = kStatus_USB_Error;
+    usb_cdc_vcom_struct_t *vcomInstance;
 
-    s_cdc_data.xWriteToNotify = xTaskGetCurrentTaskHandle();
+    s_cdc_data_p->xWriteToNotify[0] = xTaskGetCurrentTaskHandle();
+    vcomInstance = &g_composite_p->cdcVcom[0];
 
     uint8_t * send_addr = (uint8_t *) &(message->m_header);
     uint32_t send_size = sizeof(message->m_header);
 
     /* Check for buffer overflow */
-    if ((send_size + message->m_header.m_size) > sizeof(s_currSendBuf) / sizeof(uint8_t)) return 0;
+    if ((send_size + message->m_header.m_size) > sizeof(s_cdc_data_p->s_currSendBuf[0]) / sizeof(uint8_t))
+    { 
+        debug_printf("buffer overflow!");
+        configASSERT(1);
+        return 0;
+    }
 
-    memcpy(s_currSendBuf, send_addr, send_size);
-    memcpy(s_currSendBuf + send_size, (uint8_t *) (message->m_payload), message->m_header.m_size);
+    memcpy(s_cdc_data_p->s_currSendBuf[0], send_addr, send_size);
+    memcpy(s_cdc_data_p->s_currSendBuf[0] + send_size, (uint8_t *) (message->m_payload), message->m_header.m_size);
 
     send_size = send_size + message->m_header.m_size;
 
-    error = USB_DeviceSendRequest(s_cdcVcom.deviceHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, send_size);
+    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
     if (error != kStatus_USB_Success) return false;
 
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-
     return true; 
 }
 
 #elif defined HAL_USE_SERIAL
+
+bool WP_Port_Intitialised = false;
 
 static lpuart_rtos_handle_t handle;
 static struct _lpuart_handle t_handle;
