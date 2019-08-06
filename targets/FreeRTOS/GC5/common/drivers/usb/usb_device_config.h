@@ -51,7 +51,7 @@
 #define USB_DEVICE_CONFIG_HID (0U)
 
 /*! @brief CDC ACM instance count */
-#define USB_DEVICE_CONFIG_CDC_ACM (1U)
+#define USB_DEVICE_CONFIG_CDC_ACM (2U)
 
 /*! @brief MSC instance count */
 #define USB_DEVICE_CONFIG_MSC (0U)
@@ -80,7 +80,7 @@
 #define USB_DEVICE_CONFIG_SELF_POWER (1U)
 
 /*! @brief How many endpoints are supported in the stack. */
-#define USB_DEVICE_CONFIG_ENDPOINTS (4U)
+#define USB_DEVICE_CONFIG_ENDPOINTS (5U)
 
 /*! @brief Whether the device task is enabled. */
 #define USB_DEVICE_CONFIG_USE_TASK (0U)
@@ -149,7 +149,7 @@
 #endif
 
 /*! @brief Whether the device detached feature is enabled or not. */
-#define USB_DEVICE_CONFIG_DETACH_ENABLE (0U)
+#define USB_DEVICE_CONFIG_DETACH_ENABLE (1U)
 
 /*! @brief Whether handle the USB bus error. */
 #define USB_DEVICE_CONFIG_ERROR_HANDLING (0U)
