@@ -14,18 +14,13 @@
 
 #define __min(a,b) (((a) < (b)) ? (a) : (b))
 
-#if 0
-#define TRACE0( msg, ...) debug_printf( msg ) 
-#define TRACE( msg, ...) debug_printf( msg, __VA_ARGS__ ) 
+#if TRACE_MASK != 0
 char const* const AccessMemoryModeNames[] = {
 "AccessMemory_Check",
 "AccessMemory_Read", 
 "AccessMemory_Write",
 "AccessMemory_Erase"
 };
-#else
-#define TRACE0(msg,...)
-#define TRACE(msg,...)
 #endif
 
 //--//
@@ -496,7 +491,7 @@ bool CLR_DBG_Debugger::CheckPermission( ByteAddress address, int mode )
 bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInBytes, unsigned char* buf, int mode, unsigned int* errorCode )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
-    TRACE("AccessMemory( 0x%08X, 0x%08x, 0x%08X, %s)\n", location, lengthInBytes, buf, AccessMemoryModeNames[mode] );
+    TRACE(TRACE_STATE,"AccessMemory( 0x%08X, 0x%08x, 0x%08X, %s)\n", location, lengthInBytes, buf, AccessMemoryModeNames[mode] );
 
     bool success = false;
 
@@ -547,7 +542,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
                 // since AccessMemory_Check is always true and will not break from here, no need to check AccessMemory_Check to free memory.
                 if(!CheckPermission( accessAddress, mode ))
                 {
-                    TRACE0("=> Permission check failed!\n");
+                    TRACE0(TRACE_STATE, "=> Permission check failed!\n");
                     
                     // set error code
                     *errorCode = AccessMemoryErrorCode_PermissionDenied;
@@ -573,7 +568,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
 
                                 if(!bufPtr)
                                 {
-                                    TRACE0( "=> Failed to allocate data buffer\n");
+                                    TRACE0(TRACE_STATE, "=> Failed to allocate data buffer\n");
                                                         
                                     // set error code
                                     *errorCode = AccessMemoryErrorCode_PermissionDenied;
@@ -677,7 +672,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
 
         if((sectAddr <ramStartAddress) || (sectAddr >=ramEndAddress) || (sectAddrEnd >ramEndAddress) )
         {
-            TRACE(" Invalid address %x and range %x Ram Start %x, Ram end %x\r\n", sectAddr, lengthInBytes, ramStartAddress, ramEndAddress);
+            TRACE(TRACE_STATE," Invalid address %x and range %x Ram Start %x, Ram end %x\r\n", sectAddr, lengthInBytes, ramStartAddress, ramEndAddress);
             return success;
         }
         else
@@ -710,7 +705,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
         }
     }
 
-    TRACE0( "=> SUCCESS\n");
+    TRACE0(TRACE_STATE, "=> SUCCESS\n");
 
     return success;
 }
