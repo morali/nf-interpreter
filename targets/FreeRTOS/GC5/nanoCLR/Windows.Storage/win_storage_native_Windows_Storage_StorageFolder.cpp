@@ -50,10 +50,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetRemovableSt
 {
     NANOCLR_HEADER();
 
-    char* stringBuffer;
     uint32_t driveCount = 0;
-    char workingDrive[sizeof(DRIVE_PATH_LENGTH)];
-    uint16_t driveIterator = 0;
 
     CLR_RT_HeapBlock* storageFolder;
     CLR_RT_TypeDef_Index storageFolderTypeDef;
@@ -90,8 +87,9 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetRemovableSt
 
         // loop until we've loaded all the possible drives
         // because we are iterating through an enum, need to use its integer values
-        for(; driveIterator < driveCount; driveIterator++ )
+        for(uint16_t driveIterator = 0; driveIterator < driveCount; driveIterator++ )
         {
+            char workingDrive[sizeof(DRIVE_PATH_LENGTH)];
             // fill the folder name and path
             switch(driveIterator)
             {
@@ -117,7 +115,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetRemovableSt
             NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( hbObj[ Library_win_storage_native_Windows_Storage_StorageFolder::FIELD___path ], workingDrive ));
 
             // malloc stringBuffer to work with FS
-            stringBuffer = (char*)platform_malloc(FF_LFN_BUF + 1);
+            char* stringBuffer = (char*)platform_malloc(FF_LFN_BUF + 1);
 
             // sanity check for successfull malloc
             if(stringBuffer == NULL)
@@ -361,7 +359,6 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetStorageFile
 
     uint32_t startIndex;
     uint32_t maxItemsToRetrieve;
-    uint32_t itemIndex = 0;
 
     DIR             currentDirectory;
     FRESULT         operationResult;
@@ -402,6 +399,8 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetStorageFile
     }
     else
     {
+        uint32_t itemIndex = 0;
+
         // need to perform this in two steps
         // 1st: count the file objects
         // 2nd: create the array items with each file object
@@ -617,7 +616,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
             break;
 
         case CreationCollisionOption_OpenIfExists:
-            modeFlags = FA_OPEN_EXISTING;
+            modeFlags = FA_OPEN_ALWAYS;
             break;
     
         case CreationCollisionOption_GenerateUniqueName:
@@ -745,16 +744,29 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFolderNa
     //check if folder exists
     operationResult = f_stat(folderPath, &fileInfo);
 
-    //folder not exists
-    if (operationResult == FR_NO_FILE)
+    if (operationResult == FR_OK)
     {
-        if ( options == CreationCollisionOption_OpenIfExists)
+        if (options == CreationCollisionOption_FailIfExists)
         {
-            // folder doesn't exist
-            NANOCLR_SET_AND_LEAVE(CLR_E_DIRECTORY_NOT_FOUND);
+            // folder already exists
+            NANOCLR_SET_AND_LEAVE(CLR_E_PATH_ALREADY_EXISTS);
         }
-        else 
+        else if (options == CreationCollisionOption_ReplaceExisting) 
         {
+            // remove folder
+            operationResult = f_unlink(folderPath);
+            if (operationResult == FR_INVALID_NAME)
+            {
+                // Invalid path
+                NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
+            }
+            else if (operationResult == FR_DENIED)
+            {
+                //folder is propably not empty
+                //TODO - add recursive deletion of directories and files
+                NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
+            }
+
             // create directory
             operationResult = f_mkdir(folderPath);
 
@@ -768,18 +780,24 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFolderNa
                 NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
             }
         }
-        
-    }
-    else 
-    {
-        if (options == CreationCollisionOption_FailIfExists)
-        {
-            // folder already exists
-            NANOCLR_SET_AND_LEAVE(CLR_E_PATH_ALREADY_EXISTS);
-        }
         else if (options == CreationCollisionOption_GenerateUniqueName)
         {
             //TODO - add generating unique name
+            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
+        }
+    } 
+    else if (operationResult == FR_NO_FILE)
+    {
+        // create directory
+        operationResult = f_mkdir(folderPath);
+
+        if(operationResult == FR_OK)
+        {
+            f_stat(folderPath, &fileInfo);              
+        }
+        else
+        {
+            // failed to create the folder
             NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
         }
     }
@@ -853,7 +871,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::DeleteFolderNa
         strcat(workingDrive, "..");
 
         // change dir to parent
-        operationResult = f_chdir(workingDrive);
+        f_chdir(workingDrive);
 
         // try remove again
         operationResult = f_unlink(workingPath);
