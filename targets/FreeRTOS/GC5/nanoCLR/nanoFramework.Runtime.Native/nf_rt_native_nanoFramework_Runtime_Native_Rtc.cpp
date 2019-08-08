@@ -26,8 +26,12 @@ HRESULT Library_nf_rt_native_nanoFramework_Runtime_Native_Rtc::Native_RTC_SetSys
     {
         struct tm rtcTime;
 
-        rtcTime.tm_year  = (uint16_t) stack.Arg0().NumericByRef().s4;  
-        rtcTime.tm_mon   = (uint8_t) stack.Arg1().NumericByRef().u1; 
+        rtcTime.tm_year  = (uint16_t) stack.Arg0().NumericByRef().s4 - 1900; // User is allowed to set time in the range of 2000 - 2099
+        if(rtcTime.tm_year > 199 || rtcTime.tm_year < 100)
+        {
+            NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER); 
+        }
+        rtcTime.tm_mon   = (uint8_t) stack.Arg1().NumericByRef().u1 - 1; 
         rtcTime.tm_mday  = (uint8_t) stack.Arg2().NumericByRef().u1;   
         rtcTime.tm_hour  = (uint8_t) stack.Arg4().NumericByRef().u1;  
         rtcTime.tm_min   = (uint8_t )stack.Arg5().NumericByRef().u1;
@@ -41,5 +45,5 @@ HRESULT Library_nf_rt_native_nanoFramework_Runtime_Native_Rtc::Native_RTC_SetSys
         // Return value to the managed application
         stack.SetResult_Boolean(true);
     }
-    NANOCLR_NOCLEANUP_NOLABEL();
+    NANOCLR_NOCLEANUP();
 }

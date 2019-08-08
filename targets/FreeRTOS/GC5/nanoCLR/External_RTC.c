@@ -11,7 +11,6 @@
 //        RTC private declarations       //
 ///////////////////////////////////////////
 static struct tm rtcRealTime;
-static lpi2c_master_transfer_t rtcTransfer;
 
 
 
@@ -137,22 +136,17 @@ static void SaveRealTimeIntoStructure(struct tm *rtcTime, uint8_t *rtcRealReadTi
 /*                                                                                                          */
 /************************************************************************************************************/
 
-static void ConvertRealTimeIntoBcd(uint8_t *rtcTime)
+static void ConvertRealTimeIntoBcd(uint8_t *writeTime, struct tm *utcTime)
 {
-    for(uint8_t rtcRegister = SECONDS; rtcRegister <= YEARS; rtcRegister++)
-    {   
-        rtcTime[rtcRegister] = (rtcTime[rtcRegister] / 10 << 4) + (rtcTime[rtcRegister] % 10);
-    }
+    writeTime[SECONDS]  = ((utcTime->tm_sec  / 10) << 4) | (utcTime->tm_sec  % 10);
+    writeTime[MINUTES]  = ((utcTime->tm_min  / 10) << 4) | (utcTime->tm_min  % 10);
+    writeTime[HOURS]    = ((utcTime->tm_hour / 10) << 4) | (utcTime->tm_hour % 10);
+    writeTime[DAYS]     = ((utcTime->tm_mday / 10) << 4) | (utcTime->tm_mday % 10);
+    writeTime[WEEKDAYS] = (utcTime->tm_wday);
+    writeTime[MONTHS]   = (((utcTime->tm_mon  + 1)   / 10) << 4) | ((utcTime->tm_mon  + 1)   % 10);
+    writeTime[YEARS]    = (((utcTime->tm_year - 100) / 10) << 4) | ((utcTime->tm_year - 100) % 10);
 }
 
-
-
-static void ParseRealTimeIntoBcd(uint8_t *rtcTime)
-{
-    ConvertRealTimeIntoBcd(rtcTime);
-
-    MaskRtcData(rtcTime);
-}
 
 
 
@@ -171,23 +165,16 @@ struct tm *RTC_ReadTime()
 
 void RTC_SetTime(struct tm *rtcSetTime)
 {
-    uint8_t rtcWriteTime[RTC_DATA_SIZE];
+    rtcRealTime = *rtcSetTime; // Copy set time into real time structure to allow proper immediate read procedure
 
-    rtcWriteTime[SECONDS]  = rtcSetTime->tm_sec;
-    rtcWriteTime[MINUTES]  = rtcSetTime->tm_min;
-    rtcWriteTime[HOURS]    = rtcSetTime->tm_hour;
-    rtcWriteTime[DAYS]     = rtcSetTime->tm_mday;
-    rtcWriteTime[WEEKDAYS] = rtcSetTime->tm_wday;
-    rtcWriteTime[MONTHS]   = rtcSetTime->tm_mon;
-    rtcWriteTime[YEARS]    = rtcSetTime->tm_year - 2000;    // Substract 2000 to get year in the range of 0 to 99 (needed by PCF8563 - RTC)
+    lpi2c_master_transfer_t rtcWriteTransfer;
 
-    SaveRealTimeIntoStructure(&rtcRealTime, rtcWriteTime);   // Copy set time into real time structure to ensure proper
-                                                             // "immediate" read procedure after setting time
+    uint8_t writeTime[RTC_DATA_SIZE];
+    ConvertRealTimeIntoBcd(writeTime, rtcSetTime);
 
-    ParseRealTimeIntoBcd(rtcWriteTime);
-
-    I2C_SetBufferAndDirection(&rtcTransfer, rtcWriteTime, RTC_DATA_SIZE, WRITE);
-    LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcTransfer);
+    I2C_MasterStructureInit(&rtcWriteTransfer, RTC_I2C3_ADDRESS, RTC_VL_SECONDS_REGISTER, RTC_REGISTER_SIZE, DEFAULT_FLAG);
+    I2C_SetBufferAndDirection(&rtcWriteTransfer, writeTime, RTC_DATA_SIZE, WRITE);
+    LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcWriteTransfer);
 }
 
 
@@ -202,23 +189,24 @@ void RTC_SetTime(struct tm *rtcSetTime)
 void vRtcThread(void *pvParameters)
 {   
     (void)pvParameters;
+    lpi2c_master_transfer_t rtcReadTransfer;
     uint8_t rtcReadTime[RTC_DATA_SIZE];
     struct tm rtcTempTime;
         
-    I2C_MasterStructureInit(&rtcTransfer, RTC_I2C3_ADDRESS, RTC_VL_SECONDS_REGISTER, RTC_REGISTER_SIZE, DEFAULT_FLAG);
+    I2C_MasterStructureInit(&rtcReadTransfer, RTC_I2C3_ADDRESS, RTC_VL_SECONDS_REGISTER, RTC_REGISTER_SIZE, DEFAULT_FLAG);
+    I2C_SetBufferAndDirection(&rtcReadTransfer, rtcReadTime, RTC_DATA_SIZE, READ);
 
     for(;;)
     {
-        I2C_SetBufferAndDirection(&rtcTransfer, rtcReadTime, RTC_DATA_SIZE, READ);
-        LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcTransfer);
-
+        LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcReadTransfer);
+      
         if (ParseBcdIntoRealTime(rtcReadTime) == kStatus_Success)
         {
             SaveRealTimeIntoStructure(&rtcTempTime, rtcReadTime);
             time_t checkTime1 = mktime(&rtcTempTime);
 
-            LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcTransfer);
-
+            LPI2C_RTOS_Transfer(&i2c3.masterRtosHandle, &rtcReadTransfer);
+            
             if (ParseBcdIntoRealTime(rtcReadTime) == kStatus_Success)
             {
                 SaveRealTimeIntoStructure(&rtcTempTime, rtcReadTime);
@@ -228,12 +216,10 @@ void vRtcThread(void *pvParameters)
                 {
                     // RTC time read correctly
                     rtcRealTime = rtcTempTime;                    
-
-
-                    vTaskDelay(pdMS_TO_TICKS(400));
                 }
             }
         }
+        vTaskDelay(pdMS_TO_TICKS(400));
     }
     vTaskDelete(NULL);
 }
