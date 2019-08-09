@@ -17,11 +17,11 @@ static struct tm rtcRealTime;
 
 /************************************************************************************************************/
 /*                                                                                                          */
-/*                                          RTC USEFUL DEFINES                                              */
+/*                                            RTC DEFINES                                                   */
 /*                                                                                                          */
 /************************************************************************************************************/
 
-/* RTC generic declarations */
+/* RTC generic defines */
 #define RTC_I2C3_ADDRESS           (uint16_t)0x51
 #define RTC_DATA_SIZE              (size_t)0x07
 #define RTC_REGISTER_SIZE          (size_t)0x01
@@ -29,14 +29,6 @@ static struct tm rtcRealTime;
 
 /* RTC registers addresses */
 #define RTC_VL_SECONDS_REGISTER    (uint8_t)0x02
-
-
-/* RTC read/write flags */
-#define READ     kLPI2C_Read
-#define WRITE    kLPI2C_Write
-
-/* RTC default transfer flag */
-#define DEFAULT_FLAG kLPI2C_TransferDefaultFlag
 
 
 /* RTC registers positions */
