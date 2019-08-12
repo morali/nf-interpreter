@@ -1,0 +1,18 @@
+build:
+  stage: build
+
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake -DTOOLCHAIN_PREFIX="C:/nanoFramework_Tools/GNU_ARM_Toolchain/7 2018-q2-update" -DCMAKE_BUILD_TYPE=MinSizeRel -DTARGET_SERIES=IMXRT10xx -DRTOS=FREERTOS -DFREERTOS_BOARD=UAC18 -DFREERTOS_VERSION="v1.4.8" -DCMSIS_VERSION="5.5.1" -DFATFS_VERSION="R0.13c" -DLWIP_VERSION="STABLE-2_0_3_RELEASE" -DNF_FEATURE_DEBUGGER=ON -DSUPPORT_ANY_BASE_CONVERSION=ON -DNF_FEATURE_HAS_SDCARD=ON -DNF_FEATURE_RTC=ON -DNF_FEATURE_HAS_CONFIG_BLOCK=ON -DAPI_Windows.Devices.Gpio=ON -DAPI_Windows.Devices.SerialCommunication=ON -DAPI_System.Net=ON -G "Ninja" ../
+    - ninja
+
+  cache:
+    paths:
+      - build/*_Download
+      - build/*_Source
+
+  artifacts:
+    paths:
+      - "build/nano*.*"
+    expire_in: 30 days
