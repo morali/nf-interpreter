@@ -3,8 +3,43 @@
 
 #include "nanoUSB.h"
 
+#include "fsl_lpuart_freertos.h"
+#include "fsl_lpuart.h"
+
 extern usb_data_t s_cdc_data;
 extern usb_device_composite_struct_t * g_composite_p;
+
+bool WP_Port_Intitialised = false;
+
+static lpuart_rtos_handle_t handle;
+static struct _lpuart_handle t_handle;
+uint8_t background_buffer[0x1500];
+
+lpuart_rtos_config_t lpuart_config = {
+    .baudrate = 115200,
+    .parity = kLPUART_ParityDisabled,
+    .stopbits = kLPUART_OneStopBit,
+    .buffer = background_buffer,
+    .buffer_size = sizeof(background_buffer),
+    };
+
+bool WP_Initialise()
+{
+ 
+    NVIC_SetPriority(BOARD_UART_IRQ, 2);
+
+    lpuart_config.srcclk = BOARD_DebugConsoleSrcFreq();
+    lpuart_config.base = LPUART8;
+
+    int ret = LPUART_RTOS_Init(&handle, &t_handle, &lpuart_config);
+    WP_Port_Intitialised = (ret == 0);
+ 
+    if (!WP_Port_Intitialised) {
+        vTaskSuspend(NULL);
+    }
+    
+    return WP_Port_Intitialised;
+}
 
 /* Initialize USB port during nanoCLR initialization. */
 bool DebuggerPort_Initialize(COM_HANDLE comPortNum)
@@ -37,21 +72,12 @@ uint32_t GenericPort_Write( int portNum, const char* data, size_t size )
     NATIVE_PROFILE_PAL_COM();
 
     if(!DebuggerPort_Initialize(0)) return 0;
+    
+    if (!WP_Port_Intitialised) WP_Initialise();
 
-    usb_status_t error = kStatus_USB_Error;
-    usb_cdc_vcom_struct_t *vcomInstance;
-    vcomInstance = &g_composite_p->cdcVcom[1];
+    LPUART_RTOS_Send(&handle, (uint8_t *)data, size);
 
-    s_cdc_data.xWriteToNotify[1] = xTaskGetCurrentTaskHandle();
-
-    if (size > sizeof(s_cdc_data.s_currSendBuf[1]) / sizeof(uint8_t)) return 0;
-    memcpy(s_cdc_data.s_currSendBuf[1], data, size);
-
-    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data.s_currSendBuf[1], size);
-    if (error != kStatus_USB_Success) return 0;
-
-    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(100));
-
+    if(!DebuggerPort_Initialize(0)) return 0;
     return (uint32_t)size;
     (void)portNum;
 }
