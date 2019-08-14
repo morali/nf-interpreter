@@ -214,7 +214,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Initalize DMAMUX and setup channel for LPUART */
         /* TODO: Implement different mux than LPUART3 */
         DMAMUX_Init(DMAMUX);
-        DMAMUX_SetSource(DMAMUX, LPUART_TX_DMA_CHANNEL, kDmaRequestMuxLPUART3Tx);
+        DMAMUX_SetSource(DMAMUX, LPUART_TX_DMA_CHANNEL, kDmaRequestMuxLPUART2Tx);
         DMAMUX_EnableChannel(DMAMUX, LPUART_TX_DMA_CHANNEL);        
 
         /* Initialize DMA with default config and setup callback handles */
@@ -258,12 +258,15 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         LPUART_Type *base = NULL;        
 
         uartNum = pThis[ FIELD___portIndex ].NumericByRef().s4;
-        config = &Uart_PAL[uartNum]->uartCfg;
-        base = lpuart_bases[uartNum];
+        /* for now only one serial port is avaliable on board, so set it to LP_UART2 */
+        config = &Uart_PAL[2]->uartCfg;
+        base = lpuart_bases[2];
+        // config = &Uart_PAL[uartNum]->uartCfg;
+        // base = lpuart_bases[uartNum];
 
         if (config == NULL || base == NULL || uartNum > 8) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
 
-        config->baudRate_Bps = (uint32_t)pThis[ FIELD___baudRate ].NumericByRef().s4;
+                config->baudRate_Bps = (uint32_t)pThis[ FIELD___baudRate ].NumericByRef().s4;
 
         switch( pThis[ FIELD___dataBits ].NumericByRef().s4 )
         {
@@ -287,21 +290,9 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
                 config->parityMode = kLPUART_ParityOdd; break;
         }
 
-        /* TODO: Implement the rest of handshake */
-        switch ( pThis[ FIELD___handshake ].NumericByRef().s4 )
-        {
-            default:
-                NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER); break;
-            case SerialHandshake_None:
-                config->enableRxRTS = false;
-                config->enableTxCTS = false;
-                break;
-            case SerialHandshake_RequestToSend:
-                config->enableRxRTS = true;
-                config->enableTxCTS = false;
-                break;
-         /* case SerialHandshake_RequestToSendXOnXOff: */
-        }
+        /* enable RTS  */
+        config->enableRxRTS = false;
+        config->enableTxCTS = false;
 
         /* write config to UART peripheral */
         status = LPUART_Init(base, config, GetSrcFreq());     
@@ -315,6 +306,10 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         base->CTRL &= ~(1U << 18);
         /* Enable receiver interrupt */        
         base->CTRL |= 1U << 21; 
+
+        base->MODIR |= LPUART_MODIR_TXRTSE(1);
+        base->MODIR |= LPUART_MODIR_TXRTSPOL(1);
+
         /* Enable overrun interrupt */
         // base->CTRL |= 1U << 27; 
         /* Renable receiver and transmitter */
@@ -622,7 +617,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
    NANOCLR_HEADER();
    {
        /* declare the device selector string whose max size is "COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8" + terminator */
-       char deviceSelectorString[ 40 ] = "COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8";
+       char deviceSelectorString[ 5 ] = "COM1";
 
        /* because the caller is expecting a result to be returned */
        /* we need set a return result in the stack argument using the a ppropriate SetResult according to the variable type (a string here) */
