@@ -596,9 +596,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STAT
             // store this to the argument passed byref
             NANOCLR_CHECK_HRESULT(hbText.StoreToReference( stack.Arg1(), 0 ));
 
-            // get a pointer to the buffer array to improve readability on the code ahead
-            hbText.DereferenceString();
-
             // setup FileIO operation
             fileIoOperation = (FileOperation*)platform_malloc(sizeof(FileOperation));
 
