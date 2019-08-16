@@ -7,6 +7,8 @@
 #define _WIN_DEV_SERIAL_NATIVE_TARGET_H_
 
 #define LPUART_TX_DMA_CHANNEL 0U
+#define UART_DMA_INTERRUPT_PRIO 5U
+#define UART_INTERRUPT_PRIO 5U
 
 #include <target_windows_devices_serialcommunication_config.h>
 #include <win_dev_serial_native.h>
@@ -38,7 +40,7 @@ typedef struct
 
     lpuart_config_t uartCfg;
     edma_config_t edmaCfg;
-    
+
     lpuart_edma_handle_t g_lpuartEdmaHandle;
     edma_handle_t g_lpuartTxEdmaHandle;
 
@@ -47,7 +49,7 @@ typedef struct
     uint16_t TxOngoingCount;
     uint8_t WatchChar;
     SemaphoreHandle_t xRxSemaphore = NULL;
-    TaskHandle_t xWriteTaskToNotify = NULL;    
+    TaskHandle_t xWriteTaskToNotify = NULL;
     TaskHandle_t xReadTaskToNotify = NULL;
 
     StreamBufferHandle_t xReceiveBuffer;
@@ -61,7 +63,7 @@ typedef struct
 
 /* TODO: This is implementation of one UART devices, need to add the rest of structures or find better way to keep uarts config */
 
-LPUART_Type *const lpuart_bases[] = LPUART_BASE_PTRS;
+LPUART_Type *const lpuart_bases[] = { (LPUART_Type *)0u, LPUART2, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 extern NF_PAL_UART Uart_PAL1;
 extern NF_PAL_UART Uart_PAL2;
