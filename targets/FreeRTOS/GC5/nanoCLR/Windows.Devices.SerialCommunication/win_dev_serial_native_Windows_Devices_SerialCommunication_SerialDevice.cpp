@@ -306,7 +306,9 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Enable receiver interrupt */        
         base->CTRL |= 1U << 21; 
 
+        /* Enable TX RTS */
         base->MODIR |= LPUART_MODIR_TXRTSE(1);
+        /* Set proper polarisation of RTS for UAC18 board */
         base->MODIR |= LPUART_MODIR_TXRTSPOL(1);
 
         /* Enable overrun interrupt */
