@@ -89,6 +89,8 @@ static void UART_Handle(LPUART_Type *base, uint8_t uartNum)
                                         &xHigherPriorityTaskWoken);
             }
         }
+        /* protect when buffer is full (just read byte and clear interrupt) */
+        byte = LPUART_ReadByte(base);
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -206,10 +208,10 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Enable RX interrupts */
         LPUART_EnableInterrupts(base, kLPUART_RxDataRegFullInterruptEnable | kLPUART_RxOverrunInterruptEnable);
         EnableIRQ((IRQn_Type) (19 + uartNum));
-        NVIC_SetPriority((IRQn_Type) (19 + uartNum), 8U);
+        NVIC_SetPriority((IRQn_Type) (19 + uartNum), UART_INTERRUPT_PRIO);
         
         /* Set lower priority of DMA UART interrupt for FreeRTOS interrupt task to work */
-        NVIC_SetPriority(DMA0_DMA16_IRQn, 10U); 
+        NVIC_SetPriority(DMA0_DMA16_IRQn, UART_DMA_INTERRUPT_PRIO); 
 
         /* Initalize DMAMUX and setup channel for LPUART */
         /* TODO: Implement different mux than LPUART3 */
@@ -258,11 +260,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         LPUART_Type *base = NULL;        
 
         uartNum = pThis[ FIELD___portIndex ].NumericByRef().s4;
-        /* for now only one serial port is avaliable on board, so set it to LP_UART2 */
-        config = &Uart_PAL[2]->uartCfg;
-        base = lpuart_bases[2];
-        // config = &Uart_PAL[uartNum]->uartCfg;
-        // base = lpuart_bases[uartNum];
+        config = &Uart_PAL[uartNum]->uartCfg;
+        base = lpuart_bases[uartNum];
 
         if (config == NULL || base == NULL || uartNum > 8) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
 
