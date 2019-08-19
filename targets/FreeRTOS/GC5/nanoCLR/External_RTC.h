@@ -17,8 +17,6 @@ extern "C" {
 #include "task.h"
 #include "time.h"
 
-#include <nanoHAL_Types.h>
-
 
 
 

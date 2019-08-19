@@ -255,7 +255,7 @@ void BOARD_InitPins(void) {
       IOMUXC_GPIO_AD_B0_11_JTAG_TRSTB,        /* GPIO_AD_B0_11 is configured as JTAG_TRSTB */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
-      IOMUXC_GPIO_AD_B0_12_LPUART1_TX,        /* GPIO_AD_B0_12 is configured as LPUART1_TX */
+      IOMUXC_GPIO_AD_B0_12_GPIO1_IO12,        /* GPIO_AD_B0_12 is configured as GPIO1_IO12 */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_B0_13_LPUART1_RX,        /* GPIO_AD_B0_13 is configured as LPUART1_RX */
