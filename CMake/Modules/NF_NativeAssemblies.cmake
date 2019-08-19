@@ -34,6 +34,10 @@ option(API_Hardware.Esp32                       "option for Hardware.Esp32")
 option(API_Hardware.Stm32                       "option for Hardware.Stm32")
 
 
+# iSMA only
+option(API_iSMA.GPIO                            "option for iSMA.GPIO")
+
+
 #################################################################
 # macro to perform individual settings to add an API to the build
 macro(PerformSettingsForApiEntry apiNamespace)
@@ -73,6 +77,13 @@ endmacro()
 ############################################################################################
 
 macro(ParseNativeAssemblies)
+
+    # iSMA.GPIO
+    if(API_iSMA.GPIO)
+        ##### API name here (doted name)
+        PerformSettingsForApiEntry("iSMA.GPIO")
+    endif()
+
 
     # Hardware.Esp32
     if(API_Hardware.Esp32)

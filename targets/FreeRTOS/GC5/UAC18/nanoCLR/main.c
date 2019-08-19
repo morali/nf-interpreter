@@ -11,6 +11,7 @@
 #include "MIMXRT1062.h"
 #include "fsl_debug_console.h"
 #include "hyperRAM.h"
+#include "spi.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -25,6 +26,7 @@
 #include "External_RTC.h"
 #include "MAC_address.h"
 #include "GlobalEventsFlags.h"
+#include "Panel.h"
 
 
 //configure heap memory
@@ -53,6 +55,7 @@ int main(void)
 
     BOARD_InitHyperRAM();
     I2C3_InitPeripheral();
+    SPI2_InitPeripheral();
     GlobalEventsFlags_Init();
     //SCB_DisableDCache();
 
@@ -62,6 +65,7 @@ int main(void)
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 14, NULL);
     xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
+    xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 14, NULL);
     
     vTaskStartScheduler();
 
