@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "isma_localio_native_native.h"
+#include "isma_localio_native.h"
 
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI( CLR_RT_StackFrame& stack )

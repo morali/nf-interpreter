@@ -12,6 +12,9 @@
 #ifndef _ISMA_LOCALIO_NATIVE_H_
 #define _ISMA_LOCALIO_NATIVE_H_
 
+#include <nanoCLR_Interop.h>
+#include <nanoCLR_Runtime.h>
+
 struct Library_isma_localio_native_iSMA_LocalIO_AO
 {
     static const int FIELD_STATIC__Empty = 0;
@@ -49,6 +52,7 @@ struct Library_isma_localio_native_iSMA_LocalIO_DO
 
     NANOCLR_NATIVE_DECLARE(DOSetNative___VOID__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(DOGetNative___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(DOInitNative___BOOLEAN);
 
     //--//
 

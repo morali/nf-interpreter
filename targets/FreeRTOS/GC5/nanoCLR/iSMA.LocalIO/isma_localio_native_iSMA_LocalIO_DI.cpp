@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "isma_localio_native_native.h"
+#include "isma_localio_native.h"
 
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_DI::DIGetNative___BOOLEAN( CLR_RT_StackFrame& stack )
