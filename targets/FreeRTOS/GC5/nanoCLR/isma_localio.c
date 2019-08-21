@@ -96,7 +96,7 @@ void SPI3Init()
     
 
     vTaskDelay(pdMS_TO_TICKS(90));	//dodatkowy delay bo inaczej nie drukuje komunikatów na konsole
-    configASSERT(status == kStatus_Success);
+    configASSERT(status =! kStatus_Success);
 }
 
 

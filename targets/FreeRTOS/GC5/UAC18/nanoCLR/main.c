@@ -55,7 +55,7 @@ int main(void)
 
     BOARD_InitHyperRAM();
     I2C3_InitPeripheral();
-    SPI2_InitPeripheral();
+    SPI_InitPeripheral();
     GlobalEventsFlags_Init();
     //SCB_DisableDCache();
 

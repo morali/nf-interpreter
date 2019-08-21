@@ -11,18 +11,32 @@
 #include "fsl_gpio.h"
 #include "fsl_lpspi_freertos.h"
 
+
+#define LPSPI2_CLOCK_SOURCE_DIVIDER (7U)
+
+#define LPSPI2_BAUDRATE 1000000U
+#define LPSPI2_IRQ_PRIO 5U
+#define LPSPI2_CLOCK_FREQUENCY                                                 \
+  (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
+
+#define LPSPI3_BAUDRATE 1000000U
+#define LPSPI3_IRQ_PRIO 5U
+#define LPSPI3_CLOCK_FREQUENCY                                                 \
+  (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
+
 /************************************************************************************************************/
 /*                                                                                                          */
 /*                                      SPI STRUCTURES DECLARATIONS                                         */
 /*                                                                                                          */
 /************************************************************************************************************/
 
-typedef struct {
+typedef struct spi_t {
   lpspi_master_config_t masterConfig;
   lpspi_rtos_handle_t masterRtosHandle;
-} spi_t;
+} spi_s;
 
-extern spi_t spi2;
+extern spi_s spi2;
+extern spi_s spi3;
 
 /************************************************************************************************************/
 /*                                                                                                          */
@@ -30,6 +44,6 @@ extern spi_t spi2;
 /*                                                                                                          */
 /************************************************************************************************************/
 
-void SPI2_InitPeripheral(void);
+void SPI_InitPeripheral(void);
 
 #endif /* SPI_H_ */
