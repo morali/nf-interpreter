@@ -17,6 +17,7 @@
 #include "task.h"
 
 #include <nanoHAL_v2.h>
+#include <Target_Windows_Storage.h>
 
 #include <WireProtocol_ReceiverThread.h>
 #include <nanoCLR_Application.h>
@@ -43,6 +44,18 @@ void dummyFunction(void) __attribute__((used));
 // Never called.
 void dummyFunction(void) {
     vTaskSwitchContext();
+}
+
+//Handle FreeRTOS Stack Overflow
+void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {
+  (void)pxTask;
+  (void)pcTaskName;
+  // forces a breakpoint causing the debugger to stop
+  // if no debugger is attached this is ignored
+  __BKPT(0);
+
+  // If no debugger connected, just reset the board
+  NVIC_SystemReset();
 }
 
 int main(void)

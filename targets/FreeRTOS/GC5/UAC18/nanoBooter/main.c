@@ -44,6 +44,18 @@ void dummyFunction(void) {
     vTaskSwitchContext();
 }
 
+//Handle FreeRTOS Stack Overflow
+void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {
+  (void)pxTask;
+  (void)pcTaskName;
+  // forces a breakpoint causing the debugger to stop
+  // if no debugger is attached this is ignored
+  __BKPT(0);
+
+  // If no debugger connected, just reset the board
+  NVIC_SystemReset();
+}
+
 static void blink_task(void *pvParameters)
 {
     (void)pvParameters;
