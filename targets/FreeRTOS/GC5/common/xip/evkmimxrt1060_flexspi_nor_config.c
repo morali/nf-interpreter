@@ -14,7 +14,7 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
-__attribute__((section(".boot_hdr.conf")))
+__attribute__((section(".boot_hdr.conf"))) __attribute__((used))
 const flexspi_nor_config_t qspiflash_config = {
     .memConfig =
         {
