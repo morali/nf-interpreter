@@ -47,8 +47,6 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOInitNative___BOOLEAN( CLR
 {
     NANOCLR_HEADER();
 
-    SPI3Init();
-
     NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
 
     NANOCLR_NOCLEANUP();

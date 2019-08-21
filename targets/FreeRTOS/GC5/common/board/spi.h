@@ -19,6 +19,7 @@
 #define LPSPI2_CLOCK_FREQUENCY                                                 \
   (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
 
+#define LPSPI3_BUFFSIZE 3U
 #define LPSPI3_BAUDRATE 1000000U
 #define LPSPI3_IRQ_PRIO 5U
 #define LPSPI3_CLOCK_FREQUENCY                                                 \
@@ -30,13 +31,13 @@
 /*                                                                                                          */
 /************************************************************************************************************/
 
-typedef struct spi_t {
+typedef struct _spi {
   lpspi_master_config_t masterConfig;
   lpspi_rtos_handle_t masterRtosHandle;
-} spi_s;
+} spi_t;
 
-extern spi_s spi2;
-extern spi_s spi3;
+extern spi_t s_spi2;
+extern spi_t s_spi3;
 
 /************************************************************************************************************/
 /*                                                                                                          */
