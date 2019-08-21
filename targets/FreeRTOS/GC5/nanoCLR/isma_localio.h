@@ -3,7 +3,6 @@
 extern "C" {
 #endif
 
-
 #ifndef _ISMA_LOCALIO_H_
 #define _ISMA_LOCALIO_H_
 
@@ -18,42 +17,19 @@ extern "C" {
 #define LPSPI3_BAUDRATE 2000000U
 #define LPSPI3_BUFFSIZE 3U
 
-static const char *DOuputs[] = {
-  [0] = "DO1", 
-  [1] = "DO2", 
-  [2] = "DO3", 
-  [3] = "DO4",
-  [4] = "DO5"
-};
-#define DOutputsNo (sizeof(DOuputs) / sizeof(DOuputs[0]))
-
-static const char *AOutputs[] = {
-  [0] = "UI1",
-  [1] = "UI2",
-  [2] = "UI3",
-  [3] = "UI4"
-};
-#define AOutputsNo (sizeof(AOutputs) / sizeof(AOutputs[0]))
-
-static const char *DInputs[] = {
-  [0] = "DI1",
-  [1] = "DI2",
-  [2] = "DI3",
-  [3] = "DI4"
-};
-#define DInputsNo (sizeof(DInputs) / sizeof(DInputs[0]))
-
-static const char *UInputs[] = {
-  [0] = "UI1",
-  [1] = "UI2",
-  [2] = "UI3",
-  [3] = "UI4"
-};
-#define UInputsNo (sizeof(UInputs) / sizeof(UInputs[0]))
+#define DO_OutputsNo (sizeof(DO_Ouputs) / sizeof(DO_Ouputs[0]))
+// #define AO_utputsNo (sizeof(AOOutputs) / sizeof(AOOutputs[0]))
+// #define DI_InputsNo (sizeof(DInputs) / sizeof(DInputs[0]))
+// #define UI_InputsNo (sizeof(UInputs) / sizeof(UInputs[0]))
 
 void SPI3Init();
 
-uint32_t getDOutputNumber();
+uint32_t GetDONumber();
+const char *GetDOName(uint32_t DONumber);
+
+bool GetDO(uint32_t);
+
+void SetDO(bool, uint32_t);
 
 typedef struct _local_io
 {

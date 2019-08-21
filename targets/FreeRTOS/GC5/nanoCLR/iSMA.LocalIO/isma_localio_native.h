@@ -14,6 +14,7 @@
 
 #include <nanoCLR_Interop.h>
 #include <nanoCLR_Runtime.h>
+#include "isma_localio.h"
 
 struct Library_isma_localio_native_iSMA_LocalIO_AO
 {
