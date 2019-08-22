@@ -15,7 +15,7 @@
  *  IVT Data 
  *************************************/
 
-__attribute__((section(".boot_hdr.ivt")))
+__attribute__((section(".boot_hdr.ivt"))) __attribute__((used))
 const ivt image_vector_table = {
   IVT_HEADER,                         /* IVT Header */
   IMAGE_ENTRY_ADDRESS,                /* Image Entry Function */
@@ -30,7 +30,7 @@ const ivt image_vector_table = {
 /************************************* 
  *  Boot Data 
  *************************************/
-__attribute__((section(".boot_hdr.boot_data")))
+__attribute__((section(".boot_hdr.boot_data"))) __attribute__((used))
 const BOOT_DATA_T boot_data = {
   FLASH_BASE,                 /* boot start location */
   FLASH_SIZE,                 /* size */

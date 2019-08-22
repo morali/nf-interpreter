@@ -53,7 +53,7 @@ struct Library_isma_localio_native_iSMA_LocalIO_DO
 
     NANOCLR_NATIVE_DECLARE(DOSetNative___VOID__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(DOGetNative___BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(DOInitNative___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(DOToggleNative___BOOLEAN);
 
     //--//
 

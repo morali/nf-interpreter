@@ -6,6 +6,7 @@
  */
 
 #include "Panel.h"
+#include "FreeRTOSCommonHooks.h"
 #include "spi.h"
 
 ///////////////////////////////////////////
@@ -167,13 +168,13 @@ void vPanelThread(void *pvParameters) {
 
     // Load dipswitch and LEDs state into data latch of second shift register
     SPI2_CS_SET(); 
-    vTaskDelay(pdMS_TO_TICKS(1));
+    FreeRTOSDelay(1);
     SPI2_CS_CLEAR();
-    vTaskDelay(pdMS_TO_TICKS(1));
+    FreeRTOSDelay(1);
     SPI2_CS_SET(); 
-    vTaskDelay(pdMS_TO_TICKS(1));
+    FreeRTOSDelay(1);
     SPI2_CS_CLEAR();
-    vTaskDelay(pdMS_TO_TICKS(1));
+    FreeRTOSDelay(1);
 
     // Load data with dipswitch state into data latch of first shift register
     PARALLEL_LOAD_ENABLE();
@@ -189,6 +190,6 @@ void vPanelThread(void *pvParameters) {
     }
     CheckAndSaveDipswitchState(dipswitchData);
 
-    vTaskDelay(pdMS_TO_TICKS(10));
+    FreeRTOSDelay(10);
   }
 }
