@@ -39,9 +39,9 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {
 /* FreeRTOS application idle hook */
 void vApplicationIdleHook(void) {
   /* Best to sleep here until next systick */
-  __DSB();
-  __WFI();
-  __ISB();
+  // __DSB();
+  // __WFI();
+  // __ISB();
 }
 
 /* FreeRTOS malloc fail hook */
@@ -56,10 +56,6 @@ void vApplicationMallocFailedHook(void) {
 }
 
 /* Delay for the specified number of milliSeconds */
-void FreeRTOSDelay(uint32_t ms)
-{
-	TickType_t xDelayTime= xTaskGetTickCount();
-
-  TickType_t xMs = pdMS_TO_TICKS(ms);
-	vTaskDelayUntil(&xDelayTime, xMs);
+void FreeRTOSDelay(uint32_t ms) {
+  vTaskDelay(pdMS_TO_TICKS(ms));
 }
