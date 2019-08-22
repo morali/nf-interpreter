@@ -13,6 +13,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "FreeRTOSCommonHooks.h"
 
 #include <targetHAL.h>
 #include <WireProtocol_ReceiverThread.h>
@@ -32,30 +33,6 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 #define LED_GPIO GPIO1
 #define LED_GPIO_PIN (8U)
 
-// Need to have calls to these two functions in C code.
-// Because they are called only on asm code, GCC linker with LTO option thinks they are not used and just removes them.
-// Having them called from a dummy function that is never called it a workaround for this.
-// The clean alternative would be to add the GCC attribute used in those functions, but that's not our code to touch.
-
-void dummyFunction(void) __attribute__((used));
-
-// Never called.
-void dummyFunction(void) {
-    vTaskSwitchContext();
-}
-
-//Handle FreeRTOS Stack Overflow
-void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {
-  (void)pxTask;
-  (void)pcTaskName;
-  // forces a breakpoint causing the debugger to stop
-  // if no debugger is attached this is ignored
-  __BKPT(0);
-
-  // If no debugger connected, just reset the board
-  NVIC_SystemReset();
-}
-
 static void blink_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -68,9 +45,9 @@ static void blink_task(void *pvParameters)
 
     for (;;)
     {
-        vTaskDelay(100);
+        FreeRTOSDelay(100);
         GPIO_PortToggle(LED_GPIO, 1u << LED_GPIO_PIN);
-        vTaskDelay(500);
+        FreeRTOSDelay(500);
         GPIO_PortToggle(LED_GPIO, 1u << LED_GPIO_PIN);
     }
 }

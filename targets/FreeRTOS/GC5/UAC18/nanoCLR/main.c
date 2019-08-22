@@ -34,30 +34,6 @@
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 
-// Need to have calls to these two functions in C code.
-// Because they are called only on asm code, GCC linker with LTO option thinks they are not used and just removes them.
-// Having them called from a dummy function that is never called it a workaround for this.
-// The clean alternative would be to add the GCC attribute used in those functions, but that's not our code to touch.
-
-void dummyFunction(void) __attribute__((used));
-
-// Never called.
-void dummyFunction(void) {
-    vTaskSwitchContext();
-}
-
-//Handle FreeRTOS Stack Overflow
-void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {
-  (void)pxTask;
-  (void)pcTaskName;
-  // forces a breakpoint causing the debugger to stop
-  // if no debugger is attached this is ignored
-  __BKPT(0);
-
-  // If no debugger connected, just reset the board
-  NVIC_SystemReset();
-}
-
 int main(void)
 {
     BOARD_InitBootPins();
@@ -76,7 +52,7 @@ int main(void)
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);
     xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 15, NULL);
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 14, NULL);
-    xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
+    xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE + 16, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 14, NULL);
     
