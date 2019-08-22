@@ -9,7 +9,7 @@
 
 static uint8_t MCP3421_cfg = 0;
 
-#define MCP3421_addr 0xD0
+#define MCP3421_addr (0xD0 >> 1)
 
 #define Gain_offset 0
 #define SampleRate_offset 2

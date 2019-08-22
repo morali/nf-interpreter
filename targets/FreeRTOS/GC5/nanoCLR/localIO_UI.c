@@ -5,14 +5,13 @@
  */
 
 #include "MCP3421.h"
+#include "isma_localio.h"
 
 typedef enum {
   SelectRefChannel,
   StartConvertRef,
   ReadRef
 } UIState_t;
-
-#define ADC_VREF_UI_CHANNEL 8
 
 void vLocalIO_UI(void *argument) {
   (void)argument;
@@ -25,7 +24,7 @@ void vLocalIO_UI(void *argument) {
     switch (state) {
     case SelectRefChannel:
       //Measure Reference voltage
-      //UniInSetChannel(ADC_VREF_UI_CHANNEL);
+      SetUIChannel(VREF);
       status = MCP3421_SetGainSampleRate(Gain_1, SampleRate_12bit);
       if (status == kStatus_Success) {
         state = StartConvertRef;
@@ -38,16 +37,15 @@ void vLocalIO_UI(void *argument) {
       }
       break;
     case ReadRef:
-        status = MCP3421_ReadADC(&adc_value);
-        if (status == kStatus_Success)
-        {
-            // VRef is divided by 2
-            adc_value *= 2;
+      status = MCP3421_ReadADC(&adc_value);
+      if (status == kStatus_Success) {
+        // VRef is divided by 2
+        adc_value *= 2;
 
-            // Correct PGA Gain
-            adc_value = (adc_value * 10024) / 10000;
-            state = StartConvertRef;
-        }
+        // Correct PGA Gain
+        adc_value = (adc_value * 10024) / 10000;
+        state = StartConvertRef;
+      }
       break;
 
     default:

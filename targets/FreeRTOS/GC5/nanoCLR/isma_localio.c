@@ -87,6 +87,23 @@ bool ToggleDO(uint32_t DONum)
 	return state;
 }
 
+
+// Helper LookUpTable to select propper UI Channel
+static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
+
+/**
+ * @brief  Switches the analog multiplexer to the appropriate channel
+ * @note   
+ * @param  channel: UIChannel_t
+ * @retval None
+ */
+void SetUIChannel(UIChannel_t channel) {
+	//clear channel bits
+	local_io_tx.ui_input &= ~(0xF << 4);
+	//set channel bits
+	local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
+}
+
 void vLocalIOThread(void * argument)
 {
 	(void) argument;
