@@ -6,13 +6,12 @@
  */
 
 #include "External_RTC.h"
+#include "FreeRTOSCommonHooks.h"
 
 ///////////////////////////////////////////
 //        RTC private declarations       //
 ///////////////////////////////////////////
 static struct tm rtcRealTime;
-
-
 
 
 /************************************************************************************************************/
@@ -211,7 +210,7 @@ void vRtcThread(void *pvParameters)
                 }
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(400));
+        FreeRTOSDelay(400);
     }
     vTaskDelete(NULL);
 }

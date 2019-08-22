@@ -6,9 +6,7 @@
  */
 
 #include "MAC_address.h"
-
-
-
+#include "FreeRTOSCommonHooks.h"
 
 ///////////////////////////////////////////
 //   MAC address private declarations    //
@@ -74,7 +72,7 @@ void vMacAddressThread(void *pvParameters)
         }
         else
         {
-            vTaskDelay(pdMS_TO_TICKS(100));
+            FreeRTOSDelay(100);
         }
         
     }
