@@ -74,7 +74,7 @@ void I2C_SetBufferAndDirection(lpi2c_master_transfer_t *pTransfer, uint8_t *buff
  * @param  size: number of bytes to write or read
  * @retval transfer status
  */
-status_t I2CTransfer(i2c_t *pi2c, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, uint16_t size);
+status_t I2CTransfer(i2c_t *pi2c, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, size_t size);
 
 
 
