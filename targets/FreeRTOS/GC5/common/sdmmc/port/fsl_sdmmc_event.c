@@ -11,6 +11,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "event_groups.h"
+#include "FreeRTOSCommonHooks.h"
 
 /*******************************************************************************
  * Definitons
@@ -147,5 +148,5 @@ void SDMMCEVENT_Delete(sdmmc_event_t eventType)
 
 void SDMMCEVENT_Delay(uint32_t milliseconds)
 {
-    vTaskDelay(MSEC_TO_TICK(milliseconds));
+    FreeRTOSDelay(milliseconds);
 }
