@@ -9,26 +9,8 @@ const char *DO_Ouputs[] = {
   [4] = "DO5"
 };
 
-// static const char *UInputs[] = {
-//   [0] = "UI1",
-//   [1] = "UI2",
-//   [2] = "UI3",
-//   [3] = "UI4"
-// };
-
-// static const char *AOOutputs[] = {
-//   [0] = "UI1",
-//   [1] = "UI2",
-//   [2] = "UI3",
-//   [3] = "UI4"
-// };
-
-// static const char *DInputs[] = {
-//   [0] = "DI1",
-//   [1] = "DI2",
-//   [2] = "DI3",
-//   [3] = "DI4"
-// };
+local_io_t local_io_rx;
+local_io_t local_io_tx;
 
 lpspi_rtos_handle_t lpspi3_master_rtos_handle;
 
@@ -44,55 +26,85 @@ const char *GetDOName(uint32_t DONumber) {
   return DO_Ouputs[DONumber];
 }
 
+/**
+ * @brief Checks digital output bit and returns its state
+ * @note   
+ * @param  DONum: digital output port number
+ * @retval true - high, false - low
+ */
 bool GetDO(uint32_t DONum)
-{
-	/* TODO: implement return of state of the port */
-	return DO_Ouputs[DONum];
+{	
+	if (DONum > DO_OutputsNo) return false;
+
+	bool state = false;
+	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
+	return state;
 }
+
+/**
+ * @brief  Sets digital output bit state
+ * @note   
+ * @param  state: true or false (high or low)
+ * @param  DONum: digital output port number
+ * @retval None
+ */
 void SetDO(bool state, uint32_t DONum)
 {
-	/* TODO: implement setting state of the port */
-	(void) state; (void) DONum;
+	if (DONum > DO_OutputsNo) return;
+		
+	if (state)
+	{
+		local_io_tx.digital_output |= 1U << (DONum + 3);
+	}
+	else
+	{
+		local_io_tx.digital_output &= ~(1U << (DONum + 3));
+	}
+}
+
+/**
+ * @brief  Toggle state of the digital output port of the UAC18
+ * @note   
+ * @param  DONum: digital output port number
+ * @retval returns state of port after toggle
+ */
+bool ToggleDO(uint32_t DONum)
+{
+	if (DONum > DO_OutputsNo) return false;
+
+	local_io_tx.digital_output ^= 1U << (DONum + 3);
+
+	bool state = false;
+	/* Check DONum bit state and return the value */
+	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
+	return state;
 }
 
 void vLocalIOThread(void * argument)
 {
 	(void) argument;
-    local_io_t local_io_rx;
-    local_io_t local_io_tx;
+
+	local_io_tx.digital_output = 0x00;
+	local_io_tx.analog_output = 0x00;
+	local_io_tx.ui_input = 0x00;
 
     lpspi_transfer_t SPI3MasterXfer = {0};
-	status_t status = 1;
 
     /* Send and receive data through loopback  */
     SPI3MasterXfer.txData = &(local_io_tx.ui_input);
+
     SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
     SPI3MasterXfer.dataSize = 3; 
 
 	while(1)
 	{
-
-		LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);
+		LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);			
+		
+		GPIO_WritePinOutput(GPIO1, 28, 1);
+		vTaskDelay(pdMS_TO_TICKS(1));
+		GPIO_WritePinOutput(GPIO1, 28, 0);
+		vTaskDelay(pdMS_TO_TICKS(1));
 	}
-
-
-    /* wysłanie danych do ringa SPI i sprawdzenie czy ostrzymano to samo
-    wysłanie danych bez zatrzaskiwania stanów logicznych na wyjściach */
-    local_io_tx.digital_ouput = 0xAA;
-    local_io_tx.analog_output = 0x55;
-    local_io_tx.ui_input = 0x33;
-	
-    LPSPI_RTOS_Transfer(&lpspi3_master_rtos_handle, &SPI3MasterXfer);
-    vTaskDelay(pdMS_TO_TICKS(1));
-    LPSPI_RTOS_Transfer(&lpspi3_master_rtos_handle, &SPI3MasterXfer);
-    vTaskDelay(pdMS_TO_TICKS(1));
-
-    /* sprawdz czy to co zostało wysłane do ringa wróciło */
-    status = memcmp(&(local_io_tx.ui_input), &(local_io_rx.ui_input), LPSPI3_BUFFSIZE) ? kStatus_Success : kStatus_LPSPI_Error;
-    
-
-    vTaskDelay(pdMS_TO_TICKS(90));	//dodatkowy delay bo inaczej nie drukuje komunikatów na konsole
-    configASSERT(status =! kStatus_Success);
 }
 
 

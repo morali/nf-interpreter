@@ -23,14 +23,14 @@ uint32_t GetDONumber();
 const char *GetDOName(uint32_t DONumber);
 
 bool GetDO(uint32_t);
-
 void SetDO(bool, uint32_t);
+bool ToggleDO(uint32_t);
 
 typedef struct _local_io
 {
     uint8_t ui_input;
     uint8_t analog_output;
-    uint8_t digital_ouput;
+    uint8_t digital_output;
 } local_io_t;
 
 #endif  //_ISMA_LOCALIO_H_
