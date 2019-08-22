@@ -1,5 +1,11 @@
+/*
+ * Created on Thu Aug 22 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
 
 #include "isma_localio.h"
+#include "localIO_UI.h"
 
 const char *DO_Ouputs[] = {
   [0] = "DO1", 
@@ -95,6 +101,8 @@ void vLocalIOThread(void * argument)
 
     SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
     SPI3MasterXfer.dataSize = 3; 
+
+	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
 
 	while(1)
 	{
