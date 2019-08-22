@@ -6,6 +6,7 @@
 
 #include "isma_localio.h"
 #include "localIO_UI.h"
+#include "i2c.h"
 
 const char *DO_Ouputs[] = {
   [0] = "DO1", 
@@ -101,6 +102,8 @@ void vLocalIOThread(void * argument)
 
     SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
     SPI3MasterXfer.dataSize = 3; 
+
+	I2C2_InitPeripheral();
 
 	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
 
