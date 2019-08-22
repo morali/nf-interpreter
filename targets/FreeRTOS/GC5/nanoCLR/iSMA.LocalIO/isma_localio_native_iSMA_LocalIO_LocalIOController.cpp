@@ -54,8 +54,11 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDOsNative
         CLR_UINT8 *pRes = &DOIdFieldRef.NumericByRef().u1;
         *pRes = i;
 
+        char name[] = "DOx";
+        name[2] = i + 1 + '0';
+
         // DO name
-        NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___name], GetDOName(i)));
+        NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___name], name));
 
 		// move the DO pointer to the next item in the array
         DO++;

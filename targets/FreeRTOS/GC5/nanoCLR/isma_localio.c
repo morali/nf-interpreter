@@ -8,14 +8,6 @@
 #include "localIO_UI.h"
 #include "i2c.h"
 
-const char *DO_Ouputs[] = {
-  [0] = "DO1", 
-  [1] = "DO2", 
-  [2] = "DO3", 
-  [3] = "DO4",
-  [4] = "DO5"
-};
-
 local_io_t local_io_rx;
 local_io_t local_io_tx;
 
@@ -23,14 +15,7 @@ lpspi_rtos_handle_t lpspi3_master_rtos_handle;
 
 uint32_t GetDONumber()
 {
-    return DO_OutputsNo;
-}
-
-const char *GetDOName(uint32_t DONumber) {
-  if (DONumber >= DO_OutputsNo) {
-    return NULL;
-  }
-  return DO_Ouputs[DONumber];
+    return DIGITAL_OUTPUT_PORTS;
 }
 
 /**
@@ -41,7 +26,7 @@ const char *GetDOName(uint32_t DONumber) {
  */
 bool GetDO(uint32_t DONum)
 {	
-	if (DONum > DO_OutputsNo) return false;
+	if (DONum > GetDONumber()) return false;
 
 	bool state = false;
 	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
@@ -57,7 +42,7 @@ bool GetDO(uint32_t DONum)
  */
 void SetDO(bool state, uint32_t DONum)
 {
-	if (DONum > DO_OutputsNo) return;
+	if (DONum > GetDONumber()) return;
 		
 	if (state)
 	{
@@ -77,7 +62,7 @@ void SetDO(bool state, uint32_t DONum)
  */
 bool ToggleDO(uint32_t DONum)
 {
-	if (DONum > DO_OutputsNo) return false;
+	if (DONum > GetDONumber()) return false;
 
 	local_io_tx.digital_output ^= 1U << (DONum + 3);
 

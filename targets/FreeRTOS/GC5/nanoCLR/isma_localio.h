@@ -27,13 +27,13 @@ typedef enum {
 // #define AO_utputsNo (sizeof(AOOutputs) / sizeof(AOOutputs[0]))
 // #define DI_InputsNo (sizeof(DInputs) / sizeof(DInputs[0]))
 // #define UI_InputsNo (sizeof(UInputs) / sizeof(UInputs[0]))
+#define DIGITAL_OUTPUT_PORTS 5
 
 extern spi_t s_spi3;
 
 void vLocalIOThread(void * argument);
 
 uint32_t GetDONumber();
-const char *GetDOName(uint32_t DONumber);
 
 bool GetDO(uint32_t);
 void SetDO(bool, uint32_t);
