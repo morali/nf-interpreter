@@ -345,17 +345,6 @@ void vLocalIO_UI(void *argument) {
   int32_t adc_value = 0;
   int32_t adc_vcc = 0;
 
-  //-----------------
-  for (int i = 0; i < 4; i++) {
-    localIO_UI.config[i].measureResistance = true;
-    localIO_UI.config[i].measureVoltage = true;
-    localIO_UI.config[i].gain = Gain_1;
-    //temporary set measureResistance
-  }
-  localIO_UI.config[1].measureVoltage = true;
-  localIO_UI.config[2].measureResistance = true;
-  //-----------------
-
   while (1) {
     switch (state) {
     case SelectRefChannel:
