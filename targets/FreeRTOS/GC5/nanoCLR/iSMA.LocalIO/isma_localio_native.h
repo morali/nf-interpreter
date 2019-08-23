@@ -70,6 +70,7 @@ struct Library_isma_localio_native_iSMA_LocalIO_UI
 
     static const int FIELD___id = 1;
     static const int FIELD___name = 2;
+    static const int FIELD___config = 3;
 
     NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID__iSMALocalIOUIConfiguration);
     NANOCLR_NATIVE_DECLARE(GetVoltageNative___I4);

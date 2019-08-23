@@ -1,14 +1,9 @@
-//-----------------------------------------------------------------------------
-//
-//                   ** WARNING! ** 
-//    This file was generated automatically by a tool.
-//    Re-running the tool will overwrite this file.
-//    You should copy this file to a custom location
-//    before adding any customization in the copy to
-//    prevent loss of your changes when the tool is
-//    re-run.
-//
-//-----------------------------------------------------------------------------
+/*
+ * Created on Fri Aug 23 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
+
 
 #include "isma_localio_native.h"
 
