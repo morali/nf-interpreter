@@ -13,14 +13,14 @@
 
 typedef struct _UIConfig_t{
     Samperate_t samplerate;
+  Samplerate_t samplerate;
     PGAGain_t gain;
     bool measureVoltage;
     bool measureResistance;
     uint8_t filter;
 } UIConfig_t;
 
-typedef struct _localIO_UI
-{
+typedef struct _localIO_UI {
     int16_t vRef;   //Reference Voltage
     UIConfig_t config[UINumber];
     int16_t voltage[UINumber];

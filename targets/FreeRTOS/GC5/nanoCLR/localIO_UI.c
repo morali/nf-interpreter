@@ -26,7 +26,7 @@ static localIO_UI_t localIO_UI;
  * @param  samplerate: 
  * @retval None
  */
-static void ConversionSleep(Samperate_t samplerate) {
+static void ConversionSleep(Samplerate_t samplerate) {
   switch (samplerate) {
   case SampleRate_12bit:
     FreeRTOSDelay(5);

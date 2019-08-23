@@ -16,7 +16,7 @@ static uint8_t MCP3421_cfg = 0;
 #define ConversionMode_offset 4
 #define ReadyBit_offset 7
 
-status_t MCP3421_SetGainSampleRate(PGAGain_t gain, Samperate_t samplerate)
+status_t MCP3421_SetGainSampleRate(PGAGain_t gain, Samplerate_t samplerate)
 {
     //set gain
     MCP3421_cfg &= ~(Gain_mask << Gain_offset);

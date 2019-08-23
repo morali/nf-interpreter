@@ -1,4 +1,4 @@
-/*
+ /*
  * Created on Thu Aug 22 2019
  *
  * Copyright (c) 2019 Global Control 5 Sp. z o.o.
@@ -25,10 +25,10 @@ typedef enum _Samplerate{
     SampleRate_16bit = 2,
     // SampleRate_18bit = 3,
     SampleRate_mask = 3
-} Samperate_t;
+} Samplerate_t;
 
 
-status_t MCP3421_SetGainSampleRate(PGAGain_t gain, Samperate_t samplerate);
+status_t MCP3421_SetGainSampleRate(PGAGain_t gain, Samplerate_t samplerate);
 status_t MCP3421_StartOneShot();
 status_t MCP3421_ReadADC(int32_t * value);
 
