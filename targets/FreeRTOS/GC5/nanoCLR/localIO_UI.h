@@ -25,6 +25,7 @@ typedef struct _localIO_UI
     UIConfig_t config[UINumber];
     int16_t voltage[UINumber];
     uint32_t resistance[UINumber];
+    bool digital[UINumber];
 } localIO_UI_t;
 
 void vLocalIO_UI(void * argument);

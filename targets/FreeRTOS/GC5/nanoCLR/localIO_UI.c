@@ -161,7 +161,7 @@ static void readUIResistance() {
               adc_value = (adc_value * 10039) / 10000;
               break;
             case Gain_8:
-              adc_value = (adc_value * 10084) / 20000;
+              adc_value = (adc_value * 10084) / 10000;
               break;
             }
 
@@ -180,7 +180,24 @@ static void readUIResistance() {
               break;
             }
 
-            adc_ref = localIO_UI.vRef * 16;
+            //conditioning vRef
+            switch (localIO_UI.config[i].gain) {
+            case Gain_1:
+              adc_ref = localIO_UI.vRef * 16;
+              break;
+            case Gain_2:
+              adc_ref = localIO_UI.vRef * 32;
+              break;
+            case Gain_4:
+              adc_ref = localIO_UI.vRef * 64;
+              break;
+            case Gain_8:
+              adc_ref = localIO_UI.vRef * 128;
+              break;
+            default:
+              adc_ref = localIO_UI.vRef * 16;
+            }
+
             if (adc_value >= adc_ref) {
               adc_value = adc_ref - 1;
             }
@@ -203,6 +220,13 @@ static void readUIResistance() {
             adc_res = UniversalInputFilter(localIO_UI.config[i].filter, &res_filter[i], &last_res[i], adc_res);
 
             localIO_UI.resistance[i] = adc_res / 10;
+
+            if (localIO_UI.resistance[i] < 5020) {
+              localIO_UI.digital[i] = true;
+            }
+            if (localIO_UI.resistance[i] > 8090) {
+              localIO_UI.digital[i] = false;
+            }
 
             convertChannel = false;
           }
@@ -233,6 +257,7 @@ void vLocalIO_UI(void *argument) {
   //-----------------
   for (int i = 0; i < 4; i++) {
     localIO_UI.config[i].measureResistance = true;
+    localIO_UI.config[i].gain = Gain_8;
     //temporary set measureResistance
   }
   //-----------------
