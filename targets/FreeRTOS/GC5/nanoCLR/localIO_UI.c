@@ -244,6 +244,97 @@ static void readUIResistance() {
 }
 
 void readUIVoltage() {
+  status_t status;
+  uint8_t state;
+  int32_t adc_value;
+
+  static int64_t vol_filter[UINumber] = {0};
+  static int64_t last_vol[UINumber] = {0};
+
+  for (uint8_t i = 0; i < UINumber; i++) {
+    if (localIO_UI.config[i].measureVoltage) {
+      state = 0;
+      bool convertChannel = true;
+      while (convertChannel) {
+        switch (state) {
+        case 0:
+          SetUIChannelPullup(i, false);
+          SetUIChannel(i);
+          status = MCP3421_SetGainSampleRate(localIO_UI.config[i].gain, localIO_UI.config[i].samplerate);
+          if (status == kStatus_Success) {
+            FreeRTOSDelay(8);
+            state = 1;
+          }
+          break;
+        case 1:
+          status = MCP3421_StartOneShot();
+          if (status == kStatus_Success) {
+            ConversionSleep(localIO_UI.config[i].samplerate);
+            state = 2;
+          }
+          break;
+        case 2:
+          status = MCP3421_ReadADC(&adc_value);
+          if (status == kStatus_Success) {
+            //protection against small and negative values
+            if (adc_value < 3) {
+              adc_value = 0;
+            }
+
+            //resistance devider is 1/6
+            adc_value = adc_value * 6;
+
+            //correct PGA Gain
+            switch (localIO_UI.config[i].gain) {
+            case Gain_1:
+              adc_value = (adc_value * 10024) / 10000;
+              break;
+            case Gain_2:
+              adc_value = (adc_value * 10032) / 10000; //TODO check the correct adjustment for this gain
+              break;
+            case Gain_4:
+              adc_value = (adc_value * 10039) / 10000;
+              break;
+            case Gain_8:
+              adc_value = (adc_value * 10084) / 10000;
+              break;
+            }
+
+            //correct value depening on ADC resolution
+            switch (localIO_UI.config[i].samplerate) {
+            case SampleRate_12bit:
+              adc_value *= 16;
+              break;
+            case SampleRate_14bit:
+              adc_value *= 4;
+              break;
+            case SampleRate_16bit:
+              adc_value *= 1;
+              break;
+            default:
+              break;
+            }
+
+            if (configurationChanged(i)) {
+              resetFilter(&vol_filter[i], &last_vol[i], adc_value / 16);
+            }
+            adc_value = UniversalInputFilter(localIO_UI.config[i].filter, &vol_filter[i], &last_vol[i], adc_value / 16);
+
+            localIO_UI.voltage[i] = adc_value;
+
+            convertChannel = false;
+          }
+          break;
+
+        default:
+          break;
+        }
+      }
+
+    } else {
+      localIO_UI.voltage[i] = 0;
+    }
+  }
 }
 
 void vLocalIO_UI(void *argument) {
@@ -257,9 +348,12 @@ void vLocalIO_UI(void *argument) {
   //-----------------
   for (int i = 0; i < 4; i++) {
     localIO_UI.config[i].measureResistance = true;
-    localIO_UI.config[i].gain = Gain_8;
+    localIO_UI.config[i].measureVoltage = true;
+    localIO_UI.config[i].gain = Gain_1;
     //temporary set measureResistance
   }
+  localIO_UI.config[1].measureVoltage = true;
+  localIO_UI.config[2].measureResistance = true;
   //-----------------
 
   while (1) {
