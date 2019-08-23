@@ -406,22 +406,34 @@ uint32_t GetUINumber() {
   return UINumber;
 }
 
-void setUIResolution(uint32_t no, Samplerate_t resolution) {
+void SetUIResolution(uint32_t no, Samplerate_t resolution) {
   localIO_UI.config[no].samplerate = resolution;
 }
 
-void setUIGain(uint32_t no, PGAGain_t gain) {
+void SetUIGain(uint32_t no, PGAGain_t gain) {
   localIO_UI.config[no].gain = gain;
 }
 
-void setUIFilter(uint32_t no, uint8_t filterTime) {
+void SetUIFilter(uint32_t no, uint8_t filterTime) {
   localIO_UI.config[no].filter = filterTime;
 }
 
-void setUIMeasureVoltage(uint32_t no, bool measureVoltage) {
+void SetUIMeasureVoltage(uint32_t no, bool measureVoltage) {
   localIO_UI.config[no].measureVoltage = measureVoltage;
 }
 
-void setUIMeasureResistance(uint32_t no, bool measureResistance) {
+void SetUIMeasureResistance(uint32_t no, bool measureResistance) {
   localIO_UI.config[no].measureResistance = measureResistance;
+}
+
+int16_t GetUIVoltage(uint32_t no) {
+  return localIO_UI.voltage[no];
+}
+
+uint32_t GetUIResistance(uint32_t no) {
+  return localIO_UI.resistance[no];
+}
+
+bool GetUIDigital(uint32_t no) {
+  return localIO_UI.digital[no];
 }

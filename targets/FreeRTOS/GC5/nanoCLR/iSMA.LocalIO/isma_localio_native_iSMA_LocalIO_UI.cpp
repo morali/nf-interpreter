@@ -21,35 +21,53 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::SetConfigNative___VOID(CLR_
     bool measureVoltage = pThis[FIELD___measureVoltage].NumericByRefConst().u1;
     bool measureResistance = pThis[FIELD___measureResistance].NumericByRefConst().u1;
 
-    setUIResolution(uiNo, resolution);
-    setUIGain(uiNo, gain);
-    setUIFilter(uiNo, filterTime);
-    setUIMeasureVoltage(uiNo, measureVoltage);
-    setUIMeasureResistance(uiNo, measureResistance);
+    SetUIResolution(uiNo, resolution);
+    SetUIGain(uiNo, gain);
+    SetUIFilter(uiNo, filterTime);
+    SetUIMeasureVoltage(uiNo, measureVoltage);
+    SetUIMeasureResistance(uiNo, measureResistance);
   }
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::GetVoltageNative___I4(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::GetVoltageNative___I2(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
+  {
+    CLR_RT_HeapBlock *pThis = stack.This();
+    FAULT_ON_NULL(pThis);
 
-  NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+    uint32_t uiNo = pThis[FIELD___id].NumericByRefConst().u4;
+    int16_t voltage = GetUIVoltage(uiNo);
 
+    stack.SetResult_I2(voltage);
+  }
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::GetResistanceNative___I4(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::GetResistanceNative___U4(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
+  {
+    CLR_RT_HeapBlock *pThis = stack.This();
+    FAULT_ON_NULL(pThis);
 
-  NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+    uint32_t uiNo = pThis[FIELD___id].NumericByRefConst().u4;
+    uint32_t res = GetUIResistance(uiNo);
 
+    stack.SetResult_U4(res);
+  }
   NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::GetDigitalNative___BOOLEAN(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
+  {
+    CLR_RT_HeapBlock *pThis = stack.This();
+    FAULT_ON_NULL(pThis);
 
-  NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+    uint32_t uiNo = pThis[FIELD___id].NumericByRefConst().u4;
+    bool state = GetUIDigital(uiNo);
 
+    stack.SetResult_Boolean(state);
+  }
   NANOCLR_NOCLEANUP();
 }

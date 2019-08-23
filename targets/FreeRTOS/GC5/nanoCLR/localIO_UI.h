@@ -47,7 +47,7 @@ uint32_t GetUINumber();
  * @param  resolution: Desired Resolution / Samplerate
  * @retval None
  */
-void setUIResolution(uint32_t no, Samplerate_t resolution);
+void SetUIResolution(uint32_t no, Samplerate_t resolution);
 
 /**
  * @brief  Set Universal Input ADC PGA Gain
@@ -56,7 +56,7 @@ void setUIResolution(uint32_t no, Samplerate_t resolution);
  * @param  gain: Desired ADC PGA Gain
  * @retval None
  */
-void setUIGain(uint32_t no, PGAGain_t gain);
+void SetUIGain(uint32_t no, PGAGain_t gain);
 
 /**
  * @brief  Set Universal Input Filter time
@@ -65,7 +65,7 @@ void setUIGain(uint32_t no, PGAGain_t gain);
  * @param  filterTime: Desired Filter time
  * @retval None
  */
-void setUIFilter(uint32_t no, uint8_t filterTime);
+void SetUIFilter(uint32_t no, uint8_t filterTime);
 
 /**
  * @brief  Enable/Disable Universal Input Voltage Measurement
@@ -74,7 +74,7 @@ void setUIFilter(uint32_t no, uint8_t filterTime);
  * @param  measureVoltage: if true then measurement is enabled
  * @retval None
  */
-void setUIMeasureVoltage(uint32_t no, bool measureVoltage);
+void SetUIMeasureVoltage(uint32_t no, bool measureVoltage);
 
 /**
  * @brief  Enable/Disable Universal Input Resistance Measurement
@@ -83,7 +83,31 @@ void setUIMeasureVoltage(uint32_t no, bool measureVoltage);
  * @param  measureResistance: if true then measurement is enabled
  * @retval None
  */
-void setUIMeasureResistance(uint32_t no, bool measureResistance);
+void SetUIMeasureResistance(uint32_t no, bool measureResistance);
+
+/**
+ * @brief  Return last measured voltage
+ * @note   
+ * @param  no: input number
+ * @retval 
+ */
+int16_t GetUIVoltage(uint32_t no);
+
+/**
+ * @brief  Return last measured resistance
+ * @note   
+ * @param  no: input number
+ * @retval 
+ */
+uint32_t GetUIResistance(uint32_t no);
+
+/**
+ * @brief  Return last measured digital state
+ * @note   
+ * @param  no: input number
+ * @retval 
+ */
+bool GetUIDigital(uint32_t no);
 
 #ifdef __cplusplus
 }

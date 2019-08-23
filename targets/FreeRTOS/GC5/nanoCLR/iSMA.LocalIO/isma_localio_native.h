@@ -77,8 +77,8 @@ struct Library_isma_localio_native_iSMA_LocalIO_UI
     static const int FIELD___measureResistance = 7;
 
     NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID);
-    NANOCLR_NATIVE_DECLARE(GetVoltageNative___I4);
-    NANOCLR_NATIVE_DECLARE(GetResistanceNative___I4);
+    NANOCLR_NATIVE_DECLARE(GetVoltageNative___I2);
+    NANOCLR_NATIVE_DECLARE(GetResistanceNative___U4);
     NANOCLR_NATIVE_DECLARE(GetDigitalNative___BOOLEAN);
 
     //--//
