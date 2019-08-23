@@ -1,20 +1,14 @@
-//-----------------------------------------------------------------------------
-//
-//                   ** WARNING! ** 
-//    This file was generated automatically by a tool.
-//    Re-running the tool will overwrite this file.
-//    You should copy this file to a custom location
-//    before adding any customization in the copy to
-//    prevent loss of your changes when the tool is
-//    re-run.
-//
-//-----------------------------------------------------------------------------
+/*
+ * Created on Fri Aug 23 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
+
 #ifndef _ISMA_LOCALIO_NATIVE_H_
 #define _ISMA_LOCALIO_NATIVE_H_
 
 #include <nanoCLR_Interop.h>
 #include <nanoCLR_Runtime.h>
-#include "isma_localio.h"
 
 struct Library_isma_localio_native_iSMA_LocalIO_AO
 {
@@ -23,9 +17,9 @@ struct Library_isma_localio_native_iSMA_LocalIO_AO
     static const int FIELD___aoutputId = 1;
     static const int FIELD___name = 2;
 
-    NANOCLR_NATIVE_DECLARE(AOInit___VOID);
-    NANOCLR_NATIVE_DECLARE(AOSetVoltage___VOID__BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(AOGetVoltage___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(AOSetVoltage___VOID__U2);
+    NANOCLR_NATIVE_DECLARE(AOSetDuty___VOID__U4);
+    NANOCLR_NATIVE_DECLARE(AOSetFreq___VOID__U4);
 
     //--//
 
@@ -53,7 +47,7 @@ struct Library_isma_localio_native_iSMA_LocalIO_DO
 
     NANOCLR_NATIVE_DECLARE(DOSetNative___VOID__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(DOGetNative___BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(DOToggleNative___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(DOToggleNative___VOID);
 
     //--//
 
@@ -74,12 +68,26 @@ struct Library_isma_localio_native_iSMA_LocalIO_UI
 {
     static const int FIELD_STATIC__Empty = 3;
 
-    static const int FIELD___uinputId = 1;
+    static const int FIELD___id = 1;
     static const int FIELD___name = 2;
 
-    NANOCLR_NATIVE_DECLARE(UIInit___VOID);
-    NANOCLR_NATIVE_DECLARE(UIConfigNative___VOID);
-    NANOCLR_NATIVE_DECLARE(UIGetNative___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID__iSMALocalIOUIConfiguration);
+    NANOCLR_NATIVE_DECLARE(GetVoltageNative___I4);
+    NANOCLR_NATIVE_DECLARE(GetResistanceNative___I4);
+    NANOCLR_NATIVE_DECLARE(GetDigitalNative___BOOLEAN);
+
+    //--//
+
+};
+
+struct Library_isma_localio_native_iSMA_LocalIO_UIConfiguration
+{
+    static const int FIELD__resolution = 1;
+    static const int FIELD__gain = 2;
+    static const int FIELD__measureVoltage = 3;
+    static const int FIELD__measureResistance = 4;
+    static const int FIELD__filterTime = 5;
+
 
     //--//
 

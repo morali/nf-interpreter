@@ -30,4 +30,11 @@ typedef struct _localIO_UI
 
 void vLocalIO_UI(void * argument);
 
+/**
+ * @brief  Returns number of UniversalInputs
+ * @note   
+ * @retval 
+ */
+uint32_t GetUINumber();
+
 #endif /* _LOCALIO_UI_H_ */

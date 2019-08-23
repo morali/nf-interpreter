@@ -76,7 +76,7 @@ static int32_t UniversalInputFilter(uint8_t tau, int64_t *memValue, int64_t *las
   return value;
 }
 
-bool configurationChanged(uint8_t configNo) {
+static bool configurationChanged(uint8_t configNo) {
   static uint8_t lastFilter[UINumber];
 
   if (lastFilter[configNo] != localIO_UI.config[configNo].filter) {
@@ -86,7 +86,7 @@ bool configurationChanged(uint8_t configNo) {
   return false;
 }
 
-bool sensorJustConnected(uint32_t last_res, uint32_t min, uint32_t max) {
+static bool sensorJustConnected(uint32_t last_res, uint32_t min, uint32_t max) {
   if (last_res <= min || last_res >= max) {
     return true;
   }
@@ -94,7 +94,7 @@ bool sensorJustConnected(uint32_t last_res, uint32_t min, uint32_t max) {
   return false;
 }
 
-bool sensorNotConnected(int64_t value, uint32_t min, uint32_t max) {
+static bool sensorNotConnected(int64_t value, uint32_t min, uint32_t max) {
   if (value <= min || value >= max) {
     return true;
   }
@@ -102,7 +102,7 @@ bool sensorNotConnected(int64_t value, uint32_t min, uint32_t max) {
   return false;
 }
 
-void resetFilter(int64_t *filter, int64_t *lastRes, int64_t value) {
+static void resetFilter(int64_t *filter, int64_t *lastRes, int64_t value) {
   *filter = 0;
   *lastRes = value;
 }
@@ -243,7 +243,7 @@ static void readUIResistance() {
   }
 }
 
-void readUIVoltage() {
+static void readUIVoltage() {
   status_t status;
   uint8_t state;
   int32_t adc_value;
@@ -400,4 +400,14 @@ void vLocalIO_UI(void *argument) {
       break;
     }
   }
+}
+
+/**
+ * @brief  Returns number of UniversalInputs
+ * @note   
+ * @retval 
+ */
+__attribute__((__used__))
+uint32_t GetUINumber() {
+  return UINumber;
 }

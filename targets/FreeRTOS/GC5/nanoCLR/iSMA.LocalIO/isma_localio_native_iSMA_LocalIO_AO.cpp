@@ -13,7 +13,7 @@
 #include "isma_localio_native.h"
 
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOInit___VOID( CLR_RT_StackFrame& stack )
+HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOSetVoltage___VOID__U2( CLR_RT_StackFrame& stack )
 {
     NANOCLR_HEADER();
 
@@ -22,7 +22,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOInit___VOID( CLR_RT_Stack
     NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOSetVoltage___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOSetDuty___VOID__U4( CLR_RT_StackFrame& stack )
 {
     NANOCLR_HEADER();
 
@@ -31,7 +31,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOSetVoltage___VOID__BOOLEA
     NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOGetVoltage___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::AOSetFreq___VOID__U4( CLR_RT_StackFrame& stack )
 {
     NANOCLR_HEADER();
 

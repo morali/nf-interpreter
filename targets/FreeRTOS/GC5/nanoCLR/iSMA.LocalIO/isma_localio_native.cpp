@@ -1,3 +1,9 @@
+/*
+ * Created on Fri Aug 23 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
+
 #include "isma_localio_native.h"
 
 
@@ -8,9 +14,9 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_isma_localio_native_iSMA_LocalIO_AO::AOInit___VOID,
-    Library_isma_localio_native_iSMA_LocalIO_AO::AOSetVoltage___VOID__BOOLEAN,
-    Library_isma_localio_native_iSMA_LocalIO_AO::AOGetVoltage___BOOLEAN,
+    Library_isma_localio_native_iSMA_LocalIO_AO::AOSetVoltage___VOID__U2,
+    Library_isma_localio_native_iSMA_LocalIO_AO::AOSetDuty___VOID__U4,
+    Library_isma_localio_native_iSMA_LocalIO_AO::AOSetFreq___VOID__U4,
     NULL,
     NULL,
     NULL,
@@ -24,11 +30,9 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    NULL,
-    NULL,
     Library_isma_localio_native_iSMA_LocalIO_DO::DOSetNative___VOID__BOOLEAN,
     Library_isma_localio_native_iSMA_LocalIO_DO::DOGetNative___BOOLEAN,
-    Library_isma_localio_native_iSMA_LocalIO_DO::DOToggleNative___BOOLEAN,
+    Library_isma_localio_native_iSMA_LocalIO_DO::DOToggleNative___VOID,
     NULL,
     NULL,
     NULL,
@@ -44,9 +48,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_isma_localio_native_iSMA_LocalIO_UI::UIInit___VOID,
-    Library_isma_localio_native_iSMA_LocalIO_UI::UIConfigNative___VOID,
-    Library_isma_localio_native_iSMA_LocalIO_UI::UIGetNative___BOOLEAN,
+    NULL,
+    Library_isma_localio_native_iSMA_LocalIO_UI::SetConfigNative___VOID__iSMALocalIOUIConfiguration,
+    Library_isma_localio_native_iSMA_LocalIO_UI::GetVoltageNative___I4,
+    Library_isma_localio_native_iSMA_LocalIO_UI::GetResistanceNative___I4,
+    Library_isma_localio_native_iSMA_LocalIO_UI::GetDigitalNative___BOOLEAN,
     NULL,
     NULL,
 };
@@ -54,7 +60,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_LocalIO =
 {
     "iSMA.LocalIO", 
-    0x36DA669A,
+    0xB62B5042,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //
