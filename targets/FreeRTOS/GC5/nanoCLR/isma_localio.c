@@ -5,8 +5,8 @@
  */
 
 #include "isma_localio.h"
-#include "localIO_UI.h"
 #include "i2c.h"
+#include "localIO_UI.h"
 
 local_io_t local_io_rx;
 local_io_t local_io_tx;
@@ -18,9 +18,8 @@ lpspi_rtos_handle_t lpspi3_master_rtos_handle;
  * @note   
  * @retval number of DOs ports
  */
-uint32_t GetDONumber()
-{
-    return DIGITAL_OUTPUT_PORTS;
+uint32_t GetDONumber() {
+  return DIGITAL_OUTPUT_PORTS;
 }
 
 /**
@@ -29,13 +28,13 @@ uint32_t GetDONumber()
  * @param  DONum: digital output port number
  * @retval true - high, false - low
  */
-bool GetDO(uint32_t DONum)
-{	
-	if (DONum > GetDONumber()) return false;
+bool GetDO(uint32_t DONum) {
+  if (DONum > GetDONumber())
+    return false;
 
-	bool state = false;
-	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
-	return state;
+  bool state = false;
+  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
+  return state;
 }
 
 /**
@@ -45,18 +44,15 @@ bool GetDO(uint32_t DONum)
  * @param  DONum: digital output port number
  * @retval None
  */
-void SetDO(bool state, uint32_t DONum)
-{
-	if (DONum > GetDONumber()) return;
-		
-	if (state)
-	{
-		local_io_tx.digital_output |= 1U << (DONum + 3);
-	}
-	else
-	{
-		local_io_tx.digital_output &= ~(1U << (DONum + 3));
-	}
+void SetDO(bool state, uint32_t DONum) {
+  if (DONum > GetDONumber())
+    return;
+
+  if (state) {
+    local_io_tx.digital_output |= 1U << (DONum + 3);
+  } else {
+    local_io_tx.digital_output &= ~(1U << (DONum + 3));
+  }
 }
 
 /**
@@ -65,18 +61,17 @@ void SetDO(bool state, uint32_t DONum)
  * @param  DONum: digital output port number
  * @retval returns state of port after toggle
  */
-bool ToggleDO(uint32_t DONum)
-{
-	if (DONum > GetDONumber()) return false;
+bool ToggleDO(uint32_t DONum) {
+  if (DONum > GetDONumber())
+    return false;
 
-	local_io_tx.digital_output ^= 1U << (DONum + 3);
+  local_io_tx.digital_output ^= 1U << (DONum + 3);
 
-	bool state = false;
-	/* Check DONum bit state and return the value */
-	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
-	return state;
+  bool state = false;
+  /* Check DONum bit state and return the value */
+  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
+  return state;
 }
-
 
 // Helper LookUpTable to select propper UI Channel
 static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
@@ -88,42 +83,65 @@ static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
  * @retval None
  */
 void SetUIChannel(UIChannel_t channel) {
-	//clear channel bits
-	local_io_tx.ui_input &= ~(0xF << 4);
-	//set channel bits
-	local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
+
+  if (channel >= (sizeof(UI_Channel_LUT) / sizeof(UI_Channel_LUT[0]))) {
+    return;
+  }
+
+  //clear channel bits
+  local_io_tx.ui_input &= ~(0xF << 4);
+  //set channel bits
+  local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
 }
 
-void vLocalIOThread(void * argument)
-{
-	(void) argument;
+// Helper LookUpTable to select propper UI Channel Pullup
+static const uint8_t UI_ChannelPullup_LUT[] = {2, 4, 8, 1};
 
-	local_io_tx.digital_output = 0x00;
-	local_io_tx.analog_output = 0x00;
-	local_io_tx.ui_input = 0x00;
+/**
+ * @brief  Enable or disable pullup for resistance measurement
+ * @note   
+ * @param  channel: channel number
+ * @param  enable: if true then pullup is enabled
+ * @retval None
+ */
+void SetUIChannelPullup(UIChannel_t channel, bool enable) {
+  if (channel >= (sizeof(UI_ChannelPullup_LUT) / sizeof(UI_ChannelPullup_LUT[0]))) {
+    return;
+  }
 
-    lpspi_transfer_t SPI3MasterXfer = {0};
-
-    /* Send and receive data through loopback  */
-    SPI3MasterXfer.txData = &(local_io_tx.ui_input);
-
-    SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
-    SPI3MasterXfer.dataSize = 3; 
-
-	I2C2_InitPeripheral();
-
-	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
-
-	while(1)
-	{
-		LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);			
-		
-		GPIO_WritePinOutput(GPIO1, 28, 1);
-		vTaskDelay(pdMS_TO_TICKS(1));
-		GPIO_WritePinOutput(GPIO1, 28, 0);
-		vTaskDelay(pdMS_TO_TICKS(1));
-	}
+  //set pullup bits
+  if (enable) {
+    local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
+  } else {
+    local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
+  }
 }
 
+void vLocalIOThread(void *argument) {
+  (void)argument;
 
+  local_io_tx.digital_output = 0x00;
+  local_io_tx.analog_output = 0x00;
+  local_io_tx.ui_input = 0x00;
 
+  lpspi_transfer_t SPI3MasterXfer = {0};
+
+  /* Send and receive data through loopback  */
+  SPI3MasterXfer.txData = &(local_io_tx.ui_input);
+
+  SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
+  SPI3MasterXfer.dataSize = 3;
+
+  I2C2_InitPeripheral();
+
+  xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
+
+  while (1) {
+    LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);
+
+    GPIO_WritePinOutput(GPIO1, 28, 1);
+    vTaskDelay(pdMS_TO_TICKS(1));
+    GPIO_WritePinOutput(GPIO1, 28, 0);
+    vTaskDelay(pdMS_TO_TICKS(1));
+  }
+}

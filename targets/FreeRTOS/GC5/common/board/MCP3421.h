@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "fsl_common.h"
 
-typedef enum {
+typedef enum _PGAGain {
     Gain_1 = 0,
     Gain_2 = 1,
     Gain_4 = 2,
@@ -19,7 +19,7 @@ typedef enum {
     Gain_mask = 3
 } PGAGain_t;
 
-typedef enum {
+typedef enum _Samplerate{
     SampleRate_12bit = 0,
     SampleRate_14bit = 1,
     SampleRate_16bit = 2,

@@ -42,6 +42,15 @@ bool ToggleDO(uint32_t);
  */
 void SetUIChannel(UIChannel_t channel);
 
+/**
+ * @brief  Enable or disable pullup for resistance measurement
+ * @note   
+ * @param  channel: channel number
+ * @param  enable: if true then pullup is enabled
+ * @retval None
+ */
+void SetUIChannelPullup(UIChannel_t channel, bool enable);
+
 typedef struct _local_io
 {
     uint8_t ui_input;

@@ -7,6 +7,26 @@
 #ifndef _LOCALIO_UI_H_
 #define _LOCALIO_UI_H_
 
+#include "MCP3421.h"
+
+#define UINumber 4
+
+typedef struct _UIConfig_t{
+    Samperate_t samplerate;
+    PGAGain_t gain;
+    bool measureVoltage;
+    bool measureResistance;
+    uint8_t filter;
+} UIConfig_t;
+
+typedef struct _localIO_UI
+{
+    int16_t vRef;   //Reference Voltage
+    UIConfig_t config[UINumber];
+    int16_t voltage[UINumber];
+    uint32_t resistance[UINumber];
+} localIO_UI_t;
+
 void vLocalIO_UI(void * argument);
 
 #endif /* _LOCALIO_UI_H_ */
