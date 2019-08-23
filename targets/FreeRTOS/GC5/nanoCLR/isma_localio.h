@@ -22,11 +22,6 @@ typedef enum {
     VREF
 } UIChannel_t;
 
-
-#define DO_OutputsNo (sizeof(DO_Ouputs) / sizeof(DO_Ouputs[0]))
-// #define AO_utputsNo (sizeof(AOOutputs) / sizeof(AOOutputs[0]))
-// #define DI_InputsNo (sizeof(DInputs) / sizeof(DInputs[0]))
-// #define UI_InputsNo (sizeof(UInputs) / sizeof(UInputs[0]))
 #define DIGITAL_OUTPUT_PORTS 5
 
 extern spi_t s_spi3;
@@ -38,8 +33,6 @@ uint32_t GetDONumber();
 bool GetDO(uint32_t);
 void SetDO(bool, uint32_t);
 bool ToggleDO(uint32_t);
-
-
 
 /**
  * @brief  Switches the analog multiplexer to the appropriate channel

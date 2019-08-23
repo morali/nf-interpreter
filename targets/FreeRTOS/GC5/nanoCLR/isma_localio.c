@@ -13,6 +13,11 @@ local_io_t local_io_tx;
 
 lpspi_rtos_handle_t lpspi3_master_rtos_handle;
 
+/**
+ * @brief  Get number of digital output ports
+ * @note   
+ * @retval number of DOs ports
+ */
 uint32_t GetDONumber()
 {
     return DIGITAL_OUTPUT_PORTS;
