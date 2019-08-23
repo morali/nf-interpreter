@@ -70,25 +70,16 @@ struct Library_isma_localio_native_iSMA_LocalIO_UI
 
     static const int FIELD___id = 1;
     static const int FIELD___name = 2;
-    static const int FIELD___config = 3;
+    static const int FIELD___resolution = 3;
+    static const int FIELD___gain = 4;
+    static const int FIELD___filterTime = 5;
+    static const int FIELD___measureVoltage = 6;
+    static const int FIELD___measureResistance = 7;
 
-    NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID__iSMALocalIOUIConfiguration);
+    NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID);
     NANOCLR_NATIVE_DECLARE(GetVoltageNative___I4);
     NANOCLR_NATIVE_DECLARE(GetResistanceNative___I4);
     NANOCLR_NATIVE_DECLARE(GetDigitalNative___BOOLEAN);
-
-    //--//
-
-};
-
-struct Library_isma_localio_native_iSMA_LocalIO_UIConfiguration
-{
-    static const int FIELD__resolution = 1;
-    static const int FIELD__gain = 2;
-    static const int FIELD__measureVoltage = 3;
-    static const int FIELD__measureResistance = 4;
-    static const int FIELD__filterTime = 5;
-
 
     //--//
 

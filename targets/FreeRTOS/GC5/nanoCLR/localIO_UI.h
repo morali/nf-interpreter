@@ -11,24 +11,27 @@
 
 #define UINumber 4
 
-typedef struct _UIConfig_t{
-    Samperate_t samplerate;
+typedef struct _UIConfig_t {
   Samplerate_t samplerate;
-    PGAGain_t gain;
-    bool measureVoltage;
-    bool measureResistance;
-    uint8_t filter;
+  PGAGain_t gain;
+  bool measureVoltage;
+  bool measureResistance;
+  uint8_t filter;
 } UIConfig_t;
 
 typedef struct _localIO_UI {
-    int16_t vRef;   //Reference Voltage
-    UIConfig_t config[UINumber];
-    int16_t voltage[UINumber];
-    uint32_t resistance[UINumber];
-    bool digital[UINumber];
+  int16_t vRef; //Reference Voltage
+  UIConfig_t config[UINumber];
+  int16_t voltage[UINumber];
+  uint32_t resistance[UINumber];
+  bool digital[UINumber];
 } localIO_UI_t;
 
-void vLocalIO_UI(void * argument);
+void vLocalIO_UI(void *argument);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief  Returns number of UniversalInputs
@@ -36,5 +39,54 @@ void vLocalIO_UI(void * argument);
  * @retval 
  */
 uint32_t GetUINumber();
+
+/**
+ * @brief  Set Universal Input Resolution / Samplerate
+ * @note   
+ * @param  no: Input number
+ * @param  resolution: Desired Resolution / Samplerate
+ * @retval None
+ */
+void setUIResolution(uint32_t no, Samplerate_t resolution);
+
+/**
+ * @brief  Set Universal Input ADC PGA Gain
+ * @note   
+ * @param  no: Input number
+ * @param  gain: Desired ADC PGA Gain
+ * @retval None
+ */
+void setUIGain(uint32_t no, PGAGain_t gain);
+
+/**
+ * @brief  Set Universal Input Filter time
+ * @note   
+ * @param  no: Input number
+ * @param  filterTime: Desired Filter time
+ * @retval None
+ */
+void setUIFilter(uint32_t no, uint8_t filterTime);
+
+/**
+ * @brief  Enable/Disable Universal Input Voltage Measurement
+ * @note   
+ * @param  no: Input number
+ * @param  measureVoltage: if true then measurement is enabled
+ * @retval None
+ */
+void setUIMeasureVoltage(uint32_t no, bool measureVoltage);
+
+/**
+ * @brief  Enable/Disable Universal Input Resistance Measurement
+ * @note   
+ * @param  no: Input number
+ * @param  measureResistance: if true then measurement is enabled
+ * @retval None
+ */
+void setUIMeasureResistance(uint32_t no, bool measureResistance);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _LOCALIO_UI_H_ */

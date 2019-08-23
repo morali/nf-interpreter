@@ -54,11 +54,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_isma_localio_native_iSMA_LocalIO_UI::SetConfigNative___VOID__iSMALocalIOUIConfiguration,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    Library_isma_localio_native_iSMA_LocalIO_UI::SetConfigNative___VOID,
     Library_isma_localio_native_iSMA_LocalIO_UI::GetVoltageNative___I4,
     Library_isma_localio_native_iSMA_LocalIO_UI::GetResistanceNative___I4,
     Library_isma_localio_native_iSMA_LocalIO_UI::GetDigitalNative___BOOLEAN,
-    NULL,
     NULL,
     NULL,
 };
@@ -66,7 +69,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_LocalIO =
 {
     "iSMA.LocalIO", 
-    0x72B5868B,
+    0x05A3DA4C,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

@@ -402,12 +402,26 @@ void vLocalIO_UI(void *argument) {
   }
 }
 
-/**
- * @brief  Returns number of UniversalInputs
- * @note   
- * @retval 
- */
-__attribute__((__used__))
 uint32_t GetUINumber() {
   return UINumber;
+}
+
+void setUIResolution(uint32_t no, Samplerate_t resolution) {
+  localIO_UI.config[no].samplerate = resolution;
+}
+
+void setUIGain(uint32_t no, PGAGain_t gain) {
+  localIO_UI.config[no].gain = gain;
+}
+
+void setUIFilter(uint32_t no, uint8_t filterTime) {
+  localIO_UI.config[no].filter = filterTime;
+}
+
+void setUIMeasureVoltage(uint32_t no, bool measureVoltage) {
+  localIO_UI.config[no].measureVoltage = measureVoltage;
+}
+
+void setUIMeasureResistance(uint32_t no, bool measureResistance) {
+  localIO_UI.config[no].measureResistance = measureResistance;
 }
