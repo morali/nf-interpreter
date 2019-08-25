@@ -12,15 +12,6 @@
 extern "C" {
 #endif
 
-
-#include "i2c.h"
-#include "task.h"
-#include "time.h"
-#include "GlobalEventsFlags.h"
-
-
-
-
 /************************************************************************************************************/
 /*                                                                                                          */
 /*                               MAC ADDRESS PUBLIC FUNCTIONS DECLARATIONS                                  */
@@ -31,8 +22,6 @@ uint8_t *MAC_GetAddress();
 
 /* FreeRTOS task declaration */
 void vMacAddressThread(void *pvParameters);
-
-
 
 
 #ifdef __cplusplus

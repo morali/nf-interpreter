@@ -12,6 +12,7 @@
 #include "fsl_debug_console.h"
 #include "hyperRAM.h"
 #include "spi.h"
+#include "i2c.h"
 
 #include "FreeRTOS.h"
 #include "task.h"

@@ -12,13 +12,7 @@
 extern "C" {
 #endif
 
-
-#include "i2c.h"
-#include "task.h"
 #include "time.h"
-
-
-
 
 /************************************************************************************************************/
 /*                                                                                                          */
@@ -31,9 +25,6 @@ struct tm *RTC_ReadTime();
 void RTC_SetTime(struct tm *rtcTime);
 
 void vRtcThread(void *pvParameters);
-
-
-
 
 #ifdef __cplusplus
 }
