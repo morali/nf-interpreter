@@ -15,7 +15,7 @@
 /*                                                                                                          */
 /************************************************************************************************************/
 
-#define DIGITAL_INPUTS_AMOUNT   4
+
 
 
 
@@ -95,9 +95,15 @@ void LocalIO_DI_CountersHandler(void)
 
 
 
-uint8_t LocalIO_DI_ReadInput(uint8_t pinNumber)
+bool LocalIO_DI_ReadInput(uint8_t diPinNumber)
 {
-    return GPIO_PinRead(GPIO2, pinNumber);
+    if(diPinNumber > DIGITAL_INPUTS_AMOUNT)
+    {
+        return false;
+    }
+
+    bool diState = GPIO_PinRead(GPIO2, diPinNumber);
+    return (bool)diState;
 }
 
 

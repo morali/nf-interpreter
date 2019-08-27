@@ -22,6 +22,7 @@ extern "C" {
 /*                                                                                                          */
 /************************************************************************************************************/
 
+#define DIGITAL_INPUTS_AMOUNT   4
 
 
 
@@ -50,7 +51,7 @@ void LocalIO_DI_CheckPinsState(void);
 
 void LocalIO_DI_CountersHandler(void);
 
-uint8_t LocalIO_DI_ReadInput(uint8_t pinNumber);
+bool LocalIO_DI_ReadInput(uint8_t diPinNumber);
 
 
 
