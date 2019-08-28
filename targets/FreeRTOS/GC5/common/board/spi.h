@@ -34,6 +34,7 @@
 typedef struct _spi {
   lpspi_master_config_t masterConfig;
   lpspi_rtos_handle_t masterRtosHandle;
+  lpspi_transfer_t spi_transfer;
 } spi_t;
 
 extern spi_t s_spi2;

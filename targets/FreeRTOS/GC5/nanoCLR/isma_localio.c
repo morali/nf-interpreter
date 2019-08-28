@@ -5,143 +5,85 @@
  */
 
 #include "isma_localio.h"
-#include "i2c.h"
+
 #include "localIO_UI.h"
 
-local_io_t local_io_rx;
+#include "LocalIO_Timers.h"
+
+
 local_io_t local_io_tx;
+local_io_tasks_t local_io_tasks;
 
-lpspi_rtos_handle_t lpspi3_master_rtos_handle;
-
-/**
- * @brief  Get number of digital output ports
- * @note   
- * @retval number of DOs ports
- */
-uint32_t GetDONumber() {
-  return DIGITAL_OUTPUT_PORTS;
-}
-
-/**
- * @brief Checks digital output bit and returns its state
- * @note   
- * @param  DONum: digital output port number
- * @retval true - high, false - low
- */
-bool GetDO(uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return false;
-
-  bool state = false;
-  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
-  return state;
-}
-
-/**
- * @brief  Sets digital output bit state
- * @note   
- * @param  state: true or false (high or low)
- * @param  DONum: digital output port number
- * @retval None
- */
-void SetDO(bool state, uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return;
-
-  if (state) {
-    local_io_tx.digital_output |= 1U << (DONum + 3);
-  } else {
-    local_io_tx.digital_output &= ~(1U << (DONum + 3));
-  }
-}
-
-/**
- * @brief  Toggle state of the digital output port of the UAC18
- * @note   
- * @param  DONum: digital output port number
- * @retval returns state of port after toggle
- */
-bool ToggleDO(uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return false;
-
-  local_io_tx.digital_output ^= 1U << (DONum + 3);
-
-  bool state = false;
-  /* Check DONum bit state and return the value */
-  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
-  return state;
-}
-
-// Helper LookUpTable to select propper UI Channel
-static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
-
-/**
- * @brief  Switches the analog multiplexer to the appropriate channel
- * @note   
- * @param  channel: UIChannel_t
- * @retval None
- */
-void SetUIChannel(UIChannel_t channel) {
-
-  if (channel >= (sizeof(UI_Channel_LUT) / sizeof(UI_Channel_LUT[0]))) {
-    return;
-  }
-
-  //clear channel bits
-  local_io_tx.ui_input &= ~(0xF << 4);
-  //set channel bits
-  local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
-}
-
-// Helper LookUpTable to select propper UI Channel Pullup
-static const uint8_t UI_ChannelPullup_LUT[] = {2, 4, 8, 1};
-
-/**
- * @brief  Enable or disable pullup for resistance measurement
- * @note   
- * @param  channel: channel number
- * @param  enable: if true then pullup is enabled
- * @retval None
- */
-void SetUIChannelPullup(UIChannel_t channel, bool enable) {
-  if (channel >= (sizeof(UI_ChannelPullup_LUT) / sizeof(UI_ChannelPullup_LUT[0]))) {
-    return;
-  }
-
-  //set pullup bits
-  if (enable) {
-    local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
-  } else {
-    local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
-  }
-}
+extern spi_t s_spi3;
 
 void vLocalIOThread(void *argument) {
-  (void)argument;
+	(void)argument;
+	
+	const gpio_pin_config_t gpioConfig = {
+		.direction        = kGPIO_DigitalOutput,
+		.outputLogic      = 0,
+		.interruptMode    = kGPIO_NoIntmode
+		};
 
-  local_io_tx.digital_output = 0x00;
-  local_io_tx.analog_output = 0x00;
-  local_io_tx.ui_input = 0x00;
+	GPIO_PinInit(GPIO1, 28, &gpioConfig);  // LPSPI2_CS0 
+	
+	xTaskCreate(vTimeredTask10us, "vTimeredTask10us", configMINIMAL_STACK_SIZE, NULL, 4, &local_io_tasks.Task10us);	
+    xTaskCreate(vTimeredTask10ms, "vTimeredTask10ms", configMINIMAL_STACK_SIZE, NULL, 4, &local_io_tasks.Task10ms);
+	// xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, 4, NULL);	    
 
-  lpspi_transfer_t SPI3MasterXfer = {0};
+	PITChannel0Init();
 
-  /* Send and receive data through loopback  */
-  SPI3MasterXfer.txData = &(local_io_tx.ui_input);
+	vTaskDelete(NULL);
+}
 
-  SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
-  SPI3MasterXfer.dataSize = 3;
+/**
+ * @brief  Low priority task fired every 10ms (used for driving DO)
+ * @note   
+ * @param  argument: (void)
+ * @retval None
+ */
+void vTimeredTask10ms(void * argument)
+{
+	(void) argument;
+	
+	local_io_tx.digital_output = 0x00;
+	local_io_tx.analog_output = 0x00;
+	local_io_tx.ui_input = 0x00;
 
-  I2C2_InitPeripheral();
+	/* Send and receive data through loopback  */
+	s_spi3.spi_transfer.txData = &(local_io_tx.ui_input);
+	s_spi3.spi_transfer.dataSize = 3;
+		
+	while(1)
+	{
 
-  xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
+		/* Wait for unblock from timer interrupt */
+		ulTaskNotifyTake(0x0, portMAX_DELAY);
+		
+		/* Test output toggle */ 
+		local_io_tx.digital_output ^= 1U << (7);
 
-  while (1) {
-    LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);
+		LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &s_spi3.spi_transfer);			
+		
+		GPIO_WritePinOutput(GPIO1, 28, 1);
+		vTaskDelay(1);
+		GPIO_WritePinOutput(GPIO1, 28, 0);	
+	}
+}
 
-    GPIO_WritePinOutput(GPIO1, 28, 1);
-    vTaskDelay(pdMS_TO_TICKS(1));
-    GPIO_WritePinOutput(GPIO1, 28, 0);
-    vTaskDelay(pdMS_TO_TICKS(1));
-  }
+/**
+ * @brief  High priority task unblocked every 10us (needed and used for driving PWMs)
+ * @note   
+ * @param  argument: (void)
+ * @retval None
+ */
+void vTimeredTask10us(void * argument)
+{
+	(void) argument;
+
+	while(1)
+	{
+	/* Wait for unblock from timer interrupt */
+		ulTaskNotifyTake(0x0, portMAX_DELAY);
+	}	
 }

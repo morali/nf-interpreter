@@ -6,7 +6,7 @@
  */
 
 #include "fsl_pit.h"
-#include "LocalIO_DI.h"
+#include "isma_localio.h"
 
 
 
@@ -16,6 +16,9 @@
 /*                                                                                                          */
 /************************************************************************************************************/
 
+#define SPI3_TIMER_PERIOD USEC_TO_COUNT(1000U, pitSourceClock)
+#define ADC_POLLING_TIMER_PERIOD USEC_TO_COUNT(1000000U, pitSourceClock) /* FOR NOW 0,5SEC PERIOD */
+// #define ADC_POLLING_TIMER_PERIOD 0x2FAF07F /* FOR NOW 0,5SEC PERIOD */
 
 
 
@@ -41,5 +44,4 @@
 /************************************************************************************************************/
 
 void PITChannel0Init(void);
-
-void PITChannel0ISR(void);
+void PIT_IRQHandler(void);

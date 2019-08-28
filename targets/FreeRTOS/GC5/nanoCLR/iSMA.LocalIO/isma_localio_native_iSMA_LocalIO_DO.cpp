@@ -6,7 +6,7 @@
 
 
 #include "isma_localio_native.h"
-#include "isma_localio.h"
+#include "LocalIO_DO.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOSetNative___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
 {
@@ -46,7 +46,6 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOToggleNative___VOID( CLR_
         FAULT_ON_NULL(pThis);
 
         uint32_t DONo = pThis[FIELD___doutputId].NumericByRefConst().u4;
-
         ToggleDO(DONo);
     }
     NANOCLR_NOCLEANUP();

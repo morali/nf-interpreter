@@ -69,7 +69,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_LocalIO =
 {
     "iSMA.LocalIO", 
-    0x528E7B6F,
+    0x82778EEC,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

@@ -7,6 +7,7 @@
 
 #include "LocalIO_Timers.h"
 
+extern local_io_tasks_t local_io_tasks;
 
 
 /************************************************************************************************************/
@@ -46,22 +47,39 @@ void PITChannel0Init(void)
     PIT_Init(PIT, &pitConfig);
 
     uint32_t pitSourceClock = CLOCK_GetFreq(kCLOCK_PerClk);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, USEC_TO_COUNT(10U, pitSourceClock));
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, SPI3_TIMER_PERIOD);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, ADC_POLLING_TIMER_PERIOD);
 
     PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
-
+    PIT_EnableInterrupts(PIT, kPIT_Chnl_2, kPIT_TimerInterruptEnable);
+    
     PIT_StartTimer(PIT, kPIT_Chnl_0);
+    PIT_StartTimer(PIT, kPIT_Chnl_2);    
+
+     /* Enable at the NVIC */
+    EnableIRQ(PIT_IRQn);    
+    NVIC_SetPriority(PIT_IRQn, 8);
 }
 
-
-
-void PITChannel0ISR(void)
+void PIT_IRQHandler(void)
 {
-    static uint_fast8_t msTicks = 0;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    if(msTicks++ >= 100)    // Interrupt after every 1ms
+    /* Przerwanie co 10us */
+	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_0))
     {
-        LocalIO_DI_CheckPinsState();
-        LocalIO_DI_CountersHandler();
-    }
+		/* Clear interrupt flag.*/		
+        vTaskNotifyGiveFromISR(local_io_tasks.Task10us, &xHigherPriorityTaskWoken);
+        PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, kPIT_TimerFlag);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	}
+
+    /* Przerwanie co 10ms */
+	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_2))
+    {
+		/* Clear interrupt flag.*/		
+        vTaskNotifyGiveFromISR(local_io_tasks.Task10ms, &xHigherPriorityTaskWoken);
+        PIT_ClearStatusFlags(PIT, kPIT_Chnl_2, kPIT_TimerFlag);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	}
 }
