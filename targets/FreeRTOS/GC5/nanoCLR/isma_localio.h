@@ -19,6 +19,7 @@ typedef struct _local_io
 
 typedef struct _local_io_tasks
 {
+    TaskHandle_t Task1us;
     TaskHandle_t Task10us;
     TaskHandle_t Task10ms;
 } local_io_tasks_t;
@@ -26,6 +27,7 @@ typedef struct _local_io_tasks
 uint32_t GetDONumber();
 
 void vLocalIOThread(void * argument);
+void vTimeredTask1us(void * argument);
 void vTimeredTask10ms(void * argument);
 void vTimeredTask10us(void * argument);
 

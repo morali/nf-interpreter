@@ -11,7 +11,7 @@
 #include "MIMXRT1062.h"
 #include "fsl_debug_console.h"
 #include "hyperRAM.h"
-// #include "spi.h"
+#include "spi.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -24,12 +24,11 @@
 #include "Target_BlockStorage_iMXRTFlashDriver.h"
 #include "CLR_Startup_Thread.h"
 
-// #include "External_RTC.h"
-// #include "MAC_address.h"
+#include "External_RTC.h"
+#include "MAC_address.h"
 #include "GlobalEventsFlags.h"
-// #include "Panel.h"
+#include "Panel.h"
 #include "isma_localio.h"
-
 
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
@@ -44,19 +43,21 @@ int main(void)
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
 
     BOARD_InitHyperRAM();
-    // I2C3_InitPeripheral();
+    I2C3_InitPeripheral();
+    I2C2_InitPeripheral();
     SPI_InitPeripheral();
     GlobalEventsFlags_Init();
     // SCB_DisableDCache();
 
     
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);
-    xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 15, NULL);
+    xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 16, NULL);
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 14, NULL);
     // xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE + 16, NULL, configMAX_PRIORITIES - 13, NULL);
     // xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     // xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE +512, NULL, configMAX_PRIORITIES - 14, NULL);
-    xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 512, NULL, configMAX_PRIORITIES - 13, NULL);
+    xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 1024, NULL, configMAX_PRIORITIES - 16, NULL);
+   
     
     vTaskStartScheduler();
 

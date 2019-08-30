@@ -16,9 +16,11 @@
 /*                                                                                                          */
 /************************************************************************************************************/
 
-#define SPI3_TIMER_PERIOD USEC_TO_COUNT(1000U, pitSourceClock)
-#define ADC_POLLING_TIMER_PERIOD USEC_TO_COUNT(1000000U, pitSourceClock) /* FOR NOW 0,5SEC PERIOD */
+#define SPI3_TIMER_PERIOD 1000
+#define PWM_TIMER_PERIOD 1000
+#define ADC_TIMER_PERIOD 100000000 /* FOR NOW 0,5SEC PERIOD */
 // #define ADC_POLLING_TIMER_PERIOD 0x2FAF07F /* FOR NOW 0,5SEC PERIOD */
+
 
 
 

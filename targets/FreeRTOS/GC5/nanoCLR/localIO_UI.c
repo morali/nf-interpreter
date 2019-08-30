@@ -381,6 +381,7 @@ void vLocalIO_UI(void *argument) {
   int32_t adc_vcc = 0;
 
   while (1) {
+    taskYIELD();
     switch (state) {
     case SelectRefChannel:
       //Measure Reference voltage
