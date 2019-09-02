@@ -5,20 +5,54 @@
  */
 
 #include "localIO_UI.h"
-#include "FreeRTOSCommonHooks.h"
-#include "isma_localio.h"
 
-typedef enum {
-  SelectRefChannel,
-  StartConvertVRef,
-  ReadVRef,
-  ReadResistance,
-  ReadVoltage
-} UIState_t;
-
-#define MAX_RESISTANCE_PT1000 200000
+extern local_io_t s_local_io_tx;
 
 static localIO_UI_t localIO_UI;
+
+// Helper LookUpTable to select propper UI Channel
+static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
+
+/**
+ * @brief  Switches the analog multiplexer to the appropriate channel
+ * @note   
+ * @param  channel: UIChannel_t
+ * @retval None
+ */
+void SetUIChannel(UIChannel_t channel) {
+
+  if (channel >= (sizeof(UI_Channel_LUT) / sizeof(UI_Channel_LUT[0]))) {
+    return;
+  }
+
+  //clear channel bits
+  s_local_io_tx.ui_input &= ~(0xF << 4);
+  //set channel bits
+  s_local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
+}
+
+// Helper LookUpTable to select propper UI Channel Pullup
+static const uint8_t UI_ChannelPullup_LUT[] = {2, 4, 8, 1};
+
+/**
+ * @brief  Enable or disable pullup for resistance measurement
+ * @note   
+ * @param  channel: channel number
+ * @param  enable: if true then pullup is enabled
+ * @retval None
+ */
+void SetUIChannelPullup(UIChannel_t channel, bool enable) {
+  if (channel >= (sizeof(UI_ChannelPullup_LUT) / sizeof(UI_ChannelPullup_LUT[0]))) {
+    return;
+  }
+
+  //set pullup bits
+  if (enable) {
+    s_local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
+  } else {
+    s_local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
+  }
+}
 
 /**
  * @brief  Wait for conversion
@@ -346,6 +380,7 @@ void vLocalIO_UI(void *argument) {
   int32_t adc_vcc = 0;
 
   while (1) {
+    taskYIELD();
     switch (state) {
     case SelectRefChannel:
       //Measure Reference voltage

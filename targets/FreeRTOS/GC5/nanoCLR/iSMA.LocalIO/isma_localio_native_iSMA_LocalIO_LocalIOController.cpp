@@ -5,148 +5,195 @@
  */
 
 #include "isma_localio_native.h"
-#include "isma_localio.h"
-#include "localIO_UI.h"
-#include "LocalIO_DI.h"
+#include "LocalIO_DO.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
-  CLR_RT_TypeDef_Index DITypeDef;
-  CLR_RT_HeapBlock *DI;
-  CLR_RT_HeapBlock *hbObj;
-  CLR_RT_HeapBlock &top = stack.PushValue();
 
-  uint32_t diCount = DIGITAL_INPUTS_AMOUNT;
+   CLR_RT_HeapBlock *pThis = stack.This();
+        FAULT_ON_NULL(pThis);
+  // CLR_RT_TypeDef_Index DITypeDef;
+  // CLR_RT_HeapBlock *DI;
+  // CLR_RT_HeapBlock *hbObj;
+  // CLR_RT_HeapBlock &top = stack.PushValue();
 
-  // find <DO> type, don't bother checking the result as it exists for sure
-  g_CLR_RT_TypeSystem.FindTypeDef("DI", "iSMA.LocalIO", DITypeDef);
+  // uint32_t diCount = DIGITAL_INPUTS_AMOUNT;
 
-  // create an array of <DO>
-  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, diCount, DITypeDef));
+  // // find <DO> type, don't bother checking the result as it exists for sure
+  // g_CLR_RT_TypeSystem.FindTypeDef("DI", "iSMA.LocalIO", DITypeDef);
 
-  // get a pointer to the first object in the array (which is of type <DO>)
-  DI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
+  // // create an array of <DO>
+  // NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, diCount, DITypeDef));
 
-  if (diCount > 0) {
-    for (uint32_t i = 0; i < diCount; i++) {
-      // create an instance of <DO>
-      NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DI, DITypeDef));
+  // // get a pointer to the first object in the array (which is of type <DO>)
+  // DI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
-      // dereference the object in order to reach its fields
-      hbObj = DI->Dereference();
+  // if (diCount > 0) {
+  //   for (uint32_t i = 0; i < diCount; i++) {
+  //     // create an instance of <DO>
+  //     NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DI, DITypeDef));
 
-      // get a reference to the DOId managed field...
-      CLR_RT_HeapBlock &DIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___doutputId];
-      CLR_UINT8 *pRes = &DIIdFieldRef.NumericByRef().u1;
-      *pRes = i;
+  //     // dereference the object in order to reach its fields
+  //     hbObj = DI->Dereference();
 
-      char name[] = "DIx";
-      name[2] = i + 1 + '0';
+  //     // get a reference to the DOId managed field...
+  //     CLR_RT_HeapBlock &DIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___doutputId];
+  //     CLR_UINT8 *pRes = &DIIdFieldRef.NumericByRef().u1;
+  //     *pRes = i;
 
-      // DO name
-      NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___name], name));
+  //     char name[] = "DIx";
+  //     name[2] = i + 1 + '0';
 
-      // move the DO pointer to the next item in the array
-      DI++;
-    }
-  }
+  //     // DO name
+  //     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___name], name));
+
+  //     // move the DO pointer to the next item in the array
+  //     DI++;
+  (void) stack;
+  //   }
+  // }
   NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDOsNative___STATIC__SZARRAY_iSMALocalIODO(CLR_RT_StackFrame &stack) {
-  NANOCLR_HEADER();
-  CLR_RT_TypeDef_Index DOTypeDef;
-  CLR_RT_HeapBlock *DO;
-  CLR_RT_HeapBlock *hbObj;
-  CLR_RT_HeapBlock &top = stack.PushValue();
+	NANOCLR_HEADER();
 
-  uint32_t douputCount = GetDONumber();
+	CLR_RT_TypeDef_Index DOTypeDef;
+	CLR_RT_HeapBlock *DO;
+	CLR_RT_HeapBlock *hbObj;
+	CLR_RT_HeapBlock &top = stack.PushValue();
 
-  // find <DO> type, don't bother checking the result as it exists for sure
-  g_CLR_RT_TypeSystem.FindTypeDef("DO", "iSMA.LocalIO", DOTypeDef);
+	uint32_t douputCount = GetDONumber();
 
-  // create an array of <DO>
-  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, douputCount, DOTypeDef));
+	// find <DO> type, don't bother checking the result as it exists for sure
+	g_CLR_RT_TypeSystem.FindTypeDef("DO", "iSMA.LocalIO", DOTypeDef);
 
-  // get a pointer to the first object in the array (which is of type <DO>)
-  DO = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
+	// create an array of <DO>
+	NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, douputCount, DOTypeDef));
 
-  if (douputCount > 0) {
-    for (uint32_t i = 0; i < douputCount; i++) {
-      // create an instance of <DO>
-      NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DO, DOTypeDef));
+	// get a pointer to the first object in the array (which is of type <DO>)
+	DO = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
-      // dereference the object in order to reach its fields
-      hbObj = DO->Dereference();
+	if (douputCount > 0) 
+	{
+		for (uint32_t i = 0; i < douputCount; i++) 
+		{
+			// create an instance of <DO>
+			NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DO, DOTypeDef));
 
-      // get a reference to the DOId managed field...
-      CLR_RT_HeapBlock &DOIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___doutputId];
-      CLR_UINT8 *pRes = &DOIdFieldRef.NumericByRef().u1;
-      *pRes = i;
+			// dereference the object in order to reach its fields
+			hbObj = DO->Dereference();
 
-      char name[] = "DOx";
-      name[2] = i + 1 + '0';
+			// get a reference to the DOId managed field...
+			CLR_RT_HeapBlock &DOIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___doutputId];
+			CLR_UINT8 *pRes = &DOIdFieldRef.NumericByRef().u1;
+			*pRes = i;
 
-      // DO name
-      NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___name], name));
+			char name[] = "DOx";
+			name[2] = i + 1 + '0';
 
-      // move the DO pointer to the next item in the array
-      DO++;
-    }
-  }
-  NANOCLR_NOCLEANUP();
+			// DO name
+			NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DO::FIELD___name], name));
+
+			// move the DO pointer to the next item in the array
+			DO++;
+		}
+	}
+	NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetUIsNative___STATIC__SZARRAY_iSMALocalIOUI(CLR_RT_StackFrame &stack) {
-  NANOCLR_HEADER();
+	NANOCLR_HEADER();
 
-  CLR_RT_TypeDef_Index UITypeDef;
-  CLR_RT_HeapBlock *UI;
-  CLR_RT_HeapBlock *hbObj;
-  CLR_RT_HeapBlock &top = stack.PushValue();
+	CLR_RT_TypeDef_Index UITypeDef;
+	CLR_RT_HeapBlock *UI;
+	CLR_RT_HeapBlock *hbObj;
+	CLR_RT_HeapBlock &top = stack.PushValue();
 
-  uint32_t uiCount = UINumber;
+	uint32_t UINumber = 0;
+	uint32_t uiCount = UINumber;
 
-  // find <UI> type, don't bother checking the result as it exists for sure
-  g_CLR_RT_TypeSystem.FindTypeDef("UI", "iSMA.LocalIO", UITypeDef);
+	// find <UI> type, don't bother checking the result as it exists for sure
+	g_CLR_RT_TypeSystem.FindTypeDef("UI", "iSMA.LocalIO", UITypeDef);
 
-  // create an array of <UI>
-  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, uiCount, UITypeDef));
+	// create an array of <UI>
+	NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, uiCount, UITypeDef));
 
-  // get a pointer to the first object in the array (which is of type <UI>)
-  UI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
+	// get a pointer to the first object in the array (which is of type <UI>)
+	UI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
-  if (uiCount > 0) {
-    for (uint32_t i = 0; i < uiCount; i++) {
-      // create an instance of <UI>
-      NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*UI, UITypeDef));
+	if (uiCount > 0) 
+	{
+		for (uint32_t i = 0; i < uiCount; i++)
+		{
+			// create an instance of <UI>
+			NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*UI, UITypeDef));
 
-      // dereference the object in order to reach its fields
-      hbObj = UI->Dereference();
+			// dereference the object in order to reach its fields
+			hbObj = UI->Dereference();
 
-      // get a reference to the UIId managed field...
-      CLR_RT_HeapBlock &UIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_UI::FIELD___id];
-      CLR_UINT8 *pRes = &UIIdFieldRef.NumericByRef().u1;
-      *pRes = i;
+			// get a reference to the UIId managed field...
+			CLR_RT_HeapBlock &UIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_UI::FIELD___id];
+			CLR_UINT8 *pRes = &UIIdFieldRef.NumericByRef().u1;
+			*pRes = i;
 
-      char name[] = "UIx";
-      name[2] = i + 1 + '0';
+			char name[] = "UIx";
+			name[2] = i + 1 + '0';
 
-      // UI name
-      NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_UI::FIELD___name], name));
+			// UI name
+			NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_UI::FIELD___name], name));
 
-      // move the UI pointer to the next item in the array
-      UI++;
-    }
-  }
-
+			// move the UI pointer to the next item in the array
+			UI++;
+		}
+	}
   NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAONative___STATIC__SZARRAY_iSMALocalIOAO(CLR_RT_StackFrame &stack) {
-  NANOCLR_HEADER();
+	NANOCLR_HEADER();
 
-  NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+	CLR_RT_TypeDef_Index AOTypeDef;
+	CLR_RT_HeapBlock *AO;
+	CLR_RT_HeapBlock *hbObj;
+	CLR_RT_HeapBlock &top = stack.PushValue();
 
-  NANOCLR_NOCLEANUP();
+	uint32_t AONumber = 0;
+	uint32_t aoCount = AONumber;
+
+	// find <UI> type, don't bother checking the result as it exists for sure
+	g_CLR_RT_TypeSystem.FindTypeDef("AO", "iSMA.LocalIO", AOTypeDef);
+
+	// create an array of <UI>
+	NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, aoCount, AOTypeDef));
+
+	// get a pointer to the first object in the array (which is of type <UI>)
+	AO = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
+
+	if (aoCount > 0) 
+	{
+		for (uint32_t i = 0; i < aoCount; i++)
+		{
+			// create an instance of <UI>
+			NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*AO, AOTypeDef));
+
+			// dereference the object in order to reach its fields
+			hbObj = AO->Dereference();
+
+			// get a reference to the UIId managed field...
+			CLR_RT_HeapBlock &AOIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_AO::FIELD___aoutputId];
+			CLR_UINT8 *pRes = &AOIdFieldRef.NumericByRef().u1;
+			*pRes = i;
+
+			char name[] = "AOx";
+			name[5] = i + 1 + '0';
+
+			// UI name
+			NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_AO::FIELD___name], name));
+
+			// move the UI pointer to the next item in the array
+			AO++;
+		}
+	}
+	NANOCLR_NOCLEANUP();
 }

@@ -4,144 +4,63 @@
  * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "isma_localio.h"
-#include "i2c.h"
-#include "localIO_UI.h"
 
-local_io_t local_io_rx;
-local_io_t local_io_tx;
+#include "LocalIO_AO.h"
+#include "LocalIO_UI.h"
+#include "LocalIO_Timers.h"
 
-lpspi_rtos_handle_t lpspi3_master_rtos_handle;
+extern localIO_AO_t local_ao;
 
-/**
- * @brief  Get number of digital output ports
- * @note   
- * @retval number of DOs ports
- */
-uint32_t GetDONumber() {
-  return DIGITAL_OUTPUT_PORTS;
-}
+local_io_t s_local_io_tx;
+local_io_tasks_t local_io_tasks;
 
-/**
- * @brief Checks digital output bit and returns its state
- * @note   
- * @param  DONum: digital output port number
- * @retval true - high, false - low
- */
-bool GetDO(uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return false;
-
-  bool state = false;
-  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
-  return state;
-}
-
-/**
- * @brief  Sets digital output bit state
- * @note   
- * @param  state: true or false (high or low)
- * @param  DONum: digital output port number
- * @retval None
- */
-void SetDO(bool state, uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return;
-
-  if (state) {
-    local_io_tx.digital_output |= 1U << (DONum + 3);
-  } else {
-    local_io_tx.digital_output &= ~(1U << (DONum + 3));
-  }
-}
-
-/**
- * @brief  Toggle state of the digital output port of the UAC18
- * @note   
- * @param  DONum: digital output port number
- * @retval returns state of port after toggle
- */
-bool ToggleDO(uint32_t DONum) {
-  if (DONum > GetDONumber())
-    return false;
-
-  local_io_tx.digital_output ^= 1U << (DONum + 3);
-
-  bool state = false;
-  /* Check DONum bit state and return the value */
-  state = (bool)(local_io_tx.digital_output >> (DONum + 3)) & 1U;
-  return state;
-}
-
-// Helper LookUpTable to select propper UI Channel
-static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
-
-/**
- * @brief  Switches the analog multiplexer to the appropriate channel
- * @note   
- * @param  channel: UIChannel_t
- * @retval None
- */
-void SetUIChannel(UIChannel_t channel) {
-
-  if (channel >= (sizeof(UI_Channel_LUT) / sizeof(UI_Channel_LUT[0]))) {
-    return;
-  }
-
-  //clear channel bits
-  local_io_tx.ui_input &= ~(0xF << 4);
-  //set channel bits
-  local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
-}
-
-// Helper LookUpTable to select propper UI Channel Pullup
-static const uint8_t UI_ChannelPullup_LUT[] = {2, 4, 8, 1};
-
-/**
- * @brief  Enable or disable pullup for resistance measurement
- * @note   
- * @param  channel: channel number
- * @param  enable: if true then pullup is enabled
- * @retval None
- */
-void SetUIChannelPullup(UIChannel_t channel, bool enable) {
-  if (channel >= (sizeof(UI_ChannelPullup_LUT) / sizeof(UI_ChannelPullup_LUT[0]))) {
-    return;
-  }
-
-  //set pullup bits
-  if (enable) {
-    local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
-  } else {
-    local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
-  }
-}
+extern spi_t s_spi3;
 
 void vLocalIOThread(void *argument) {
-  (void)argument;
+	(void)argument;
 
-  local_io_tx.digital_output = 0x00;
-  local_io_tx.analog_output = 0x00;
-  local_io_tx.ui_input = 0x00;
+    xTaskCreate(vTimeredTask1s, "vTimeredTask10ms", configMINIMAL_STACK_SIZE, NULL, 6, &local_io_tasks.Task1s);
 
-  lpspi_transfer_t SPI3MasterXfer = {0};
+	/* LocalIO UI task */
+	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 
-  /* Send and receive data through loopback  */
-  SPI3MasterXfer.txData = &(local_io_tx.ui_input);
+	/* Initialiaze SPI data structer to default values */
+	s_local_io_tx.digital_output = 0xFF;
+	s_local_io_tx.analog_output = 0x00;
+	s_local_io_tx.ui_input = 0x00;
+	/* Send and receive data through loopback  */
+	s_spi3.spi_transfer.txData = &(s_local_io_tx.ui_input);
 
-  SPI3MasterXfer.rxData = &(local_io_rx.ui_input);
-  SPI3MasterXfer.dataSize = 3;
-
-  I2C2_InitPeripheral();
-
-  xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, uxTaskPriorityGet(NULL), NULL);
-
-  while (1) {
-    LPSPI_RTOS_Transfer(&s_spi3.masterRtosHandle, &SPI3MasterXfer);
-
-    GPIO_WritePinOutput(GPIO1, 28, 1);
-    vTaskDelay(pdMS_TO_TICKS(1));
-    GPIO_WritePinOutput(GPIO1, 28, 0);
-    vTaskDelay(pdMS_TO_TICKS(1));
-  }
+	/* Peripheral interrupt timer init (for SPI ring transfer and PWM) */
+	PITChannel0Init();
+	vTaskDelete(NULL);
 }
+
+/**
+ * @brief  Low priority task fired every 1s (used for driving DO)
+ * @note
+ * @param  argument: (void)
+ * @retval None
+ */
+void vTimeredTask1s(void * argument)
+{
+	(void) argument;
+
+	while(1)
+	{
+		/* Wait for unblock from timer interrupt */
+		ulTaskNotifyTake(0x0, portMAX_DELAY);
+
+		/* Toggle digital outputs every 1s */
+		s_local_io_tx.digital_output ^= 0xFF;
+	}
+}
+
+#ifdef __cplusplus
+}
+#endif

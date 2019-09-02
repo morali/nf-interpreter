@@ -16,10 +16,12 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DI::DIGetNative___BOOLEAN( CLR_
         CLR_RT_HeapBlock *pThis = stack.This();
         FAULT_ON_NULL(pThis);
 
-        uint32_t diNumber = pThis[FIELD_dinputId].NumericByRefConst().u4;
-        bool diState = LocalIO_DI_ReadInput((uint8_t)diNumber);
+        // uint32_t diNumber = pThis[FIELD_dinputId].NumericByRefConst().u4;
+        // bool diState = LocalIO_DI_ReadInput((uint8_t)diNumber);
         
-        stack.SetResult_Boolean(diState);
+        // stack.SetResult_Boolean(diState);
+        (void) stack;
+        
     }
     NANOCLR_NOCLEANUP();
 }

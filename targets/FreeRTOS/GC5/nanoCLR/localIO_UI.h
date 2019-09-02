@@ -7,16 +7,39 @@
 #ifndef _LOCALIO_UI_H_
 #define _LOCALIO_UI_H_
 
+#define MAX_RESISTANCE_PT1000 200000
+#define UINumber 4 
+
 #include "MCP3421.h"
+#include "FreeRTOSCommonHooks.h"
+#include "isma_localio.h"
 
-#define UINumber 4
+typedef enum {
+  SelectRefChannel,
+  StartConvertVRef,
+  ReadVRef,
+  ReadResistance,
+  ReadVoltage
+} UIState_t;
 
-typedef struct _UIConfig_t {
-  Samplerate_t samplerate;
-  PGAGain_t gain;
-  bool measureVoltage;
-  bool measureResistance;
-  uint8_t filter;
+typedef enum {
+    UI1,
+    UI2,
+    UI3,
+    UI4,
+    UI5,
+    UI6,
+    UI7,
+    UI8,
+    VREF
+} UIChannel_t;
+
+typedef struct _UIConfig_t{
+    Samplerate_t samplerate;
+    PGAGain_t gain;
+    bool measureVoltage;
+    bool measureResistance;
+    uint8_t filter;
 } UIConfig_t;
 
 typedef struct _localIO_UI {
@@ -112,5 +135,23 @@ bool GetUIDigital(uint32_t no);
 #ifdef __cplusplus
 }
 #endif
+/**
+ * @brief  Switches the analog multiplexer to the appropriate channel
+ * @note   
+ * @param  channel: UIChannel_t
+ * @retval None
+ */
+void SetUIChannel(UIChannel_t channel);
+
+/**
+ * @brief  Enable or disable pullup for resistance measurement
+ * @note   
+ * @param  channel: channel number
+ * @param  enable: if true then pullup is enabled
+ * @retval None
+ */
+void SetUIChannelPullup(UIChannel_t channel, bool enable);
+
+void vLocalIO_UI(void * argument);
 
 #endif /* _LOCALIO_UI_H_ */

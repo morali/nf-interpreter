@@ -14,11 +14,19 @@
 spi_t s_spi2;
 spi_t s_spi3;
 
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                  SPI PUBLIC FUNCTIONS DEFINITIONS                                        */
-/*                                                                                                          */
-/************************************************************************************************************/
+void SPI3_MasterHandler(LPSPI_Type *base, lpspi_master_handle_t *handle, status_t status, void *userData)
+{
+	GPIO_WritePinOutput(GPIO1, 28, 1);
+	for (uint16_t i = 0; i < 1000; i++)
+		__asm("nop");
+	GPIO_WritePinOutput(GPIO1, 28, 0);
+	(void) base;
+	(void) handle;
+	(void) status;
+	(void) userData;
+}
+
+
 
 void SPI_InitPeripheral(void) {
 	const gpio_pin_config_t gpioConfig = {
@@ -39,13 +47,22 @@ void SPI_InitPeripheral(void) {
 	LPSPI_RTOS_Init(&s_spi2.masterRtosHandle, LPSPI2, &s_spi2.masterConfig, LPSPI2_CLOCK_FREQUENCY);
 
 	/* Setup SPI3 */
-	/* Inicjalizacja pinu CS GPIO1.8 */
+	/* GPIO 28 pin for latching buffer on SPI ring */
 	GPIO_PinInit(GPIO1, 28, &gpioConfig);
 
 	NVIC_SetPriority(LPSPI3_IRQn, LPSPI3_IRQ_PRIO);
 
 	LPSPI_MasterGetDefaultConfig(&s_spi3.masterConfig);
 	s_spi3.masterConfig.baudRate = LPSPI3_BAUDRATE;
+	s_spi3.spi_transfer.dataSize = 3;
+	
+	LPSPI_EnableInterrupts(LPSPI3, kLPSPI_TransferCompleteInterruptEnable);
 
-	LPSPI_RTOS_Init(&s_spi3.masterRtosHandle, LPSPI3, &s_spi3.masterConfig, LPSPI3_CLOCK_FREQUENCY);
+	LPSPI_MasterInit(LPSPI3, &s_spi3.masterConfig, LPSPI3_CLOCK_FREQUENCY);
+	 /* Enable at the NVIC */
+    EnableIRQ(LPSPI3_IRQn);
+
+	/* For now NULL callback */
+	LPSPI_MasterTransferCreateHandle(LPSPI3, &s_spi3.masterHandle, SPI3_MasterHandler, NULL);
 }
+

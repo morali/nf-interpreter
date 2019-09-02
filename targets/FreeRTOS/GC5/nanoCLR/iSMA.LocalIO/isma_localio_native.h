@@ -12,14 +12,16 @@
 
 struct Library_isma_localio_native_iSMA_LocalIO_AO
 {
-    static const int FIELD_STATIC__Empty = 0;
+     static const int FIELD_STATIC__Empty = 0;
 
     static const int FIELD___aoutputId = 1;
     static const int FIELD___name = 2;
+    static const int FIELD___voltage = 3;
+    static const int FIELD___pwm = 4;
+    static const int FIELD___frequency = 5;
+    static const int FIELD___duty = 6;
 
-    NANOCLR_NATIVE_DECLARE(AOSetVoltage___VOID__U2);
-    NANOCLR_NATIVE_DECLARE(AOSetDuty___VOID__U4);
-    NANOCLR_NATIVE_DECLARE(AOSetFreq___VOID__U4);
+    NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID);
 
     //--//
 
