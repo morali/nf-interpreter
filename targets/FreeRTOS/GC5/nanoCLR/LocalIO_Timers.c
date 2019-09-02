@@ -20,20 +20,20 @@ void PITChannel0Init(void)
     PIT_Init(PIT, &pitConfig);
 
     // uint32_t pitSourceClock = CLOCK_GetFreq(kCLOCK_PerClk);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, SPI3_TIMER_PERIOD);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, PWM_TIMER_PERIOD);
+    // PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, SPI3_TIMER_PERIOD);
+    // PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, PWM_TIMER_PERIOD);
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, ADC_TIMER_PERIOD);
 
-    PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
-    PIT_EnableInterrupts(PIT, kPIT_Chnl_1, kPIT_TimerInterruptEnable);
+    // PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
+    // PIT_EnableInterrupts(PIT, kPIT_Chnl_1, kPIT_TimerInterruptEnable);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_2, kPIT_TimerInterruptEnable);
     
     /* Enable at the NVIC */
     EnableIRQ(PIT_IRQn);
     NVIC_SetPriority(PIT_IRQn, 10);
 
-    PIT_StartTimer(PIT, kPIT_Chnl_0);
-    PIT_StartTimer(PIT, kPIT_Chnl_1);
+    // PIT_StartTimer(PIT, kPIT_Chnl_0);
+    // PIT_StartTimer(PIT, kPIT_Chnl_1);
     PIT_StartTimer(PIT, kPIT_Chnl_2);    
 }
 
