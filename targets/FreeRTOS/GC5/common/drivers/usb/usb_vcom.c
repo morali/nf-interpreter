@@ -112,10 +112,7 @@ void vcom_usb_thread(void * argument)
         xTaskNotifyWait(0x0, 0x0, &buff_addr, portMAX_DELAY);
         vcomInstance = &g_composite_p->cdcVcom[0];
         message = (usb_device_endpoint_callback_message_struct_t *) buff_addr;
-        // if (message->length != 0 && message->buffer != NULL)
-        // {
-            xStreamBufferSend(s_cdc_data.data_in[0], message->buffer, message->length, portMAX_DELAY);
-        // }
+        xStreamBufferSend(s_cdc_data.data_in[0], message->buffer, message->length, portMAX_DELAY);
         USB_DeviceRecvRequest(g_composite_p->deviceHandle, vcomInstance->bulkOutEndpoint, vcomInstance->currRecvBuf, vcomInstance->bulkOutEndpointMaxPacketSize);
     }
     (void) argument;
