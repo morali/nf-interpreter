@@ -12,47 +12,15 @@
 extern "C" {
 #endif
 
-#include "fsl_gpio.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                           PUBLIC DEFINES                                                 */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-#define DIGITAL_INPUTS_AMOUNT   4
-
-
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                          PUBLIC VARIABLES                                                */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-
-
-
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                LOCALIO_DI PUBLIC FUNCTIONS DECLARATIONS                                  */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-void LocalIO_DI_Init(void);
-
-void LocalIO_DI_CheckPinsState(void);
-
-void LocalIO_DI_CountersHandler(void);
-
-bool LocalIO_DI_ReadInput(uint8_t diPinNumber);
-
-
+void DIReadPinsState(void);
+void DICountersHandler(void);
+uint32_t GetDINumber();
+bool GetDIState(uint32_t id);
+uint32_t GetDICounter(uint32_t id);
+void SetDICounter(uint32_t id, uint32_t value);
 
 #ifdef __cplusplus
 }

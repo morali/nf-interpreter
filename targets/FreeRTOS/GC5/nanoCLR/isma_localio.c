@@ -24,10 +24,8 @@ extern spi_t s_spi3;
 void vLocalIOThread(void *argument) {
 	(void)argument;
 
-    xTaskCreate(vTimeredTask1s, "vTimeredTask10ms", configMINIMAL_STACK_SIZE, NULL, 6, &local_io_tasks.Task1s);
-
 	/* LocalIO UI task */
-	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
+	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE + 30, NULL, uxTaskPriorityGet(NULL), NULL);
 
 	/* Initialiaze SPI data structer to default values */
 	s_local_io_tx.digital_output = 0xFF;
@@ -39,26 +37,6 @@ void vLocalIOThread(void *argument) {
 	/* Peripheral interrupt timer init (for SPI ring transfer and PWM) */
 	PITChannel0Init();
 	vTaskDelete(NULL);
-}
-
-/**
- * @brief  Low priority task fired every 1s (used for driving DO)
- * @note
- * @param  argument: (void)
- * @retval None
- */
-void vTimeredTask1s(void * argument)
-{
-	(void) argument;
-
-	while(1)
-	{
-		/* Wait for unblock from timer interrupt */
-		ulTaskNotifyTake(0x0, portMAX_DELAY);
-
-		/* Toggle digital outputs every 1s */
-		s_local_io_tx.digital_output ^= 0xFF;
-	}
 }
 
 #ifdef __cplusplus

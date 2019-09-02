@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include "LocalIO_Timers.h"
+#include "LocalIO_DI.h"
 
 extern local_io_tasks_t local_io_tasks;
 extern localIO_AO_t s_local_ao;
@@ -23,9 +24,9 @@ void PITChannel0Init(void)
     PIT_Init(PIT, &pitConfig);
 
     // uint32_t pitSourceClock = CLOCK_GetFreq(kCLOCK_PerClk);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, SPI3_TIMER_PERIOD);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, PWM_TIMER_PERIOD);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, ADC_TIMER_PERIOD);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, _50US_TIMER_PERIOD);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, _100US_TIMER_PERIOD);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, _1MS_TIMER_PERIOD);
 
     PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_1, kPIT_TimerInterruptEnable);
@@ -35,15 +36,13 @@ void PITChannel0Init(void)
     EnableIRQ(PIT_IRQn);
     NVIC_SetPriority(PIT_IRQn, PIT_IRQ_PRIO);
 
-    PIT_StartTimer(PIT, kPIT_Chnl_0);
+    //PIT_StartTimer(PIT, kPIT_Chnl_0);
     PIT_StartTimer(PIT, kPIT_Chnl_1);
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }
 
 void PIT_IRQHandler(void)
 {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
     /* Interrupt every 1us */
 	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_0))
     {
@@ -54,7 +53,7 @@ void PIT_IRQHandler(void)
         LPSPI_MasterTransferNonBlocking(LPSPI3, &s_spi3.masterHandle, &s_spi3.spi_transfer);        
 	}
 
-    /* Interrupt every 10us */
+    /* Interrupt every 100us */
 	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_1))
     {
 		/* Clear interrupt flag.*/
@@ -85,20 +84,18 @@ void PIT_IRQHandler(void)
 		if (s_local_ao.pwm_count >= 100)
         {
 			s_local_ao.pwm_count = 0;
-            s_local_io_tx.digital_output ^= 0xFF;
-
         }
 		s_local_ao.pwm_count++;
 	}
 
-     /* Interrupt every 1s (quick check of digital output ports) */
-	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_2))
-    {
-		/* Clear interrupt flag.*/
-        vTaskNotifyGiveFromISR(local_io_tasks.Task1s, &xHigherPriorityTaskWoken);
+    /* Interrupt every 1ms */
+    if (PIT_GetStatusFlags(PIT, kPIT_Chnl_2)) {
+        /* Clear interrupt flag.*/
         PIT_ClearStatusFlags(PIT, kPIT_Chnl_2, kPIT_TimerFlag);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-	}
+
+        DIReadPinsState();
+        DICountersHandler();
+    }
 }
 
 #ifdef __cplusplus

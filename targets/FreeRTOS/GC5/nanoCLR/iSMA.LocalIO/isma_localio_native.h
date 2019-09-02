@@ -12,7 +12,7 @@
 
 struct Library_isma_localio_native_iSMA_LocalIO_AO
 {
-     static const int FIELD_STATIC__Empty = 0;
+    static const int FIELD_STATIC__Empty = 0;
 
     static const int FIELD___aoutputId = 1;
     static const int FIELD___name = 2;
@@ -31,10 +31,12 @@ struct Library_isma_localio_native_iSMA_LocalIO_DI
 {
     static const int FIELD_STATIC__Empty = 1;
 
-    static const int FIELD___dinputId = 1;
+    static const int FIELD___id = 1;
     static const int FIELD___name = 2;
 
     NANOCLR_NATIVE_DECLARE(DIGetNative___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(DIGetCounterNative___U4);
+    NANOCLR_NATIVE_DECLARE(DISetCounterNative___VOID__U4);
 
     //--//
 
