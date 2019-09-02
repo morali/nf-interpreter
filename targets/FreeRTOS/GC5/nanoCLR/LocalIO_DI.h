@@ -12,47 +12,20 @@
 extern "C" {
 #endif
 
-#include "fsl_gpio.h"
+#include <stdint.h>
+#include <stdbool.h>
 
+uint32_t GetDINumber();
 
+void DIReadPinsState(void);
 
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                           PUBLIC DEFINES                                                 */
-/*                                                                                                          */
-/************************************************************************************************************/
+void DICountersHandler(void);
 
-#define DIGITAL_INPUTS_AMOUNT   4
+bool GetDIState(uint32_t id);
 
+uint32_t GetDICounter(uint32_t id);
 
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                          PUBLIC VARIABLES                                                */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-
-
-
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                LOCALIO_DI PUBLIC FUNCTIONS DECLARATIONS                                  */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-void LocalIO_DI_Init(void);
-
-void LocalIO_DI_CheckPinsState(void);
-
-void LocalIO_DI_CountersHandler(void);
-
-bool LocalIO_DI_ReadInput(uint8_t diPinNumber);
-
-
+void SetDICounter(uint32_t id, uint32_t value);
 
 #ifdef __cplusplus
 }

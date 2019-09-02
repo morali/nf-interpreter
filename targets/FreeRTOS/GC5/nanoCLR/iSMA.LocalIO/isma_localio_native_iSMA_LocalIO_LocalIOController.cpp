@@ -9,49 +9,45 @@
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
+  CLR_RT_TypeDef_Index DITypeDef;
+  CLR_RT_HeapBlock *DI;
+  CLR_RT_HeapBlock *hbObj;
+  CLR_RT_HeapBlock &top = stack.PushValue();
 
-   CLR_RT_HeapBlock *pThis = stack.This();
-        FAULT_ON_NULL(pThis);
-  // CLR_RT_TypeDef_Index DITypeDef;
-  // CLR_RT_HeapBlock *DI;
-  // CLR_RT_HeapBlock *hbObj;
-  // CLR_RT_HeapBlock &top = stack.PushValue();
+  uint32_t diCount = GetDINumber();
 
-  // uint32_t diCount = DIGITAL_INPUTS_AMOUNT;
+  // find <DI> type, don't bother checking the result as it exists for sure
+  g_CLR_RT_TypeSystem.FindTypeDef("DI", "iSMA.LocalIO", DITypeDef);
 
-  // // find <DO> type, don't bother checking the result as it exists for sure
-  // g_CLR_RT_TypeSystem.FindTypeDef("DI", "iSMA.LocalIO", DITypeDef);
+  // create an array of <DI>
+  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, diCount, DITypeDef));
 
-  // // create an array of <DO>
-  // NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, diCount, DITypeDef));
+  // get a pointer to the first object in the array (which is of type <DI>)
+  DI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
-  // // get a pointer to the first object in the array (which is of type <DO>)
-  // DI = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
+  if (diCount > 0) {
+    for (uint32_t i = 0; i < diCount; i++) {
+      // create an instance of <DI>
+      NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DI, DITypeDef));
 
-  // if (diCount > 0) {
-  //   for (uint32_t i = 0; i < diCount; i++) {
-  //     // create an instance of <DO>
-  //     NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*DI, DITypeDef));
+      // dereference the object in order to reach its fields
+      hbObj = DI->Dereference();
 
-  //     // dereference the object in order to reach its fields
-  //     hbObj = DI->Dereference();
+      // get a reference to the DIId managed field...
+      CLR_RT_HeapBlock &DIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___id];
+      CLR_UINT8 *pRes = &DIIdFieldRef.NumericByRef().u1;
+      *pRes = i;
 
-  //     // get a reference to the DOId managed field...
-  //     CLR_RT_HeapBlock &DIIdFieldRef = hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___doutputId];
-  //     CLR_UINT8 *pRes = &DIIdFieldRef.NumericByRef().u1;
-  //     *pRes = i;
+      char name[] = "DIx";
+      name[2] = i + 1 + '0';
 
-  //     char name[] = "DIx";
-  //     name[2] = i + 1 + '0';
+      // DI name
+      NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___name], name));
 
-  //     // DO name
-  //     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_DI::FIELD___name], name));
-
-  //     // move the DO pointer to the next item in the array
-  //     DI++;
-  (void) stack;
-  //   }
-  // }
+      // move the DI pointer to the next item in the array
+      DI++;
+    }
+  }
   NANOCLR_NOCLEANUP();
 }
 

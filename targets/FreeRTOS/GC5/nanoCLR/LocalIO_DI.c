@@ -1,96 +1,91 @@
 /*
- * localIO_DI.c
+ * Created on Mon Sep 02 2019
  *
- *  Created on: 22.08.2019
- *      Author: Jakub Standarski
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
 #include "localIO_DI.h"
+#include "fsl_gpio.h"
 
+#define DIGITAL_INPUTS_AMOUNT 4
 
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                          PRIVATE VARIABLES                                               */
-/*                                                                                                          */
-/************************************************************************************************************/
+static volatile uint32_t digitalInputState;
+static volatile uint32_t digitalInputCounter[DIGITAL_INPUTS_AMOUNT];
 
-static uint8_t  digitalInputState;
-static uint32_t digitalInputCounter[DIGITAL_INPUTS_AMOUNT];
+typedef struct {
+  GPIO_Type *port;
+  uint32_t pin;
+} DIPin_t;
 
+static DIPin_t DIPins[DIGITAL_INPUTS_AMOUNT] = {
+    {.port = GPIO2, .pin = 28},
+    {.port = GPIO2, .pin = 29},
+    {.port = GPIO2, .pin = 30},
+    {.port = GPIO2, .pin = 31}};
 
+void LocalIO_DI_Init(void) {
+  const gpio_pin_config_t gpioConfig =
+      {
+          .direction = kGPIO_DigitalInput,
+          .outputLogic = 0,
+          .interruptMode = kGPIO_NoIntmode};
 
-
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                LOCALIO_DI PUBLIC FUNCTIONS DEFINITIONS                                   */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-void LocalIO_DI_Init(void)
-{
-    const gpio_pin_config_t gpioConfig = 
-    {
-        .direction      = kGPIO_DigitalInput,
-        .outputLogic    = 0,
-        .interruptMode  = kGPIO_NoIntmode
-    };
-
-    GPIO_PinInit(GPIO2, 28, &gpioConfig);
-    GPIO_PinInit(GPIO2, 29, &gpioConfig);
-    GPIO_PinInit(GPIO2, 30, &gpioConfig);
-    GPIO_PinInit(GPIO2, 31, &gpioConfig);
+  for (int i = 0; i < DIGITAL_INPUTS_AMOUNT; i++) {
+    GPIO_PinInit(DIPins[i].port, DIPins[i].pin, &gpioConfig);
+  }
 }
 
-
-
-void LocalIO_DI_CheckPinsState(void)
-{
-    for(uint8_t pinNumber = 0; pinNumber < DIGITAL_INPUTS_AMOUNT; pinNumber++)
-    {
-        if(GPIO_PinRead(GPIO2, pinNumber + 28))
-        {
-            digitalInputState |= (1 << pinNumber);
-        }
-        else
-        {
-            digitalInputState &= ~(1 << pinNumber);
-        }
+void DIReadPinsState(void) {
+  for (uint8_t i = 0; i < DIGITAL_INPUTS_AMOUNT; i++) {
+    if (GPIO_PinRead(DIPins[i].port, DIPins[i].pin)) {
+      digitalInputState |= (1 << i);
+    } else {
+      digitalInputState &= ~(1 << i);
     }
+  }
 }
 
+void DICountersHandler(void) {
+  static uint32_t inputLastState = 0;
+  uint32_t inputChange = 0;
 
+  inputChange = digitalInputState ^ inputLastState;
+  inputLastState = digitalInputState;
 
-void LocalIO_DI_CountersHandler(void)
-{
-    static uint16_t inputLastState = 0;
-    uint16_t inputChange = 0;
-
-    inputChange    = digitalInputState ^ inputLastState;
-    inputLastState = digitalInputState;
-
-    for(uint8_t i = 0; i < DIGITAL_INPUTS_AMOUNT; i++)
-    {
-        // TODO: check counterResetFlag
-        if((inputChange & (1 << i)) && (digitalInputState & (1 << i)))
-        {
-            digitalInputCounter[i]++;
-        }
+  for (uint8_t i = 0; i < DIGITAL_INPUTS_AMOUNT; i++) {
+    if ((inputChange & (1 << i)) && (digitalInputState & (1 << i))) {
+      digitalInputCounter[i]++;
     }
+  }
 }
 
-
-
-bool LocalIO_DI_ReadInput(uint8_t diPinNumber)
-{
-    if(diPinNumber > DIGITAL_INPUTS_AMOUNT)
-    {
-        return false;
-    }
-
-    bool diState = GPIO_PinRead(GPIO2, diPinNumber);
-    return (bool)diState;
+uint32_t GetDINumber() {
+  return DIGITAL_INPUTS_AMOUNT;
 }
 
+bool GetDIState(uint32_t id) {
+  if (id > GetDINumber()) {
+    return false;
+  }
 
+  bool state = (digitalInputState & (1 << id)) == (uint32_t)(1 << id);
+  return state;
+}
+
+uint32_t GetDICounter(uint32_t id) {
+
+  if (id > GetDINumber()) {
+    return 0;
+  }
+
+  return digitalInputCounter[id];
+}
+
+void SetDICounter(uint32_t id, uint32_t value) {
+
+  if (id > GetDINumber()) {
+    return;
+  }
+
+  digitalInputCounter[id] = value;
+}
