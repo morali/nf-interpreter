@@ -14,6 +14,20 @@
 spi_t s_spi2;
 spi_t s_spi3;
 
+void SPI3_MasterHandler(LPSPI_Type *base, lpspi_master_handle_t *handle, status_t status, void *userData)
+{
+	GPIO_WritePinOutput(GPIO1, 28, 1);
+	for (uint16_t i = 0; i < 1000; i++)
+		__asm("nop");
+	GPIO_WritePinOutput(GPIO1, 28, 0);
+	(void) base;
+	(void) handle;
+	(void) status;
+	(void) userData;
+}
+
+
+
 void SPI_InitPeripheral(void) {
 	const gpio_pin_config_t gpioConfig = {
 		.direction        = kGPIO_DigitalOutput,
@@ -42,8 +56,13 @@ void SPI_InitPeripheral(void) {
 	s_spi3.masterConfig.baudRate = LPSPI3_BAUDRATE;
 	s_spi3.spi_transfer.dataSize = 3;
 	
+	LPSPI_EnableInterrupts(LPSPI3, kLPSPI_TransferCompleteInterruptEnable);
+
 	LPSPI_MasterInit(LPSPI3, &s_spi3.masterConfig, LPSPI3_CLOCK_FREQUENCY);
+	 /* Enable at the NVIC */
+    EnableIRQ(LPSPI3_IRQn);
 
 	/* For now NULL callback */
-	LPSPI_MasterTransferCreateHandle(LPSPI3, &s_spi3.masterHandle, NULL, NULL);
+	LPSPI_MasterTransferCreateHandle(LPSPI3, &s_spi3.masterHandle, SPI3_MasterHandler, NULL);
 }
+

@@ -24,7 +24,7 @@ extern spi_t s_spi3;
 void vLocalIOThread(void *argument) {
 	(void)argument;
 
-    // xTaskCreate(vTimeredTask10ms, "vTimeredTask10ms", configMINIMAL_STACK_SIZE, NULL, 3, &local_io_tasks.Task10ms);
+    xTaskCreate(vTimeredTask1s, "vTimeredTask10ms", configMINIMAL_STACK_SIZE, NULL, 6, &local_io_tasks.Task1s);
 
 	/* LocalIO UI task */
 	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
