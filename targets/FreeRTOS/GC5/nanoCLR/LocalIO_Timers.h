@@ -10,9 +10,9 @@
 #include "isma_localio.h"
 #include "LocalIO_AO.h"
 
-#define SPI3_TIMER_PERIOD 50
-#define PWM_TIMER_PERIOD 500
-#define ADC_TIMER_PERIOD 100000000 /* FOR NOW 0,5SEC PERIOD */
+#define _50US_TIMER_PERIOD 2500
+#define _100US_TIMER_PERIOD 5000
+#define _1MS_TIMER_PERIOD 50000 
 
 #define PIT_IRQ_PRIO 6
 

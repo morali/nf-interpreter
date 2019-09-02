@@ -16,9 +16,9 @@ spi_t s_spi3;
 
 void SPI3_MasterHandler(LPSPI_Type *base, lpspi_master_handle_t *handle, status_t status, void *userData)
 {
+	// do latch
 	GPIO_WritePinOutput(GPIO1, 28, 1);
-	for (uint16_t i = 0; i < 1000; i++)
-		__asm("nop");
+	__asm("nop");
 	GPIO_WritePinOutput(GPIO1, 28, 0);
 	(void) base;
 	(void) handle;

@@ -6,6 +6,7 @@
 
 #include "isma_localio_native.h"
 #include "LocalIO_DO.h"
+#include "LocalIO_DI.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
