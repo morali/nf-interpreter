@@ -10,8 +10,6 @@ extern "C" {
 
 #define DIGITAL_OUTPUT_PORTS 5
 
-extern local_io_t local_io_tx;
-
 uint32_t GetDONumber();
 bool GetDO(uint32_t);
 void SetDO(bool, uint32_t);

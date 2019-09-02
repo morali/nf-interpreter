@@ -19,17 +19,13 @@ typedef struct _local_io
 
 typedef struct _local_io_tasks
 {
-    TaskHandle_t Task1us;
-    TaskHandle_t Task10us;
-    TaskHandle_t Task10ms;
+    TaskHandle_t Task1s;
 } local_io_tasks_t;
 
 uint32_t GetDONumber();
 
 void vLocalIOThread(void * argument);
-void vTimeredTask1us(void * argument);
-void vTimeredTask10ms(void * argument);
-void vTimeredTask10us(void * argument);
+void vTimeredTask1s(void * argument);
 
 #endif  //_ISMA_LOCALIO_H_
 

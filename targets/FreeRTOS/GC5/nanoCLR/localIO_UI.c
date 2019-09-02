@@ -6,8 +6,7 @@
 
 #include "localIO_UI.h"
 
-
-#define MAX_RESISTANCE_PT1000 200000
+extern local_io_t s_local_io_tx;
 
 static localIO_UI_t localIO_UI;
 
@@ -27,9 +26,9 @@ void SetUIChannel(UIChannel_t channel) {
   }
 
   //clear channel bits
-  local_io_tx.ui_input &= ~(0xF << 4);
+  s_local_io_tx.ui_input &= ~(0xF << 4);
   //set channel bits
-  local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
+  s_local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
 }
 
 // Helper LookUpTable to select propper UI Channel Pullup
@@ -49,9 +48,9 @@ void SetUIChannelPullup(UIChannel_t channel, bool enable) {
 
   //set pullup bits
   if (enable) {
-    local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
+    s_local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
   } else {
-    local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
+    s_local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
   }
 }
 

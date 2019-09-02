@@ -7,14 +7,12 @@
 #ifndef _LOCALIO_UI_H_
 #define _LOCALIO_UI_H_
 
+#define MAX_RESISTANCE_PT1000 200000
+#define UINumber 4 
+
 #include "MCP3421.h"
 #include "FreeRTOSCommonHooks.h"
 #include "isma_localio.h"
-
-extern local_io_t local_io_rx;
-extern local_io_t local_io_tx;
-
-#define UINumber 4
 
 typedef enum {
   SelectRefChannel,

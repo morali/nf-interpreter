@@ -48,16 +48,14 @@ int main(void)
     SPI_InitPeripheral();
     GlobalEventsFlags_Init();
     // SCB_DisableDCache();
-
     
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);
-    xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 15, NULL);
-    xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 14, NULL);
-    // xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE + 16, NULL, configMAX_PRIORITIES - 13, NULL);
-    // xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
-    // xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE +512, NULL, configMAX_PRIORITIES - 14, NULL);
-    xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 1024, NULL, configMAX_PRIORITIES - 14, NULL);
-   
+    xTaskCreate(SdCardThread, "SDCardThread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 14, NULL);
+    xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 16, NULL);
+    xTaskCreate(vRtcThread, "RtcThread", configMINIMAL_STACK_SIZE + 16, NULL, configMAX_PRIORITIES - 16, NULL);
+    xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 16, NULL);
+    xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE +512, NULL, configMAX_PRIORITIES - 14, NULL);
+    xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 1024, NULL, configMAX_PRIORITIES - 15, NULL);   
     
     vTaskStartScheduler();
 

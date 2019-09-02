@@ -6,6 +6,7 @@ extern "C" {
 #define _ISMA_LOCALIO_AO_H_
 
 #include "isma_localio.h"
+#include "MCP4728.h"
 
 #define ANALOG_OUTPUT_PORTS 5
 #define PWMNumber 3

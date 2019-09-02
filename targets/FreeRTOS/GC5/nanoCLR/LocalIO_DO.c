@@ -1,6 +1,8 @@
 
 #include "LocalIO_DO.h"
 
+extern local_io_t s_local_io_tx;
+
 /**
  * @brief  Get number of digital output ports
  * @note   
@@ -21,7 +23,7 @@ bool GetDO(uint32_t DONum)
 	if (DONum > GetDONumber()) return false;
 
 	bool state = false;
-	state = (bool) (local_io_tx.digital_output >> (DONum +3)) & 1U;
+	state = (bool) (s_local_io_tx.digital_output >> (DONum +3)) & 1U;
 	return state;
 }
 
@@ -38,11 +40,11 @@ void SetDO(bool state, uint32_t DONum)
 		
 	if (state)
 	{
-		local_io_tx.digital_output |= 1U << (DONum + 3);
+		s_local_io_tx.digital_output |= 1U << (DONum + 3);
 	}
 	else
 	{
-		local_io_tx.digital_output &= ~(1U << (DONum + 3));
+		s_local_io_tx.digital_output &= ~(1U << (DONum + 3));
 	}
 }
 
@@ -56,5 +58,5 @@ void ToggleDO(uint32_t DONum)
 {
 	if (DONum > GetDONumber()) return;
 
-	local_io_tx.digital_output ^= 1U << (DONum + 3);
+	s_local_io_tx.digital_output ^= 1U << (DONum + 3);
 }

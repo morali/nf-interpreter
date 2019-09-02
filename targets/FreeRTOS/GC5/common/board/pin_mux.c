@@ -294,6 +294,9 @@ void BOARD_InitPins(void) {
       IOMUXC_GPIO_AD_B1_11_LPUART8_RX,        /* GPIO_AD_B1_11 is configured as LPUART8_RX */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
+      IOMUXC_GPIO_AD_B1_12_GPIO1_IO28,        /* GPIO_AD_B1_12 is configured as GPIO1_IO28 */
+      0U);                                    /* Software Input On Field: Input Path is determined by functionality */
+  IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_B1_13_LPSPI3_SDI,        /* GPIO_AD_B1_13 is configured as LPSPI3_SDI */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
@@ -301,10 +304,7 @@ void BOARD_InitPins(void) {
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_B1_15_LPSPI3_SCK,        /* GPIO_AD_B1_15 is configured as LPSPI3_SCK */
-      0U);                                    /* Software Input On Field: Input Path is determined by functionality */  
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_AD_B1_12_LPSPI3_PCS0,        /* GPIO_AD_B1_12 is configured as GPIO1_IO28 */
-      0U);                                    /* Software Input On Field: Input Path is determined by functionality */    
+      0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_B0_00_LPSPI4_PCS0,          /* GPIO_B0_00 is configured as LPSPI4_PCS0 */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
