@@ -57,8 +57,11 @@ usb_status_t USB_Init(void)
     usb_status_t error = kStatus_USB_Error;
 
     /* Initialize data buffers for incoming data. */
-    s_cdc_data.data_in[0] = xStreamBufferCreate(IN_USB_BUFFER_SIZE, HS_CDC_VCOM_BULK_IN_PACKET_SIZE);
-    s_cdc_data.data_in[1] = xStreamBufferCreate(IN_USB_BUFFER_SIZE, HS_CDC_VCOM_BULK_IN_PACKET_SIZE);
+    s_cdc_data.data_in[0] = xStreamBufferCreate(STREAM_RECV_USB_BUFFER, HS_CDC_VCOM_BULK_IN_PACKET_SIZE);
+    
+    #ifdef USB_CONSOLE_DEBUG
+        s_cdc_data.data_in[1] = xStreamBufferCreate(STREAM_CONSOLE_USB_BUFFER, HS_CDC_VCOM_BULK_IN_PACKET_SIZE);   
+    #endif
 
     USB_DeviceClockInit();
 
@@ -70,26 +73,28 @@ usb_status_t USB_Init(void)
     g_composite_p->deviceHandle = NULL;
 
     error = USB_DeviceInit(CONTROLLER_ID, USB_DeviceCallback,(usb_device_handle *) &g_composite_p->deviceHandle);
-    if (error != kStatus_USB_Success) return error;
-    
+    if (error != kStatus_USB_Success)
+        return error;
+
     error = USB_DeviceCdcVcomInit((usb_device_composite_struct_t *) g_composite_p);
-    if (error != kStatus_USB_Success) return error;
+    if (error != kStatus_USB_Success)
+        return error;
 
     USB_DeviceIsrEnable();
 
     error = USB_DeviceRun(g_composite_p->deviceHandle);
-    if (error != kStatus_USB_Success) return error;
+    if (error != kStatus_USB_Success)
+        return error;
 
-    /* Start USB reciveing task. */
-    BaseType_t xReturned = xTaskCreate(vcom_usb_thread, "USBThread", 128, NULL, USB_WP_THREAD_PRIO, &s_cdc_data.xReadToNotify[0]);
-    if (xReturned != pdPASS) error = kStatus_USB_Error;
-
-    xReturned = xTaskCreate(vcom_debug_thread, "USBConsole", 128, NULL, USB_CONSOLE_THREAD_PRIO, &s_cdc_data.xReadToNotify[1]);
-    if (xReturned != pdPASS) error = kStatus_USB_Error;
+    #ifdef USB_CONSOLE_DEBUG
+        BaseType_t xReturned = xTaskCreate(vcom_debug_thread, "USBConsole", 128, NULL, USB_CONSOLE_THREAD_PRIO, &s_cdc_data.xReadToNotify[1]);
+        if (xReturned != pdPASS)
+            error = kStatus_USB_Error;
+        g_composite_p->cdcVcom[1].startTransactions = 1;
+    #endif
 
     g_composite_p->attach = 1;
     g_composite_p->cdcVcom[0].startTransactions = 1;
-    g_composite_p->cdcVcom[1].startTransactions = 1;
 
     /* If USB init is sucessful unlock receiver thread  */
     vTaskNotifyGiveFromISR(s_cdc_data.xReceiverTask, pdFALSE);
@@ -97,42 +102,28 @@ usb_status_t USB_Init(void)
     return kStatus_USB_Success;
 }
 
-void vcom_usb_thread(void * argument)
-{
-    uint32_t buff_addr = 0x0;
-    usb_device_endpoint_callback_message_struct_t *message = NULL;
-
-    s_cdc_data.xReadToNotify[0] = xTaskGetCurrentTaskHandle();
-
-    usb_cdc_vcom_struct_t *vcomInstance;
-
-
-    while(1)
-    {
-        xTaskNotifyWait(0x0, 0x0, &buff_addr, portMAX_DELAY);
-        vcomInstance = &g_composite_p->cdcVcom[0];
-        message = (usb_device_endpoint_callback_message_struct_t *) buff_addr;
-        xStreamBufferSend(s_cdc_data.data_in[0], message->buffer, message->length, portMAX_DELAY);
-        USB_DeviceRecvRequest(g_composite_p->deviceHandle, vcomInstance->bulkOutEndpoint, vcomInstance->currRecvBuf, vcomInstance->bulkOutEndpointMaxPacketSize);
-    }
-    (void) argument;
-}
+#ifdef USB_CONSOLE_DEBUG
 
 void vcom_debug_thread(void * argument)
 {
+    (void) argument;
     /* For future implementation of reading USB debug console. */
 
     s_cdc_data.xReadToNotify[1] = xTaskGetCurrentTaskHandle();
+    
+    vTaskDelete(NULL);
     while(1)
     {
-        xTaskNotifyWait(0x0, 0x0, NULL, portMAX_DELAY);
+        /* STUB */
     }
-    (void) argument;
 }
+
+#endif
+
 /*!
- * @brief Interrupt in pipe callback function.
+ * @brief Bulk out pipe callback function.
  *
- * This function serves as the callback function for interrupt in pipe.
+ * This function serves as the callback function for bulk out pipe.
  *
  * @param handle The USB device handle.
  * @param message The endpoint callback message
@@ -140,16 +131,18 @@ void vcom_debug_thread(void * argument)
  *
  * @return A USB error code or kStatus_USB_Success.
  */
-usb_status_t USB_DeviceCdcAcmInterruptIn(usb_device_handle handle,
-                                         usb_device_endpoint_callback_message_struct_t *message,
-                                         void *callbackParam)
+usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
+                                     usb_device_endpoint_callback_message_struct_t *message,
+                                     void *callbackParam)
 {
+    usb_cdc_vcom_struct_t *vcomInstance;
     usb_status_t error = kStatus_USB_Error;
     uint8_t i;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     for (i = 0; i < USB_DEVICE_CONFIG_CDC_ACM; i++)
     {
-        if (*((uint8_t *)callbackParam) == g_composite_p->cdcVcom[i].communicationInterfaceNumber)
+        if (*((uint8_t *)callbackParam) == g_composite_p->cdcVcom[i].dataInterfaceNumber)
         {
             break;
         }
@@ -159,10 +152,20 @@ usb_status_t USB_DeviceCdcAcmInterruptIn(usb_device_handle handle,
         return error;
     }
 
-    g_composite_p->cdcVcom[i].hasSentState = 0;
-    return kStatus_USB_Success;
-    (void) handle;
-    (void) message;
+    #ifndef USB_CONSOLE_DEBUG
+        return error;
+    #endif
+
+    vcomInstance = &g_composite_p->cdcVcom[i];
+
+    /* Check if message is there and USB transaction are started */
+    if (vcomInstance->startTransactions == 1 && message != NULL && message->buffer != NULL && message->length <= 512)
+        xStreamBufferSend(s_cdc_data.data_in[i], message->buffer, message->length, portMAX_DELAY);
+
+    USB_DeviceRecvRequest(handle, vcomInstance->bulkOutEndpoint, vcomInstance->currRecvBuf, vcomInstance->bulkOutEndpointMaxPacketSize);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    
+    return error;
 }
 
 /*!
@@ -197,7 +200,7 @@ usb_status_t USB_DeviceCdcAcmBulkIn(usb_device_handle handle,
         return error;
     }
     vcomInstance = &g_composite_p->cdcVcom[i];
-    ;
+    
     if ((message->length != 0) && (!(message->length % vcomInstance->bulkInEndpointMaxPacketSize)))
     {
         /* If the last packet is the size of endpoint, then send also zero-ended packet,
@@ -206,7 +209,7 @@ usb_status_t USB_DeviceCdcAcmBulkIn(usb_device_handle handle,
          */
         USB_DeviceSendRequest(handle, vcomInstance->bulkInEndpoint, NULL, 0);
     }
-    else if ((1 == vcomInstance->attach) && (1 == vcomInstance->startTransactions))
+    else if (1 == vcomInstance->startTransactions)
     {
         if ((message->buffer != NULL) || ((message->buffer == NULL) && (message->length == 0)))
         {
@@ -223,9 +226,9 @@ usb_status_t USB_DeviceCdcAcmBulkIn(usb_device_handle handle,
 }
 
 /*!
- * @brief Bulk out pipe callback function.
+ * @brief Interrupt in pipe callback function.
  *
- * This function serves as the callback function for bulk out pipe.
+ * This function serves as the callback function for interrupt in pipe.
  *
  * @param handle The USB device handle.
  * @param message The endpoint callback message
@@ -233,19 +236,16 @@ usb_status_t USB_DeviceCdcAcmBulkIn(usb_device_handle handle,
  *
  * @return A USB error code or kStatus_USB_Success.
  */
-usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
-                                     usb_device_endpoint_callback_message_struct_t *message,
-                                     void *callbackParam)
+usb_status_t USB_DeviceCdcAcmInterruptIn(usb_device_handle handle,
+                                         usb_device_endpoint_callback_message_struct_t *message,
+                                         void *callbackParam)
 {
-    usb_cdc_vcom_struct_t *vcomInstance;
     usb_status_t error = kStatus_USB_Error;
     uint8_t i;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    uint32_t address = (uint32_t) message;
 
     for (i = 0; i < USB_DEVICE_CONFIG_CDC_ACM; i++)
     {
-        if (*((uint8_t *)callbackParam) == g_composite_p->cdcVcom[i].dataInterfaceNumber)
+        if (*((uint8_t *)callbackParam) == g_composite_p->cdcVcom[i].communicationInterfaceNumber)
         {
             break;
         }
@@ -254,17 +254,11 @@ usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
     {
         return error;
     }
-    vcomInstance = &g_composite_p->cdcVcom[i];
 
-    if ((1 == vcomInstance->attach) && (1 == vcomInstance->startTransactions))
-    {   
-        xTaskNotifyFromISR(s_cdc_data.xReadToNotify[i], address, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
-    }
-
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    g_composite_p->cdcVcom[i].hasSentState = 0;
+    return kStatus_USB_Success;
     (void) handle;
-    (void) callbackParam;
-    return error;
+    (void) message;
 }
 
 /*!
@@ -972,3 +966,20 @@ usb_status_t USB_DeviceCdcVcomInit(usb_device_composite_struct_t *deviceComposit
     }
     return kStatus_USB_Success;
 }
+
+
+#ifdef USB_CONSOLE_DEBUG
+
+void vcom_debug_thread(void * argument)
+{
+    /* For future implementation of reading USB debug console. */
+
+    s_cdc_data.xReadToNotify[1] = xTaskGetCurrentTaskHandle();
+    while(1)
+    {
+        xTaskNotifyWait(0x0, 0x0, NULL, portMAX_DELAY);
+    }
+    (void) argument;
+}
+
+#endif

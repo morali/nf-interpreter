@@ -76,9 +76,7 @@ int WP_TransmitMessage(WP_Message* message)
     /* Check for buffer overflow */
     if ((send_size + message->m_header.m_size) > sizeof(s_cdc_data_p->s_currSendBuf[0]) / sizeof(uint8_t))
     { 
-        debug_printf("buffer overflow!");
         configASSERT(1);
-        return 0;
     }
 
     memcpy(s_cdc_data_p->s_currSendBuf[0], send_addr, send_size);
@@ -86,8 +84,11 @@ int WP_TransmitMessage(WP_Message* message)
 
     send_size = send_size + message->m_header.m_size;
 
-    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
-    if (error != kStatus_USB_Success) return false;
+    do
+    {
+        error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
+    } 
+    while (error != kStatus_USB_Success);
 
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     return true; 
