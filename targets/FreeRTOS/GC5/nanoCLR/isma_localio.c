@@ -13,8 +13,7 @@ extern "C" {
 #include "LocalIO_AO.h"
 #include "LocalIO_UI.h"
 #include "LocalIO_Timers.h"
-
-extern localIO_AO_t local_ao;
+#include "LocalIO_DI.h"
 
 local_io_t s_local_io_tx;
 
@@ -23,6 +22,7 @@ extern spi_t s_spi3;
 void vLocalIOThread(void *argument) {
 	(void)argument;
 
+	InitDI();
 	/* LocalIO UI task */
 	xTaskCreate(vLocalIO_UI, "vLocalIO_UI", configMINIMAL_STACK_SIZE + 30, NULL, uxTaskPriorityGet(NULL), NULL);
 

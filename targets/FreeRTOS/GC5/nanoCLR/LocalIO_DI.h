@@ -15,6 +15,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+void InitDI(void);
 void DIReadPinsState(void);
 void DICountersHandler(void);
 uint32_t GetDINumber();

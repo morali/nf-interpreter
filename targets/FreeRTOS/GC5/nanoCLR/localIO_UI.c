@@ -388,6 +388,8 @@ void vLocalIO_UI(void *argument) {
       if (status == kStatus_Success) {
         FreeRTOSDelay(8);
         state = StartConvertVRef;
+      } else {
+        FreeRTOSDelay(50);
       }
       break;
     case StartConvertVRef:

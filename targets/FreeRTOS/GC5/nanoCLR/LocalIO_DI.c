@@ -23,7 +23,7 @@ static DIPin_t DIPins[DIGITAL_INPUTS_AMOUNT] = {
     {.port = GPIO2, .pin = 30},
     {.port = GPIO2, .pin = 31}};
 
-void LocalIO_DI_Init(void) {
+void InitDI(void) {
   const gpio_pin_config_t gpioConfig =
       {
           .direction = kGPIO_DigitalInput,
