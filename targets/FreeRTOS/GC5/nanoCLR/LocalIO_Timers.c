@@ -12,7 +12,6 @@ extern "C" {
 #include "LocalIO_Timers.h"
 #include "LocalIO_DI.h"
 
-extern local_io_tasks_t local_io_tasks;
 extern localIO_AO_t s_local_ao;
 extern local_io_t s_local_io_tx;
 extern spi_t s_spi3;
@@ -36,7 +35,7 @@ void PITChannel0Init(void)
     EnableIRQ(PIT_IRQn);
     NVIC_SetPriority(PIT_IRQn, PIT_IRQ_PRIO);
 
-    //PIT_StartTimer(PIT, kPIT_Chnl_0);
+    PIT_StartTimer(PIT, kPIT_Chnl_0);
     PIT_StartTimer(PIT, kPIT_Chnl_1);
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }

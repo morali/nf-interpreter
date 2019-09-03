@@ -49,7 +49,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI,
     Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDOsNative___STATIC__SZARRAY_iSMALocalIODO,
     Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetUIsNative___STATIC__SZARRAY_iSMALocalIOUI,
-    Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAONative___STATIC__SZARRAY_iSMALocalIOAO,
+    Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAOsNative___STATIC__SZARRAY_iSMALocalIOAO,
     NULL,
     NULL,
     NULL,
@@ -76,7 +76,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_LocalIO =
 {
     "iSMA.LocalIO", 
-    0x45690E0B,
+    0xF6642E50,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

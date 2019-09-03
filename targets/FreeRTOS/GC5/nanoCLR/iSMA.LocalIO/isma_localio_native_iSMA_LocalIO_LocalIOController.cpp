@@ -147,7 +147,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetUIsNative
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAONative___STATIC__SZARRAY_iSMALocalIOAO(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAOsNative___STATIC__SZARRAY_iSMALocalIOAO(CLR_RT_StackFrame &stack) {
 	NANOCLR_HEADER();
 
 	CLR_RT_TypeDef_Index AOTypeDef;

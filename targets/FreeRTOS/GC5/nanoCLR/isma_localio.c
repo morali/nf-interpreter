@@ -17,7 +17,6 @@ extern "C" {
 extern localIO_AO_t local_ao;
 
 local_io_t s_local_io_tx;
-local_io_tasks_t local_io_tasks;
 
 extern spi_t s_spi3;
 
