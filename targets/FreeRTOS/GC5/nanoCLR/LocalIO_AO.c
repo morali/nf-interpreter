@@ -24,6 +24,16 @@ void SetAOPWM(uint32_t aoNo, bool pwm)
         return;
 
     s_local_ao.config[aoNo].PWM = pwm;
+
+    if (pwm)
+    {
+        MCP4728_ChannelOff(aoNo);
+    }
+    else
+    {
+        MCP4728_ChannelSetValue(aoNo, 0x0);
+    }
+    
 }
 
 void SetAOFrequency(uint32_t aoNo, uint32_t frequency)

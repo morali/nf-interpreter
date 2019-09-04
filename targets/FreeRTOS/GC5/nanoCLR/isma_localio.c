@@ -31,10 +31,13 @@ void vLocalIOThread(void *argument) {
 	s_local_io_tx.analog_output = 0x00;
 	s_local_io_tx.ui_input = 0x00;
 	/* Send and receive data through loopback  */
+	
 	s_spi3.spi_transfer.txData = &(s_local_io_tx.ui_input);
+    s_spi3.spi_transfer.dataSize = 3;
 
 	/* Peripheral interrupt timer init (for SPI ring transfer and PWM) */
 	PITChannel0Init();
+	LPSPI_MasterTransferNonBlocking(LPSPI3, &s_spi3.masterHandle, &s_spi3.spi_transfer);
 	vTaskDelete(NULL);
 }
 
