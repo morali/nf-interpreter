@@ -68,9 +68,24 @@ struct Library_isma_localio_native_iSMA_LocalIO_LocalIOController
 
 };
 
-struct Library_isma_localio_native_iSMA_LocalIO_UI
+struct Library_isma_localio_native_iSMA_LocalIO_TO
 {
     static const int FIELD_STATIC__Empty = 3;
+
+    static const int FIELD___id = 1;
+    static const int FIELD___name = 2;
+    static const int FIELD___frequency = 3;
+
+    NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID);
+    NANOCLR_NATIVE_DECLARE(SetDutyNative___VOID__U1);
+
+    //--//
+
+};
+
+struct Library_isma_localio_native_iSMA_LocalIO_UI
+{
+    static const int FIELD_STATIC__Empty = 4;
 
     static const int FIELD___id = 1;
     static const int FIELD___name = 2;
