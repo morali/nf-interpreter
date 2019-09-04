@@ -7,6 +7,8 @@
 #include "isma_localio_native.h"
 #include "LocalIO_DO.h"
 #include "LocalIO_DI.h"
+#include "LocalIO_AO.h"
+#include "LocalIO_UI.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
@@ -107,8 +109,8 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetUIsNative
 	CLR_RT_HeapBlock *hbObj;
 	CLR_RT_HeapBlock &top = stack.PushValue();
 
-	uint32_t UINumber = 0;
-	uint32_t uiCount = UINumber;
+	uint32_t UINumber1 = GetUINumber();
+	uint32_t uiCount = UINumber1;
 
 	// find <UI> type, don't bother checking the result as it exists for sure
 	g_CLR_RT_TypeSystem.FindTypeDef("UI", "iSMA.LocalIO", UITypeDef);
@@ -155,7 +157,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAOsNative
 	CLR_RT_HeapBlock *hbObj;
 	CLR_RT_HeapBlock &top = stack.PushValue();
 
-	uint32_t AONumber = 0;
+	uint32_t AONumber = GetAONumber();
 	uint32_t aoCount = AONumber;
 
 	// find <UI> type, don't bother checking the result as it exists for sure
@@ -183,7 +185,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetAOsNative
 			*pRes = i;
 
 			char name[] = "AOx";
-			name[5] = i + 1 + '0';
+			name[2] = i + 1 + '0';
 
 			// UI name
 			NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_localio_native_iSMA_LocalIO_AO::FIELD___name], name));

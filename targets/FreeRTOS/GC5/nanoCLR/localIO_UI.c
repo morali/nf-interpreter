@@ -10,6 +10,7 @@ extern local_io_t s_local_io_tx;
 
 static localIO_UI_t localIO_UI;
 
+
 // Helper LookUpTable to select propper UI Channel
 static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
 

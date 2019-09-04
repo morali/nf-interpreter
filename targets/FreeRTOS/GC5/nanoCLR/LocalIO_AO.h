@@ -23,6 +23,8 @@ typedef struct _localIO_AO {
 	uint32_t pwm_count;
 } localIO_AO_t;
 
+uint32_t GetAONumber(void);
+
 void SetAOVoltage(uint32_t aoNo, uint16_t voltage);
 void SetAOPWM(uint32_t aoNo, bool pwm);
 void SetAOFrequency(uint32_t aoNo, uint32_t frequency);

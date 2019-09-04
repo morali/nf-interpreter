@@ -152,20 +152,24 @@ usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
         return error;
     }
 
-    #ifndef USB_CONSOLE_DEBUG
+    #ifdef USB_CONSOLE_DEBUG
         return error;
     #endif
+
+    if (i == 1)
+        return kStatus_USB_Success;
 
     vcomInstance = &g_composite_p->cdcVcom[i];
 
     /* Check if message is there and USB transaction are started */
     if (vcomInstance->startTransactions == 1 && message != NULL && message->buffer != NULL && message->length <= 512)
-        xStreamBufferSend(s_cdc_data.data_in[i], message->buffer, message->length, portMAX_DELAY);
-
+    {
+        xStreamBufferSendFromISR(s_cdc_data.data_in[0], message->buffer, message->length, &xHigherPriorityTaskWoken);
+    }
     USB_DeviceRecvRequest(handle, vcomInstance->bulkOutEndpoint, vcomInstance->currRecvBuf, vcomInstance->bulkOutEndpointMaxPacketSize);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     
-    return error;
+    return kStatus_USB_Success;
 }
 
 /*!

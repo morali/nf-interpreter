@@ -6,6 +6,11 @@ extern "C" {
 
 localIO_AO_t s_local_ao;
 
+
+uint32_t GetAONumber() {
+  return ANALOG_OUTPUT_PORTS;
+}
+
 void SetAOVoltage(uint32_t aoNo, uint16_t voltage)
 {
     // status_t status;

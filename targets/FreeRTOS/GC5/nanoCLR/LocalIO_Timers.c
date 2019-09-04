@@ -71,12 +71,11 @@ void PIT_IRQHandler(void)
         {
             if((s_local_ao.pwm_count >= s_local_ao.config[i].duty_cycle)  && s_local_ao.config[i].PWM)
             {
-
-                s_local_io_tx.analog_output = 1U << (i + 1);
+                s_local_io_tx.analog_output |= 1U << (i + 1);
             }
             else
             {
-                s_local_io_tx.analog_output = 0U << (i + 1);
+                s_local_io_tx.analog_output &= ~(1U << (i + 1));
             }
         }
 

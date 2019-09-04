@@ -50,7 +50,7 @@ int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
         /* TODO: Check if this safecheck is needed. */
         /* Wire Protocol may starve other threads while receiving zero bytes packets. */
 
-        // vTaskDelay(pdMS_TO_TICKS(20)); /* Decide how responsive USB is, vs how much processing time it consumes */
+        // vTaskDelay(pdMS_TO_TICKS(1)); /* Decide how responsive USB is, vs how much processing time it consumes */
         return true;
     }
     
@@ -84,11 +84,19 @@ int WP_TransmitMessage(WP_Message* message)
 
     send_size = send_size + message->m_header.m_size;
 
-    do
+    /* for now we ignore if USB driver is busy and return false (code below conflicts with resetting the board through VS)
+    while (error != kStatus_USB_Success)
     {
         error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
-    } 
-    while (error != kStatus_USB_Success);
+        vTaskDelay(pdMS_TO_TICKS(1));
+        taskYIELD();
+    }
+    */ 
+
+    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
+    if (error != kStatus_USB_Success) 
+        return false;
+    
 
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     return true; 
@@ -137,7 +145,6 @@ int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
     // save for latter comparison
     uint16_t requestedSize = *size;
     
-
     //int readData = 0;
     // sanity check for request of 0 size
     if(*size)
