@@ -1,8 +1,11 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*
+ * Created on Wed Sep 04 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
 
-#include "LocalIO_AO.h"
+#include "MCP4728.h"
+#include "LocalIO_AO_TO.h"
 
 localIO_AO_t s_local_ao;
 
@@ -39,6 +42,29 @@ void SetAODutyCycle(uint32_t aoNo, uint32_t duty)
     s_local_ao.config[aoNo].duty_cycle = duty;
 }
 
-#ifdef __cplusplus
+
+uint32_t GetTONumber()
+{
+    return TRIAC_OUTPUT_PORTS;
 }
-#endif
+
+void SetTOFrequency(uint32_t id, uint32_t frequency) {
+  if (id > GetTONumber()) {
+    return;
+  }
+
+  /* TODO: Add check for correct frequency */
+  s_local_ao.config[id].frequency = frequency;
+}
+
+void SetTODutyCycle(uint32_t id, uint8_t duty) {
+  if (id > GetTONumber()) {
+    return;
+  }
+
+  if (duty > 100) {
+    duty = 100;
+  }
+  
+  s_local_ao.config[id].duty_cycle = duty;
+}

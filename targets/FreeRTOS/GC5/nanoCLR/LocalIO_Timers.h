@@ -8,7 +8,7 @@
 #include "fsl_pit.h"
 #include "spi.h"
 #include "isma_localio.h"
-#include "LocalIO_AO.h"
+#include "LocalIO_AO_TO.h"
 
 #define _50US_TIMER_PERIOD 2500
 #define _100US_TIMER_PERIOD 5000

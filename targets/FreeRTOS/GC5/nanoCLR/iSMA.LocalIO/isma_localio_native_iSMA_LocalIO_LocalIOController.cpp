@@ -7,6 +7,7 @@
 #include "isma_localio_native.h"
 #include "LocalIO_DO.h"
 #include "LocalIO_DI.h"
+#include "LocalIO_UI.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetDIsNative___STATIC__SZARRAY_iSMALocalIODI(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
@@ -107,8 +108,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_LocalIOController::GetUIsNative
 	CLR_RT_HeapBlock *hbObj;
 	CLR_RT_HeapBlock &top = stack.PushValue();
 
-	uint32_t UINumber = 0;
-	uint32_t uiCount = UINumber;
+	uint32_t uiCount = GetUINumber();
 
 	// find <UI> type, don't bother checking the result as it exists for sure
 	g_CLR_RT_TypeSystem.FindTypeDef("UI", "iSMA.LocalIO", UITypeDef);

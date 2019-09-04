@@ -5,7 +5,7 @@
  */
 
 #include "isma_localio_native.h"
-#include "LocalIO_AO.h"
+#include "LocalIO_AO_TO.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetConfigNative___VOID( CLR_RT_StackFrame& stack )
 {

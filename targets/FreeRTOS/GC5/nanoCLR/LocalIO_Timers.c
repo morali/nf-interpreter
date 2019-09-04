@@ -67,7 +67,7 @@ void PIT_IRQHandler(void)
             */
 
 
-        for (uint16_t i = 0; i < PWMNumber; i++)
+        for (uint16_t i = 0; i < PWM_NUMBER; i++)
         {
             if((s_local_ao.pwm_count >= s_local_ao.config[i].duty_cycle)  && s_local_ao.config[i].PWM)
             {

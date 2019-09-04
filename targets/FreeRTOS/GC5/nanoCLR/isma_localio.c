@@ -10,7 +10,7 @@ extern "C" {
 
 #include "isma_localio.h"
 
-#include "LocalIO_AO.h"
+#include "LocalIO_AO_TO.h"
 #include "LocalIO_UI.h"
 #include "LocalIO_Timers.h"
 #include "LocalIO_DI.h"
