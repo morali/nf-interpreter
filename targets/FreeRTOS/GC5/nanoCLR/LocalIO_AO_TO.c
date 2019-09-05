@@ -21,7 +21,7 @@ void SetAOPWM(uint32_t aoNo, bool pwm)
     if (aoNo > ANALOG_OUTPUT_PORTS)
         return;
 
-    s_local_ao.config[aoNo].PWM = pwm;
+    s_local_ao.AOconfig[aoNo].mode = pwm;
 }
 
 void SetAOFrequency(uint32_t aoNo, uint32_t frequency)
@@ -30,7 +30,7 @@ void SetAOFrequency(uint32_t aoNo, uint32_t frequency)
         return;
     
     /* TODO: Add check for correct frequency */
-    s_local_ao.config[aoNo].frequency = frequency;
+    s_local_ao.AOconfig[aoNo].frequency = frequency;
 }
 
 void SetAODutyCycle(uint32_t aoNo, uint32_t duty)
@@ -39,7 +39,7 @@ void SetAODutyCycle(uint32_t aoNo, uint32_t duty)
         return;
 
     /* TODO: Add check for correct duty cycle */
-    s_local_ao.config[aoNo].duty_cycle = duty;
+    s_local_ao.AOconfig[aoNo].duty_cycle = duty;
 }
 
 
@@ -54,7 +54,7 @@ void SetTOFrequency(uint32_t id, uint32_t frequency) {
   }
 
   /* TODO: Add check for correct frequency */
-  s_local_ao.config[id].frequency = frequency;
+  s_local_ao.AOconfig[id].frequency = frequency;
 }
 
 void SetTODutyCycle(uint32_t id, uint8_t duty) {
@@ -65,6 +65,6 @@ void SetTODutyCycle(uint32_t id, uint8_t duty) {
   if (duty > 100) {
     duty = 100;
   }
-  
-  s_local_ao.config[id].duty_cycle = duty;
+
+  s_local_ao.AOconfig[id].duty_cycle = duty;
 }

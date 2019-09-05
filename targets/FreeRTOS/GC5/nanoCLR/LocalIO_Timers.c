@@ -60,18 +60,17 @@ void PIT_IRQHandler(void)
 
         /* PWM Controller */
 
-            /*
-            1. Check timer
-            2. Increment timer
-            3. If timer > 100, reset timer.
-            */
+        /*
+        1. Check timer
+        2. Increment timer
+        3. If timer > 100, reset timer.
+        */
 
 
-        for (uint16_t i = 0; i < PWM_NUMBER; i++)
+        for (uint32_t i = 0; i < ANALOG_OUTPUT_PORTS; i++)
         {
-            if((s_local_ao.pwm_count >= s_local_ao.config[i].duty_cycle)  && s_local_ao.config[i].PWM)
+            if((s_local_ao.pwm_count >= s_local_ao.AOconfig[i].duty_cycle)  && s_local_ao.AOconfig[i].mode == PWM)
             {
-
                 s_local_io_tx.analog_output = 1U << (i + 1);
             }
             else
@@ -80,7 +79,7 @@ void PIT_IRQHandler(void)
             }
         }
 
-		if (s_local_ao.pwm_count >= 100)
+		if (s_local_ao.pwm_count >= 1000000)
         {
 			s_local_ao.pwm_count = 0;
         }
