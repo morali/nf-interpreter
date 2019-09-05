@@ -58,11 +58,23 @@ void PIT_IRQHandler(void)
             }
         }
 
-		// if (s_local_ao.pwm_count >= 100)
-        // {
-		// 	s_local_ao.pwm_count = 0;
-        // }
-		// s_local_ao.pwm_count++;
+        for (uint32_t i = 0; i < TRIAC_OUTPUT_PORTS; i++)
+        {
+            if((s_local_ao.pwm_count >= s_local_ao.TOconfig[i].duty_cycle))
+            {
+
+                s_local_io_tx.analog_output |= 1U << (i + 1);
+            }
+            else
+            {
+                s_local_io_tx.analog_output &= ~(1U << (i + 1));
+            }
+        }
+
+		if (s_local_ao.pwm_count++ >= 1000000)
+        {
+			s_local_ao.pwm_count = 0;
+        }
     }
         
 	
