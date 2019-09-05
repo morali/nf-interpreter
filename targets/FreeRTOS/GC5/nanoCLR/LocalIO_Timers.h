@@ -10,9 +10,8 @@
 #include "isma_localio.h"
 #include "LocalIO_AO_TO.h"
 
-#define _50US_TIMER_PERIOD 2500
-#define _100US_TIMER_PERIOD 5000
-#define _1MS_TIMER_PERIOD 50000 
+#define _100US_TIMER_PERIOD USEC_TO_COUNT(100, CLOCK_GetFreq(kCLOCK_PerClk))
+#define _1MS_TIMER_PERIOD USEC_TO_COUNT(1000, CLOCK_GetFreq(kCLOCK_PerClk))
 
 #define PIT_IRQ_PRIO 6
 

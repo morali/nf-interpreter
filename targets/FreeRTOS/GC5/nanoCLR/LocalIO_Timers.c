@@ -23,12 +23,10 @@ void PITChannel0Init(void)
     PIT_Init(PIT, &pitConfig);
 
     // uint32_t pitSourceClock = CLOCK_GetFreq(kCLOCK_PerClk);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, _50US_TIMER_PERIOD);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, _100US_TIMER_PERIOD);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, _100US_TIMER_PERIOD);
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, _1MS_TIMER_PERIOD);
 
     PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
-    PIT_EnableInterrupts(PIT, kPIT_Chnl_1, kPIT_TimerInterruptEnable);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_2, kPIT_TimerInterruptEnable);
 
     /* Enable at the NVIC */
@@ -36,55 +34,38 @@ void PITChannel0Init(void)
     NVIC_SetPriority(PIT_IRQn, PIT_IRQ_PRIO);
 
     PIT_StartTimer(PIT, kPIT_Chnl_0);
-    PIT_StartTimer(PIT, kPIT_Chnl_1);
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }
 
 void PIT_IRQHandler(void)
 {
-    /* Interrupt every 1us */
+    /* Interrupt every 100us */
 	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_0))
     {
-		/* Clear interrupt flag.*/
+        /* Clear interrupt flag.*/
         PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, kPIT_TimerFlag);
-        // if(!LPSPI_GetStatusFlags(LPSPI3))
-        /* SPI ring transfer, reads digital inputs and sets digital and analog outputs (PWMs) */
-        LPSPI_MasterTransferNonBlocking(LPSPI3, &s_spi3.masterHandle, &s_spi3.spi_transfer);        
-	}
-
-    /* Interrupt every 100us */
-	if(PIT_GetStatusFlags(PIT, kPIT_Chnl_1))
-    {
-		/* Clear interrupt flag.*/
-        PIT_ClearStatusFlags(PIT, kPIT_Chnl_1, kPIT_TimerFlag);
-
-        /* PWM Controller */
-
-        /*
-        1. Check timer
-        2. Increment timer
-        3. If timer > 100, reset timer.
-        */
-
 
         for (uint32_t i = 0; i < ANALOG_OUTPUT_PORTS; i++)
         {
             if((s_local_ao.pwm_count >= s_local_ao.AOconfig[i].duty_cycle)  && s_local_ao.AOconfig[i].mode == PWM)
             {
-                s_local_io_tx.analog_output = 1U << (i + 1);
+
+                s_local_io_tx.analog_output |= 1U << (i + 1);
             }
             else
             {
-                s_local_io_tx.analog_output = 0U << (i + 1);
+                s_local_io_tx.analog_output &= ~(1U << (i + 1));
             }
         }
 
-		if (s_local_ao.pwm_count >= 1000000)
-        {
-			s_local_ao.pwm_count = 0;
-        }
-		s_local_ao.pwm_count++;
-	}
+		// if (s_local_ao.pwm_count >= 100)
+        // {
+		// 	s_local_ao.pwm_count = 0;
+        // }
+		// s_local_ao.pwm_count++;
+    }
+        
+	
 
     /* Interrupt every 1ms */
     if (PIT_GetStatusFlags(PIT, kPIT_Chnl_2)) {

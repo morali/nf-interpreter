@@ -9,7 +9,6 @@
 
 #include "isma_localio.h"
 
-
 #define LPSPI_TX_DMA_CHANNEL 2
 
 static void lpspi_EdmaCallback(LPSPI_Type *base, lpspi_master_edma_handle_t *handle,
@@ -18,6 +17,7 @@ static void lpspi_EdmaCallback(LPSPI_Type *base, lpspi_master_edma_handle_t *han
 void init_spi_dma()
 {
     edma_handle_t lpspi_TxEdmaHandle;
+    edma_handle_t lpspi_RxEdmaHandle;
     lpspi_master_edma_handle_t lpspi_EdmaHandle;
 
     /*Set clock source for LPSPI*/
@@ -39,7 +39,7 @@ void init_spi_dma()
                                         &lpspi_EdmaHandle,
                                         lpspi_EdmaCallback,
                                         NULL,
-                                        NULL,
+                                        &lpspi_RxEdmaHandle,
                                         &lpspi_TxEdmaHandle);
 
     local_io_t tx;
@@ -56,14 +56,6 @@ void init_spi_dma()
     lpspi_xfer.txData = &tx.digital_output;
 
     LPSPI_MasterTransferEDMA(LPSPI3, &lpspi_EdmaHandle, &lpspi_xfer);
-    
-    // uint32_t errorCount;
-
-    /*LPSPI master init*/
-    // DRIVER_MASTER_SPI.Initialize(LPSPI_MasterSignalEvent_t);
-    // DRIVER_MASTER_SPI.PowerControl(ARM_POWER_FULL);
-    // DRIVER_MASTER_SPI.Control(ARM_SPI_MODE_MASTER, TRANSFER_BAUDRATE);
-
 }
 
 static void lpspi_EdmaCallback(LPSPI_Type *base,
@@ -75,8 +67,4 @@ static void lpspi_EdmaCallback(LPSPI_Type *base,
     (void) handle;
     (void) status;
     (void) userData;
-
-
-
-
 }
