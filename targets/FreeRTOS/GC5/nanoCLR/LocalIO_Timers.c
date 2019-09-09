@@ -37,6 +37,8 @@ void PITChannel0Init(void)
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }
 
+static const uint16_t pwmMultipliers[] = { 100, 10, 1, 1000, 10000 };
+
 void PIT_IRQHandler(void)
 {
     /* Interrupt every 100us */
@@ -47,7 +49,9 @@ void PIT_IRQHandler(void)
 
         for (uint32_t i = 0; i < ANALOG_OUTPUT_PORTS; i++)
         {
-            if((s_local_ao.pwm_count >= s_local_ao.AOconfig[i].duty_cycle)  && s_local_ao.AOconfig[i].mode == PWM)
+            uint32_t value = s_local_ao.AOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.AOconfig[i].frequency];
+            
+            if((s_local_ao.AOconfig[i].pwm_count >= value)  && s_local_ao.AOconfig[i].mode == PWM)
             {
                 s_local_io_tx.analog_output |= 1U << (i + 1);
             }
@@ -55,11 +59,17 @@ void PIT_IRQHandler(void)
             {
                 s_local_io_tx.analog_output &= ~(1U << (i + 1));
             }
+
+            if (++s_local_ao.AOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.AOconfig[i].frequency] * 100) {
+                s_local_ao.AOconfig[i].pwm_count = 0;
+            }
         }
 
         for (uint32_t i = 0; i < TRIAC_OUTPUT_PORTS; i++)
         {
-            if((s_local_ao.pwm_count >= s_local_ao.TOconfig[i].duty_cycle))
+            uint32_t value = s_local_ao.TOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.TOconfig[i].frequency];
+
+            if((s_local_ao.TOconfig[i].pwm_count >= value))
             {
                 s_local_io_tx.analog_output |= 1U << (i + 4);
             }
@@ -67,12 +77,12 @@ void PIT_IRQHandler(void)
             {
                 s_local_io_tx.analog_output &= ~(1U << (i + 4));
             }
+            
+            if (++s_local_ao.TOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.TOconfig[i].frequency]) {
+                s_local_ao.TOconfig[i].pwm_count = 0;
+            }
         }
 
-		if (s_local_ao.pwm_count++ >= 1000000)
-        {
-			s_local_ao.pwm_count = 0;
-        }
     }
         
 	

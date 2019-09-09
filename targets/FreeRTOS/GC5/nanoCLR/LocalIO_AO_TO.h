@@ -18,22 +18,31 @@ typedef enum {
 	PWM
 } AO_Mode_t;
 
+typedef enum {
+	PWM_1,
+	PWM_10,
+	PWM_100,
+	PWM_01,
+	PWM_001,
+} PWM_Freq_t;
+
 typedef struct _PWM_Config_t{
-	AO_Mode_t mode;
 	uint16_t voltage;
 	uint32_t duty_cycle;
-	uint32_t frequency;
+	uint32_t pwm_count;
+	AO_Mode_t mode;
+	PWM_Freq_t frequency;
 } AO_Config_t;
 
 typedef struct {
 	uint32_t duty_cycle;
-	uint32_t frequency;
+	uint32_t pwm_count;
+	PWM_Freq_t frequency;
 } TO_Config_t;
 
 typedef struct _localIO_AO {
 	AO_Config_t AOconfig[ANALOG_OUTPUT_PORTS];
 	TO_Config_t TOconfig[TRIAC_OUTPUT_PORTS];
-	uint32_t pwm_count;
 } localIO_AO_t;
 
 #ifdef __cplusplus
@@ -43,11 +52,11 @@ extern "C" {
 uint32_t GetAONumber();
 void SetAOVoltage(uint32_t aoNo, uint16_t voltage);
 void SetAOPWM(uint32_t aoNo, bool pwm);
-void SetAOFrequency(uint32_t aoNo, uint32_t frequency);
+void SetAOFrequency(uint32_t aoNo, PWM_Freq_t frequency);
 void SetAODutyCycle(uint32_t aoNo, uint32_t duty);
 
 uint32_t GetTONumber();
-void SetTOFrequency(uint32_t id, uint32_t frequency);
+void SetTOFrequency(uint32_t id, PWM_Freq_t frequency);
 void SetTODutyCycle(uint32_t id, uint8_t duty);
 
 #ifdef __cplusplus
