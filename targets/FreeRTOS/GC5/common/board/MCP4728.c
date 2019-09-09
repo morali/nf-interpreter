@@ -44,12 +44,11 @@ status_t MCP4728_ChannelGetValue(channel_t s_channel)
 status_t MCP4728_ChannelOff(channel_t s_channel)
 {
     uint8_t command[3];
-    status_t status = -1;
 
     command[0] = (2 << 5) | ((s_channel & 0x03) << 1); /* multi write command with udac = 0 */
-    command[1] = (3 << 5);  /* powerdown (500k do masy) */
-    command[3] = 0;
+    command[1] = (3 << 5);  /* powerdown (500k to the ground) */
+    command[2] = 0;
 
-    status = I2CTransfer(&i2c2, MCP4728_addr, kLPI2C_Write, 0, 0, command, 3);
+    status_t status = I2CTransfer(&i2c2, MCP4728_addr, kLPI2C_Write, 0, 0, command, 3);
     return status;
 }
