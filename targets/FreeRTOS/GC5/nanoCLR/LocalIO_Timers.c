@@ -52,46 +52,48 @@ void PIT_IRQHandler(void)
         for (uint32_t i = 0; i < ANALOG_OUTPUT_PORTS; i++)
         {
             if (s_local_ao.AOconfig[i].mode == AO_PWM) {
-            uint32_t value = s_local_ao.AOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.AOconfig[i].frequency];
-            
+                uint32_t value = s_local_ao.AOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.AOconfig[i].frequency];
+                
                 if((s_local_ao.AOconfig[i].pwm_count >= value))
-            {
+                {
+                    s_local_io_tx.analog_output &= ~pwmAOPin[i];
+                }
+                else
+                {
+                    s_local_io_tx.analog_output |= pwmAOPin[i];
+                }
+
+                if (++s_local_ao.AOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.AOconfig[i].frequency] * 100) {
+                    s_local_ao.AOconfig[i].pwm_count = 0;
+                }
+            } else {
                 s_local_io_tx.analog_output &= ~pwmAOPin[i];
             }
-            else
-            {
-                s_local_io_tx.analog_output |= pwmAOPin[i];
-            }
-
-            if (++s_local_ao.AOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.AOconfig[i].frequency] * 100) {
-                s_local_ao.AOconfig[i].pwm_count = 0;
-            }
-            } else {
-                s_local_io_tx.analog_output |= pwmAOPin[i];
-            }
         }
 
-        for (uint32_t i = 0; i < TRIAC_OUTPUT_PORTS; i++)
-        {
+        for (uint32_t i = 0; i < TRIAC_OUTPUT_PORTS; i++) {
+          if (s_local_ao.TOconfig[i].mode == TO_PWM) {
             uint32_t value = s_local_ao.TOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.TOconfig[i].frequency];
 
-            if((s_local_ao.TOconfig[i].pwm_count >= value))
-            {
-                s_local_io_tx.analog_output &= ~pwmTOPin[i];
+            if ((s_local_ao.TOconfig[i].pwm_count >= value)) {
+              s_local_io_tx.analog_output &= ~pwmTOPin[i];
+            } else {
+              s_local_io_tx.analog_output |= pwmTOPin[i];
             }
-            else
-            {
-                s_local_io_tx.analog_output |= pwmTOPin[i];
-            }
-            
-            if (++s_local_ao.TOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.TOconfig[i].frequency]) {
-                s_local_ao.TOconfig[i].pwm_count = 0;
-            }
-        }
 
+            if (++s_local_ao.TOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.TOconfig[i].frequency] * 100) {
+              s_local_ao.TOconfig[i].pwm_count = 0;
+            }
+          } else if (s_local_ao.TOconfig[i].mode == TO_Digital) {
+
+            if (s_local_ao.TOconfig[i].digital) {
+              s_local_io_tx.analog_output |= pwmTOPin[i];
+            } else {
+              s_local_io_tx.analog_output &= ~pwmTOPin[i];
+            }
+          }
+        }
     }
-        
-	
 
     /* Interrupt every 1ms */
     if (PIT_GetStatusFlags(PIT, kPIT_Chnl_2)) {

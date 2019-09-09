@@ -4,8 +4,8 @@
  * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
-#include "isma_localio_native.h"
 #include "LocalIO_AO_TO.h"
+#include "isma_localio_native.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetConfigNative___VOID( CLR_RT_StackFrame& stack )
 {
@@ -47,7 +47,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetVoltageNative___VOID__U2
         FAULT_ON_NULL(pThis);
 
         uint32_t aoNo = pThis[FIELD___id].NumericByRefConst().u4;
-        uint16_t voltage = stack.Arg1().NumericByRef().u1;
+        uint16_t voltage = stack.Arg1().NumericByRef().u2;
 
         SetAOVoltage(aoNo, voltage);
     }

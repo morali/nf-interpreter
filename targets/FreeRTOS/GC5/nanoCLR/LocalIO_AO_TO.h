@@ -35,9 +35,16 @@ typedef struct _PWM_Config_t{
 	PWM_Freq_t frequency;
 } AO_Config_t;
 
+typedef enum {
+	TO_PWM,
+	TO_Digital
+} TO_Mode_t;
+
 typedef struct {
 	uint32_t duty_cycle;
 	uint32_t pwm_count;
+	bool digital;
+	TO_Mode_t mode;
 	PWM_Freq_t frequency;
 } TO_Config_t;
 
@@ -51,15 +58,17 @@ extern "C" {
 #endif
 
 uint32_t GetAONumber();
-void SetAOVoltage(uint32_t aoNo, uint16_t voltage);
-void SetAOMode(uint32_t aoNo, AO_Mode_t pwm);
-void SetAOFrequency(uint32_t aoNo, PWM_Freq_t frequency);
-void SetAODutyCycle(uint32_t aoNo, uint32_t duty);
-void SetAODigital(uint32_t aoNo, bool value);
+void SetAOMode(uint32_t id, AO_Mode_t pwm);
+void SetAOFrequency(uint32_t id, PWM_Freq_t frequency);
+void SetAODutyCycle(uint32_t id, uint32_t duty);
+void SetAOVoltage(uint32_t id, uint16_t voltage);
+void SetAODigital(uint32_t id, bool value);
 
 uint32_t GetTONumber();
+void SetTOMode(uint32_t id, TO_Mode_t mode);
 void SetTOFrequency(uint32_t id, PWM_Freq_t frequency);
 void SetTODutyCycle(uint32_t id, uint8_t duty);
+void SetTODigital(uint32_t id, bool value);
 
 #ifdef __cplusplus
 }

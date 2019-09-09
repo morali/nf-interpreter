@@ -15,54 +15,61 @@ uint32_t GetAONumber() {
 
 static const uint8_t AO_LUT[] = {3, 2, 0};
 
-void SetAOVoltage(uint32_t aoNo, uint16_t voltage) {
-  if (aoNo > ANALOG_OUTPUT_PORTS)
+void SetAOVoltage(uint32_t id, uint16_t voltage) {
+  if (id > ANALOG_OUTPUT_PORTS)
     return;
 
-  s_local_ao.AOconfig[aoNo].voltage = voltage;
+  s_local_ao.AOconfig[id].voltage = voltage;
   uint16_t value = (voltage * 2048) / 5145;
   if (value > 4095) {
     value = 4095;
   }
-  MCP4728_ChannelSetValue(AO_LUT[aoNo], value);
+  MCP4728_ChannelSetValue(AO_LUT[id], value);
 }
 
-void SetAODigital(uint32_t aoNo, bool value) {
-  if (aoNo > ANALOG_OUTPUT_PORTS)
+void SetAODigital(uint32_t id, bool value) {
+  if (id > ANALOG_OUTPUT_PORTS)
     return;
 
-  MCP4728_ChannelSetValue(AO_LUT[aoNo], value ? 0xFFF : 0);
+  MCP4728_ChannelSetValue(AO_LUT[id], value ? 0xFFF : 0);
 }
 
-void SetAOMode(uint32_t aoNo, AO_Mode_t mode) {
-  if (aoNo > ANALOG_OUTPUT_PORTS)
+void SetAOMode(uint32_t id, AO_Mode_t mode) {
+  if (id > ANALOG_OUTPUT_PORTS)
     return;
 
-  s_local_ao.AOconfig[aoNo].mode = mode;
+  s_local_ao.AOconfig[id].mode = mode;
 
   if (mode == AO_PWM) {
-    MCP4728_ChannelOff(AO_LUT[aoNo]);
+    MCP4728_ChannelOff(AO_LUT[id]);
   } else {
-    SetAOVoltage(aoNo, s_local_ao.AOconfig[aoNo].voltage);
+    SetAOVoltage(id, s_local_ao.AOconfig[id].voltage);
   }
 }
 
-void SetAOFrequency(uint32_t aoNo, PWM_Freq_t frequency) {
-  if (aoNo > GetAONumber())
+void SetAOFrequency(uint32_t id, PWM_Freq_t frequency) {
+  if (id > GetAONumber())
     return;
 
-  s_local_ao.AOconfig[aoNo].frequency = frequency;
+  s_local_ao.AOconfig[id].frequency = frequency;
 }
 
-void SetAODutyCycle(uint32_t aoNo, uint32_t duty) {
-  if (aoNo > GetAONumber())
+void SetAODutyCycle(uint32_t id, uint32_t duty) {
+  if (id > GetAONumber())
     return;
 
-  s_local_ao.AOconfig[aoNo].duty_cycle = duty;
+  s_local_ao.AOconfig[id].duty_cycle = duty;
 }
 
 uint32_t GetTONumber() {
   return TRIAC_OUTPUT_PORTS;
+}
+
+void SetTOMode(uint32_t id, TO_Mode_t mode) {
+  if (id > ANALOG_OUTPUT_PORTS)
+    return;
+
+  s_local_ao.TOconfig[id].mode = mode;
 }
 
 void SetTOFrequency(uint32_t id, PWM_Freq_t frequency) {
@@ -70,7 +77,7 @@ void SetTOFrequency(uint32_t id, PWM_Freq_t frequency) {
     return;
   }
 
-  s_local_ao.AOconfig[id].frequency = frequency;
+  s_local_ao.TOconfig[id].frequency = frequency;
 }
 
 void SetTODutyCycle(uint32_t id, uint8_t duty) {
@@ -82,5 +89,13 @@ void SetTODutyCycle(uint32_t id, uint8_t duty) {
     duty = 100;
   }
 
-  s_local_ao.AOconfig[id].duty_cycle = duty;
+  s_local_ao.TOconfig[id].duty_cycle = duty;
+}
+
+void SetTODigital(uint32_t id, bool value) {
+  if (id > GetTONumber()) {
+    return;
+  }
+
+  s_local_ao.TOconfig[id].digital = value;
 }
