@@ -18,10 +18,7 @@ channel_t s_channel;
 status_t MCP4728_ChannelSetValue(channel_t s_channel, uint16_t val)
 {
     uint8_t command[3];
-    status_t status = -1;
-    val = (val * 0x800) / 0x1419;
-    if (val > 0xFFF) 
-        val = 0xFFF;
+    status_t status;
 
     command[0] = (2<<5) | ((s_channel & 0x03) << 1); 	//multi write command, kanal, udac = 0
 	command[1] = (1<<7) | (0<<4) | (val >> 8); 	//VREF i  najstarsze bity

@@ -13,10 +13,18 @@ uint32_t GetAONumber() {
   return ANALOG_OUTPUT_PORTS;
 }
 
+static const uint8_t AO_LUT[] = {3, 2, 0};
+
 void SetAOVoltage(uint32_t aoNo, uint16_t voltage) {
-  // status_t status;
-  /* TODO: convert voltage from volts to 12bit value */
-  MCP4728_ChannelSetValue(aoNo, voltage);
+  if (aoNo > ANALOG_OUTPUT_PORTS)
+    return;
+
+  s_local_ao.AOconfig[aoNo].voltage = voltage;
+  uint16_t value = (voltage * 2048) / 5145;
+  if (value > 4095) {
+    value = 4095;
+  }
+  MCP4728_ChannelSetValue(AO_LUT[aoNo], value);
 }
 
 void SetAOPWM(uint32_t aoNo, bool pwm) {
