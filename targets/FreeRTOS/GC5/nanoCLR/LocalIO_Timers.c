@@ -37,7 +37,9 @@ void PITChannel0Init(void)
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }
 
-static const uint16_t pwmMultipliers[] = { 100, 10, 1, 1000, 10000 };
+static const uint16_t pwmMultipliers[] = {100, 10, 1, 1000, 10000};
+static const uint8_t pwmAOPin[ANALOG_OUTPUT_PORTS] = {1 << 3, 1 << 2, 1 << 1};
+static const uint8_t pwmTOPin[TRIAC_OUTPUT_PORTS] = {1 << 4, 1 << 5};
 
 void PIT_IRQHandler(void)
 {
@@ -53,11 +55,11 @@ void PIT_IRQHandler(void)
             
             if((s_local_ao.AOconfig[i].pwm_count >= value)  && s_local_ao.AOconfig[i].mode == PWM)
             {
-                s_local_io_tx.analog_output |= 1U << (i + 1);
+                s_local_io_tx.analog_output &= ~pwmAOPin[i];
             }
             else
             {
-                s_local_io_tx.analog_output &= ~(1U << (i + 1));
+                s_local_io_tx.analog_output |= pwmAOPin[i];
             }
 
             if (++s_local_ao.AOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.AOconfig[i].frequency] * 100) {
@@ -71,11 +73,11 @@ void PIT_IRQHandler(void)
 
             if((s_local_ao.TOconfig[i].pwm_count >= value))
             {
-                s_local_io_tx.analog_output |= 1U << (i + 4);
+                s_local_io_tx.analog_output &= ~pwmTOPin[i];
             }
             else
             {
-                s_local_io_tx.analog_output &= ~(1U << (i + 4));
+                s_local_io_tx.analog_output |= pwmTOPin[i];
             }
             
             if (++s_local_ao.TOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.TOconfig[i].frequency]) {
