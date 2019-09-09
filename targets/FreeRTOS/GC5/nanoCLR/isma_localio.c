@@ -32,8 +32,9 @@ void vLocalIOThread(void *argument) {
 	s_local_io_tx.ui_input = 0x00;
 	/* Send and receive data through loopback  */
 	
-	s_spi3.spi_transfer.txData = &(s_local_io_tx.ui_input);
+	s_spi3.spi_transfer.txData = (uint8_t *)&s_local_io_tx;
     s_spi3.spi_transfer.dataSize = 3;
+	s_spi3.spi_transfer.configFlags = kLPSPI_MasterByteSwap;
 
 	/* Peripheral interrupt timer init (for SPI ring transfer and PWM) */
 	PITChannel0Init();
