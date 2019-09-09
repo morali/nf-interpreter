@@ -160,7 +160,7 @@ void vPanelThread(void *pvParameters) {
 
     SERIAL_SHIFT_ENABLE();
 
-    LPSPI_RTOS_Transfer(&spi2.masterRtosHandle, &panelTransfer);
+    LPSPI_RTOS_Transfer(&s_spi2.masterRtosHandle, &panelTransfer);
 
     // Copy and save dipswitch configuration from second byte
     // NOTE: during first read procedure, there is a garbage data

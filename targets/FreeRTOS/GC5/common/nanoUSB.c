@@ -38,20 +38,26 @@ uint32_t GenericPort_Write( int portNum, const char* data, size_t size )
 
     if(!DebuggerPort_Initialize(0)) return 0;
 
-    usb_status_t error = kStatus_USB_Error;
-    usb_cdc_vcom_struct_t *vcomInstance;
-    vcomInstance = &g_composite_p->cdcVcom[1];
+    #ifdef USB_CONSOLE_DEBUG
 
-    s_cdc_data.xWriteToNotify[1] = xTaskGetCurrentTaskHandle();
+        usb_status_t error = kStatus_USB_Error;
+        usb_cdc_vcom_struct_t *vcomInstance;
+        vcomInstance = &g_composite_p->cdcVcom[1];
 
-    if (size > sizeof(s_cdc_data.s_currSendBuf[1]) / sizeof(uint8_t)) return 0;
-    memcpy(s_cdc_data.s_currSendBuf[1], data, size);
+        s_cdc_data.xWriteToNotify[1] = xTaskGetCurrentTaskHandle();
 
-    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data.s_currSendBuf[1], size);
-    if (error != kStatus_USB_Success) return 0;
+        if (size > sizeof(s_cdc_data.s_currSendBuf[1]) / sizeof(uint8_t)) return 0;
+        memcpy(s_cdc_data.s_currSendBuf[1], data, size);
 
-    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(100));
+        error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data.s_currSendBuf[1], size);
+        if (error != kStatus_USB_Success) return 0;
+
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(100));
+
+    #endif
 
     return (uint32_t)size;
-    (void)portNum;
+    
+    (void) data;
+    (void) portNum;
 }

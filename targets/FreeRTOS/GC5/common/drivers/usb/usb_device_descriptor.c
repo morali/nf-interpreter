@@ -285,10 +285,10 @@ uint8_t g_UsbDeviceString2[] = {2U + 2U * 18U, USB_DESCRIPTOR_TYPE_STRING,
                                 'E',           0,
                                 'R',           0,
                                 '_',           0,
+                                '1',           0,
+                                '9',           0,
                                 '0',           0,
-                                '5',           0,
-                                '0',           0,
-                                '9',           0};
+                                '8',           0};
 
 USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
 uint8_t g_UsbDeviceString3[] = {2U + 2U * 16U, USB_DESCRIPTOR_TYPE_STRING,

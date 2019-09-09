@@ -54,7 +54,9 @@
           "API_Windows.Devices.Wifi": "OFF",
           "API_Windows.Devices.SerialCommunication": "ON",
           "API_System.Net": "ON",
-          "API_System.Math": "OFF"
+          "API_System.Math": "OFF",
+          "API_iSMA.GPIO": "ON",
+          "API_iSMA.LocalIO": "ON"
         }
       }
     }
