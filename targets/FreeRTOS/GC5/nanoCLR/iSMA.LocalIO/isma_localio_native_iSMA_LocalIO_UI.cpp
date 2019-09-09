@@ -6,7 +6,7 @@
 
 #include "MCP3421.h"
 #include "isma_localio_native.h"
-#include "localIO_UI.h"
+#include "LocalIO_UI.h"
 
 HRESULT Library_isma_localio_native_iSMA_LocalIO_UI::SetConfigNative___VOID(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();

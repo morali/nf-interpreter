@@ -10,7 +10,7 @@ extern "C" {
 
 #include "isma_localio.h"
 
-#include "LocalIO_AO.h"
+#include "LocalIO_AO_TO.h"
 #include "LocalIO_UI.h"
 #include "LocalIO_Timers.h"
 #include "LocalIO_DI.h"
@@ -31,10 +31,14 @@ void vLocalIOThread(void *argument) {
 	s_local_io_tx.analog_output = 0x00;
 	s_local_io_tx.ui_input = 0x00;
 	/* Send and receive data through loopback  */
-	s_spi3.spi_transfer.txData = &(s_local_io_tx.ui_input);
+	
+	s_spi3.spi_transfer.txData = (uint8_t *)&s_local_io_tx;
+    s_spi3.spi_transfer.dataSize = 3;
+	s_spi3.spi_transfer.configFlags = kLPSPI_MasterByteSwap;
 
 	/* Peripheral interrupt timer init (for SPI ring transfer and PWM) */
 	PITChannel0Init();
+	LPSPI_MasterTransferNonBlocking(LPSPI3, &s_spi3.masterHandle, &s_spi3.spi_transfer);
 	vTaskDelete(NULL);
 }
 

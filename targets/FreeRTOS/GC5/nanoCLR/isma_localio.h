@@ -10,7 +10,7 @@ extern "C" {
 #include "fsl_gpio.h"
 #include "fsl_lpspi_freertos.h"
 
-typedef struct _local_io
+typedef struct _local_io 
 {
     uint8_t ui_input;
     uint8_t analog_output;

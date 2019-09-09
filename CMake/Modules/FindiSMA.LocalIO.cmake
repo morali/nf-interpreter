@@ -23,6 +23,7 @@ set(iSMA.LocalIO_SRCS
     isma_localio_native_iSMA_LocalIO_AO.cpp
     isma_localio_native_iSMA_LocalIO_DI.cpp
     isma_localio_native_iSMA_LocalIO_DO.cpp
+    isma_localio_native_iSMA_LocalIO_TO.cpp
     isma_localio_native_iSMA_LocalIO_UI.cpp
     isma_localio_native_iSMA_LocalIO_LocalIOController.cpp
     isma_localio_native.cpp

@@ -8,7 +8,7 @@
 #define _LOCALIO_UI_H_
 
 #define MAX_RESISTANCE_PT1000 200000
-#define UINumber 4 
+#define UINumber 4U
 
 #include "MCP3421.h"
 #include "FreeRTOSCommonHooks.h"

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef _USB_VCOM_H_
-#define _USB_VCOM_H_ 
+#define _USB_VCOM_H_
 
 #include "board.h"
 
@@ -27,15 +27,19 @@
 * Definitions
 ******************************************************************************/
 
+/* If defined usb console debug is enabled */
+// #define USB_DEBUG_CONSOLE
+
 /* Input buffer size */
-#define IN_USB_BUFFER_SIZE 0x1000
+#define STREAM_RECV_USB_BUFFER 0x4000
+#define INTERNAL_RECV_USB_BUFFER 0x1000
+#define INTERNAL_SEND_USB_BUFFER 0x1000
 
 #define USB_WP_THREAD_PRIO 6
 #define USB_CONSOLE_THREAD_PRIO 1
-#define USB_DEVICE_INTERRUPT_PRIORITY 4
+#define USB_DEVICE_INTERRUPT_PRIORITY 3
 
 #define CONTROLLER_ID kUSB_ControllerEhci0
-#define DATA_BUFF_SIZE 0x1000
 
 /* Currently configured line coding */
 #define LINE_CODING_SIZE (0x07)
@@ -56,7 +60,11 @@
 
 /* Task receiving USB data */
 void vcom_usb_thread(void * argument);
-void vcom_debug_thread(void * argument);
+
+#ifdef USB_CONSOLE_DEBUG
+    void vcom_debug_thread(void * argument);
+    #define STREAM_CONSOLE_USB_BUFFER 0x1000
+#endif
 
 /* Define the information relates to abstract control model */
 typedef struct _usb_cdc_acm_info
@@ -88,8 +96,7 @@ typedef struct _usb_cdc_vcom_struct
     uint8_t speed;             /* Speed of USB device. USB_SPEED_FULL/USB_SPEED_LOW/USB_SPEED_HIGH.                 */
     uint8_t startTransactions; /* A flag to indicate whether a CDC device is ready to transmit and receive data.    */
     uint8_t currentConfiguration; /* Current configuration value. */
-    uint8_t currentInterfaceAlternateSetting
-        [USB_CDC_VCOM_INTERFACE_COUNT];   /* Current alternate setting value for each interface. */
+    uint8_t currentInterfaceAlternateSetting[USB_CDC_VCOM_INTERFACE_COUNT];   /* Current alternate setting value for each interface. */
     uint8_t bulkInEndpoint;               /*bulk in endpoint number*/
     uint8_t bulkOutEndpoint;              /*bulk out endpoint number*/
     uint8_t interruptEndpoint;            /*interrupt endpoint number*/
@@ -111,13 +118,10 @@ typedef struct _usb_device_composite_struct
 typedef struct _usb_data
 {
     StreamBufferHandle_t data_in[USB_DEVICE_CONFIG_CDC_ACM];
-    StreamBufferHandle_t data_out[USB_DEVICE_CONFIG_CDC_ACM];
-    uint8_t in_buffer[0x200];
-    TaskHandle_t xReadToNotify[USB_DEVICE_CONFIG_CDC_ACM];
-    TaskHandle_t xWriteToNotify[USB_DEVICE_CONFIG_CDC_ACM];    
+    TaskHandle_t xWriteToNotify[USB_DEVICE_CONFIG_CDC_ACM];
     TaskHandle_t xReceiverTask; /* Reciver task handle. */
-    uint8_t s_currRecvBuf[USB_DEVICE_CONFIG_CDC_ACM][DATA_BUFF_SIZE]; /* Data buffer for received data. */
-    uint8_t s_currSendBuf[USB_DEVICE_CONFIG_CDC_ACM][DATA_BUFF_SIZE]; /* Data buffer for data to be sent. */
+    uint8_t s_currRecvBuf[USB_DEVICE_CONFIG_CDC_ACM][INTERNAL_RECV_USB_BUFFER]; /* Data buffer for received data. */
+    uint8_t s_currSendBuf[USB_DEVICE_CONFIG_CDC_ACM][INTERNAL_SEND_USB_BUFFER]; /* Data buffer for data to be sent. */
     uint8_t initialized;
 } usb_data_t;
 
