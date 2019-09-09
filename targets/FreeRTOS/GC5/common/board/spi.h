@@ -8,9 +8,7 @@
 #ifndef SPI_H_
 #define SPI_H_
 
-#include "fsl_gpio.h"
 #include "fsl_lpspi_freertos.h"
-
 
 #define LPSPI2_CLOCK_SOURCE_DIVIDER (7U)
 
@@ -25,16 +23,9 @@
 #define LPSPI3_CLOCK_FREQUENCY                                                 \
   (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
 
-typedef struct _spi {
-  lpspi_master_config_t masterConfig;
-  lpspi_master_handle_t masterHandle;
-  lpspi_rtos_handle_t masterRtosHandle;
-  lpspi_transfer_t spi_transfer;
-} spi_t;
-
-extern spi_t s_spi2;
-extern spi_t s_spi3;
-
 void SPI_InitPeripheral(void);
+lpspi_transfer_t *GetSpi3Transfer();
+lpspi_master_handle_t *GetSpi3MasterHandle();
+lpspi_rtos_handle_t *GetSpi2MasterRtosHandle();
 
 #endif /* SPI_H_ */

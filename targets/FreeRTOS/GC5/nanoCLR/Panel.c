@@ -7,6 +7,7 @@
 
 #include "Panel.h"
 #include "FreeRTOSCommonHooks.h"
+#include "fsl_gpio.h"
 #include "spi.h"
 
 ///////////////////////////////////////////
@@ -31,11 +32,8 @@ static const char *DIPs[] = {
 };
 
 
-
 /************************************************************************************************************/
-/*                                                                                                          */
 /*                                        PANEL PRIVATE DEFINES                                             */
-/*                                                                                                          */
 /************************************************************************************************************/
 
 #define LEDsNo (sizeof(LEDs) / sizeof(LEDs[0]))
@@ -49,9 +47,7 @@ static const char *DIPs[] = {
 #define DIPSWITCH_READS     3
 
 /************************************************************************************************************/
-/*                                                                                                          */
 /*                                PANEL PRIVATE FUNCTIONS DEFINITIONS                                       */
-/*                                                                                                          */
 /************************************************************************************************************/
 
 static void PanelTransferStructure_Init(lpspi_transfer_t *panelTransfer) {
@@ -81,9 +77,7 @@ static void CheckAndSaveDipswitchState(uint8_t dipswitchData[][DIPSWITCH_READS])
 }
 
 /************************************************************************************************************/
-/*                                                                                                          */
 /*                                PANEL PUBLIC FUNCTIONS DEFINITIONS                                        */
-/*                                                                                                          */
 /************************************************************************************************************/
 
 void SetLed(uint32_t ledNumber, bool state) {
@@ -139,9 +133,7 @@ uint8_t GetDipswitch(uint32_t dipswitchNumber) {
 }
 
 /************************************************************************************************************/
-/*                                                                                                          */
 /*                                           FreeRTOS TASK                                                  */
-/*                                                                                                          */
 /************************************************************************************************************/
 
 void vPanelThread(void *pvParameters) {
@@ -155,12 +147,13 @@ void vPanelThread(void *pvParameters) {
   lpspi_transfer_t panelTransfer;
   PanelTransferStructure_Init(&panelTransfer);
 
+  lpspi_rtos_handle_t *masterRtosHandle = GetSpi2MasterRtosHandle();
+
   for (;;) {
     SelectDipSwitch(dipswitchToSet);
 
     SERIAL_SHIFT_ENABLE();
-
-    LPSPI_RTOS_Transfer(&s_spi2.masterRtosHandle, &panelTransfer);
+    LPSPI_RTOS_Transfer(masterRtosHandle, &panelTransfer);
 
     // Copy and save dipswitch configuration from second byte
     // NOTE: during first read procedure, there is a garbage data

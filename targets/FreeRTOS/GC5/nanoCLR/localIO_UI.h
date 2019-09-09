@@ -11,8 +11,6 @@
 #define UINumber 4U
 
 #include "MCP3421.h"
-#include "FreeRTOSCommonHooks.h"
-#include "isma_localio.h"
 
 typedef enum {
   SelectRefChannel,
@@ -23,23 +21,23 @@ typedef enum {
 } UIState_t;
 
 typedef enum {
-    UI1,
-    UI2,
-    UI3,
-    UI4,
-    UI5,
-    UI6,
-    UI7,
-    UI8,
-    VREF
+  UI1,
+  UI2,
+  UI3,
+  UI4,
+  UI5,
+  UI6,
+  UI7,
+  UI8,
+  VREF
 } UIChannel_t;
 
-typedef struct _UIConfig_t{
-    Samplerate_t samplerate;
-    PGAGain_t gain;
-    bool measureVoltage;
-    bool measureResistance;
-    uint8_t filter;
+typedef struct _UIConfig_t {
+  Samplerate_t samplerate;
+  PGAGain_t gain;
+  bool measureVoltage;
+  bool measureResistance;
+  uint8_t filter;
 } UIConfig_t;
 
 typedef struct _localIO_UI {
@@ -50,6 +48,12 @@ typedef struct _localIO_UI {
   bool digital[UINumber];
 } localIO_UI_t;
 
+/**
+ * @brief  LocalIO UI Thread
+ * @note   
+ * @param  *argument: 
+ * @retval None
+ */
 void vLocalIO_UI(void *argument);
 
 #ifdef __cplusplus
@@ -151,7 +155,5 @@ void SetUIChannel(UIChannel_t channel);
  * @retval None
  */
 void SetUIChannelPullup(UIChannel_t channel, bool enable);
-
-void vLocalIO_UI(void * argument);
 
 #endif /* _LOCALIO_UI_H_ */

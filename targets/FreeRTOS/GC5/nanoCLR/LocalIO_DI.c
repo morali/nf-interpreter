@@ -64,7 +64,7 @@ uint32_t GetDINumber() {
 }
 
 bool GetDIState(uint32_t id) {
-  if (id > GetDINumber()) {
+  if (id >= GetDINumber()) {
     return false;
   }
 
@@ -74,7 +74,7 @@ bool GetDIState(uint32_t id) {
 
 uint32_t GetDICounter(uint32_t id) {
 
-  if (id > GetDINumber()) {
+  if (id >= GetDINumber()) {
     return 0;
   }
 
@@ -83,7 +83,7 @@ uint32_t GetDICounter(uint32_t id) {
 
 void SetDICounter(uint32_t id, uint32_t value) {
 
-  if (id > GetDINumber()) {
+  if (id >= GetDINumber()) {
     return;
   }
 

@@ -1,7 +1,17 @@
+/*
+ * Created on Mon Sep 09 2019
+ *
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
+ */
 
 #include "LocalIO_DO.h"
+#include "LocalIO.h"
 
-extern local_io_t s_local_io_tx;
+static local_io_t *local_io_tx;
+
+void InitDO() {
+  local_io_tx = GetLocalIoTx();
+}
 
 /**
  * @brief  Get number of digital output ports
@@ -9,7 +19,7 @@ extern local_io_t s_local_io_tx;
  * @retval number of DOs ports
  */
 uint32_t GetDONumber() {
-	return DIGITAL_OUTPUT_PORTS;
+  return DIGITAL_OUTPUT_PORTS;
 }
 
 /**
@@ -18,13 +28,13 @@ uint32_t GetDONumber() {
  * @param  DONum: digital output port number
  * @retval true - high, false - low
  */
-bool GetDO(uint32_t DONum)
-{	
-	if (DONum > GetDONumber()) return false;
+bool GetDO(uint32_t DONum) {
+  if (DONum >= GetDONumber())
+    return false;
 
-	bool state = false;
-	state = (bool) (s_local_io_tx.digital_output >> (DONum +3)) & 1U;
-	return state;
+  bool state = false;
+  state = (bool)(local_io_tx->digital_output >> (DONum + 3)) & 1U;
+  return state;
 }
 
 /**
@@ -34,18 +44,15 @@ bool GetDO(uint32_t DONum)
  * @param  DONum: digital output port number
  * @retval None
  */
-void SetDO(bool state, uint32_t DONum)
-{
-	if (DONum > GetDONumber()) return;
-		
-	if (state)
-	{
-		s_local_io_tx.digital_output |= 1U << (DONum + 3);
-	}
-	else
-	{
-		s_local_io_tx.digital_output &= ~(1U << (DONum + 3));
-	}
+void SetDO(bool state, uint32_t DONum) {
+  if (DONum >= GetDONumber())
+    return;
+
+  if (state) {
+    local_io_tx->digital_output |= 1U << (DONum + 3);
+  } else {
+    local_io_tx->digital_output &= ~(1U << (DONum + 3));
+  }
 }
 
 /**
@@ -54,9 +61,9 @@ void SetDO(bool state, uint32_t DONum)
  * @param  DONum: digital output port number
  * @retval returns state of port after toggle
  */
-void ToggleDO(uint32_t DONum)
-{
-	if (DONum > GetDONumber()) return;
+void ToggleDO(uint32_t DONum) {
+  if (DONum >= GetDONumber())
+    return;
 
-	s_local_io_tx.digital_output ^= 1U << (DONum + 3);
+  local_io_tx->digital_output ^= 1U << (DONum + 3);
 }

@@ -8,14 +8,14 @@
 #ifndef LOCALIO_DI_
 #define LOCALIO_DI_
 
+#include <stdbool.h>
+#include <stdint.h>
+
+void InitDI(void);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
-#include <stdbool.h>
-
-void InitDI(void);
 void DIReadPinsState(void);
 void DICountersHandler(void);
 uint32_t GetDINumber();
