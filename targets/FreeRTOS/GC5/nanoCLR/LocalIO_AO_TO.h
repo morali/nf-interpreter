@@ -14,8 +14,9 @@
 #define ANALOG_OUTPUT_PORTS 3
 
 typedef enum {
-	Voltage,
-	PWM
+	AO_Voltage,
+	AO_PWM,
+	AO_Digital
 } AO_Mode_t;
 
 typedef enum {
@@ -51,9 +52,10 @@ extern "C" {
 
 uint32_t GetAONumber();
 void SetAOVoltage(uint32_t aoNo, uint16_t voltage);
-void SetAOPWM(uint32_t aoNo, bool pwm);
+void SetAOMode(uint32_t aoNo, AO_Mode_t pwm);
 void SetAOFrequency(uint32_t aoNo, PWM_Freq_t frequency);
 void SetAODutyCycle(uint32_t aoNo, uint32_t duty);
+void SetAODigital(uint32_t aoNo, bool value);
 
 uint32_t GetTONumber();
 void SetTOFrequency(uint32_t id, PWM_Freq_t frequency);

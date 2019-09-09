@@ -16,12 +16,13 @@ struct Library_isma_localio_native_iSMA_LocalIO_AO
 
     static const int FIELD___id = 1;
     static const int FIELD___name = 2;
-    static const int FIELD___voltage = 3;
-    static const int FIELD___mode = 4;
-    static const int FIELD___frequency = 5;
+    static const int FIELD___mode = 3;
+    static const int FIELD___frequency = 4;
 
     NANOCLR_NATIVE_DECLARE(SetConfigNative___VOID);
     NANOCLR_NATIVE_DECLARE(SetDutyNative___VOID__U1);
+    NANOCLR_NATIVE_DECLARE(SetVoltageNative___VOID__U2);
+    NANOCLR_NATIVE_DECLARE(SetDigitalNative___VOID__BOOLEAN);
 
     //--//
 

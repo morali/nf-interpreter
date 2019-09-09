@@ -27,16 +27,23 @@ void SetAOVoltage(uint32_t aoNo, uint16_t voltage) {
   MCP4728_ChannelSetValue(AO_LUT[aoNo], value);
 }
 
-void SetAOPWM(uint32_t aoNo, bool pwm) {
+void SetAODigital(uint32_t aoNo, bool value) {
   if (aoNo > ANALOG_OUTPUT_PORTS)
     return;
 
-  s_local_ao.AOconfig[aoNo].mode = pwm;
+  MCP4728_ChannelSetValue(AO_LUT[aoNo], value ? 0xFFF : 0);
+}
 
-  if (pwm) {
+void SetAOMode(uint32_t aoNo, AO_Mode_t mode) {
+  if (aoNo > ANALOG_OUTPUT_PORTS)
+    return;
+
+  s_local_ao.AOconfig[aoNo].mode = mode;
+
+  if (mode == AO_PWM) {
     MCP4728_ChannelOff(AO_LUT[aoNo]);
   } else {
-    MCP4728_ChannelSetValue(AO_LUT[aoNo], 0);
+    SetAOVoltage(aoNo, s_local_ao.AOconfig[aoNo].voltage);
   }
 }
 
@@ -63,7 +70,6 @@ void SetTOFrequency(uint32_t id, PWM_Freq_t frequency) {
     return;
   }
 
-  /* TODO: Add check for correct frequency */
   s_local_ao.AOconfig[id].frequency = frequency;
 }
 

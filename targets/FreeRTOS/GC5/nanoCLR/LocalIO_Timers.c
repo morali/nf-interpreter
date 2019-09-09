@@ -51,9 +51,10 @@ void PIT_IRQHandler(void)
 
         for (uint32_t i = 0; i < ANALOG_OUTPUT_PORTS; i++)
         {
+            if (s_local_ao.AOconfig[i].mode == AO_PWM) {
             uint32_t value = s_local_ao.AOconfig[i].duty_cycle * pwmMultipliers[s_local_ao.AOconfig[i].frequency];
             
-            if((s_local_ao.AOconfig[i].pwm_count >= value)  && s_local_ao.AOconfig[i].mode == PWM)
+                if((s_local_ao.AOconfig[i].pwm_count >= value))
             {
                 s_local_io_tx.analog_output &= ~pwmAOPin[i];
             }
@@ -64,6 +65,9 @@ void PIT_IRQHandler(void)
 
             if (++s_local_ao.AOconfig[i].pwm_count >= pwmMultipliers[s_local_ao.AOconfig[i].frequency] * 100) {
                 s_local_ao.AOconfig[i].pwm_count = 0;
+            }
+            } else {
+                s_local_io_tx.analog_output |= pwmAOPin[i];
             }
         }
 
