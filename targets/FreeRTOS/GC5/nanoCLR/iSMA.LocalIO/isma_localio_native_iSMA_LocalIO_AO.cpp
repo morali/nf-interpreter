@@ -14,17 +14,29 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetConfigNative___VOID( CLR
         CLR_RT_HeapBlock *pThis = stack.This();
         FAULT_ON_NULL(pThis);
 
-        uint32_t aoNo = pThis[FIELD___aoutputId].NumericByRefConst().u4;
+        uint32_t aoNo = pThis[FIELD___id].NumericByRefConst().u4;
         uint16_t voltage = pThis[FIELD___voltage].NumericByRefConst().u1;
-        bool pwm = pThis[FIELD___pwm ].NumericByRefConst().u1;
-        uint32_t frequency = pThis[FIELD___frequency].NumericByRefConst().u1;
-        uint32_t duty = pThis[FIELD___duty].NumericByRefConst().u1;
+        bool mode = pThis[FIELD___mode ].NumericByRefConst().u1;
+        PWM_Freq_t frequency = (PWM_Freq_t)pThis[FIELD___frequency].NumericByRefConst().u1;
 
         SetAOVoltage(aoNo, voltage);
-        SetAOPWM(aoNo, pwm);
+        SetAOPWM(aoNo, mode);
         SetAOFrequency(aoNo, frequency);
-        SetAODutyCycle(aoNo, duty);
     }
     NANOCLR_NOCLEANUP();
 }
 
+HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetDutyNative___VOID__U1( CLR_RT_StackFrame& stack )
+{
+    NANOCLR_HEADER();
+    {
+        CLR_RT_HeapBlock *pThis = stack.This();
+        FAULT_ON_NULL(pThis);
+
+        uint32_t aoNo = pThis[FIELD___id].NumericByRefConst().u4;
+        uint8_t duty = stack.Arg1().NumericByRef().u1;
+
+        SetAODutyCycle(aoNo, duty);
+    }
+    NANOCLR_NOCLEANUP();
+}

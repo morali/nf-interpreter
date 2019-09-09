@@ -15,7 +15,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOSetNative___VOID__BOOLEAN
         CLR_RT_HeapBlock *pThis = stack.This();
         FAULT_ON_NULL(pThis);
 
-        uint32_t DONo = pThis[FIELD___doutputId].NumericByRefConst().u4;
+        uint32_t DONo = pThis[FIELD___id].NumericByRefConst().u4;
         bool state = (bool)stack.Arg1().NumericByRef().u1;
         SetDO(state, DONo);
 
@@ -30,7 +30,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOGetNative___BOOLEAN( CLR_
         CLR_RT_HeapBlock *pThis = stack.This();
         FAULT_ON_NULL(pThis);
 
-        uint32_t DONo = pThis[FIELD___doutputId].NumericByRefConst().u4;
+        uint32_t DONo = pThis[FIELD___id].NumericByRefConst().u4;
         bool state = GetDO(DONo);
 
         stack.SetResult_Boolean(state);
@@ -45,7 +45,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_DO::DOToggleNative___VOID( CLR_
         CLR_RT_HeapBlock *pThis = stack.This();
         FAULT_ON_NULL(pThis);
 
-        uint32_t DONo = pThis[FIELD___doutputId].NumericByRefConst().u4;
+        uint32_t DONo = pThis[FIELD___id].NumericByRefConst().u4;
         ToggleDO(DONo);
     }
     NANOCLR_NOCLEANUP();
