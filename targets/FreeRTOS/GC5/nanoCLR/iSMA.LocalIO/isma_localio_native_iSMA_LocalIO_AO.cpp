@@ -15,7 +15,7 @@ HRESULT Library_isma_localio_native_iSMA_LocalIO_AO::SetConfigNative___VOID( CLR
         FAULT_ON_NULL(pThis);
 
         uint32_t aoNo = pThis[FIELD___id].NumericByRefConst().u4;
-        uint16_t voltage = pThis[FIELD___voltage].NumericByRefConst().u1;
+        uint16_t voltage = pThis[FIELD___voltage].NumericByRefConst().u2;
         bool mode = pThis[FIELD___mode ].NumericByRefConst().u1;
         PWM_Freq_t frequency = (PWM_Freq_t)pThis[FIELD___frequency].NumericByRefConst().u1;
 
