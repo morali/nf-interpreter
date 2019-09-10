@@ -7,7 +7,7 @@
 
 #include "fsl_clock.h"
 
-#include "isma_localio.h"
+#include "LocalIO.h"
 
 #define LPSPI_TX_DMA_CHANNEL 2
 

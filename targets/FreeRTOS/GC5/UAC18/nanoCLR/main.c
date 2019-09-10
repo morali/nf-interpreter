@@ -28,7 +28,7 @@
 #include "MAC_address.h"
 #include "GlobalEventsFlags.h"
 #include "Panel.h"
-#include "isma_localio.h"
+#include "LocalIO.h"
 
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))

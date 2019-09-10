@@ -8,54 +8,57 @@
 #ifndef _ISMA_LOCALIO_AO_TO_H_
 #define _ISMA_LOCALIO_AO_TO_H_
 
-#include "isma_localio.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #define TRIAC_OUTPUT_PORTS 2
 #define ANALOG_OUTPUT_PORTS 3
 
 typedef enum {
-	AO_Voltage,
-	AO_PWM,
-	AO_Digital
+  AO_Voltage,
+  AO_PWM,
+  AO_Digital
 } AO_Mode_t;
 
 typedef enum {
-	PWM_1,
-	PWM_10,
-	PWM_100,
-	PWM_01,
-	PWM_001,
+  PWM_1,
+  PWM_10,
+  PWM_100,
+  PWM_01,
+  PWM_001,
 } PWM_Freq_t;
 
-typedef struct _PWM_Config_t{
-	uint16_t voltage;
-	uint32_t duty_cycle;
-	uint32_t pwm_count;
-	AO_Mode_t mode;
-	PWM_Freq_t frequency;
+typedef struct _PWM_Config_t {
+  uint16_t voltage;
+  uint32_t duty_cycle;
+  uint32_t pwm_count;
+  AO_Mode_t mode;
+  PWM_Freq_t frequency;
 } AO_Config_t;
 
 typedef enum {
-	TO_PWM,
-	TO_Digital
+  TO_PWM,
+  TO_Digital
 } TO_Mode_t;
 
 typedef struct {
-	uint32_t duty_cycle;
-	uint32_t pwm_count;
-	bool digital;
-	TO_Mode_t mode;
-	PWM_Freq_t frequency;
+  uint32_t duty_cycle;
+  uint32_t pwm_count;
+  bool digital;
+  TO_Mode_t mode;
+  PWM_Freq_t frequency;
 } TO_Config_t;
 
-typedef struct _localIO_AO {
-	AO_Config_t AOconfig[ANALOG_OUTPUT_PORTS];
-	TO_Config_t TOconfig[TRIAC_OUTPUT_PORTS];
-} localIO_AO_t;
+typedef struct _localIO_TO_AO {
+  AO_Config_t AOconfig[ANALOG_OUTPUT_PORTS];
+  TO_Config_t TOconfig[TRIAC_OUTPUT_PORTS];
+} localIO_AO_TO_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+localIO_AO_TO_t *GetTOAOConfig();
 
 uint32_t GetAONumber();
 void SetAOMode(uint32_t id, AO_Mode_t pwm);
@@ -74,4 +77,4 @@ void SetTODigital(uint32_t id, bool value);
 }
 #endif
 
-#endif  //_ISMA_LOCALIO_AO_H_
+#endif //_ISMA_LOCALIO_AO_H_

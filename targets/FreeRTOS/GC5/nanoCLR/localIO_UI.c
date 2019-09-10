@@ -4,12 +4,12 @@
  * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
-#include "localIO_UI.h"
+#include "LocalIO_UI.h"
+#include "FreeRTOSCommonHooks.h"
+#include "LocalIO.h"
 
-extern local_io_t s_local_io_tx;
-
+static local_io_t *local_io_tx;
 static localIO_UI_t localIO_UI;
-
 
 // Helper LookUpTable to select propper UI Channel
 static const uint8_t UI_Channel_LUT[] = {5, 7, 3, 1, 2, 4, 0, 6, 8};
@@ -27,9 +27,9 @@ void SetUIChannel(UIChannel_t channel) {
   }
 
   //clear channel bits
-  s_local_io_tx.ui_input &= ~(0xF << 4);
+  local_io_tx->ui_input &= ~(0xF << 4);
   //set channel bits
-  s_local_io_tx.ui_input |= (UI_Channel_LUT[channel] << 4);
+  local_io_tx->ui_input |= (UI_Channel_LUT[channel] << 4);
 }
 
 // Helper LookUpTable to select propper UI Channel Pullup
@@ -49,9 +49,9 @@ void SetUIChannelPullup(UIChannel_t channel, bool enable) {
 
   //set pullup bits
   if (enable) {
-    s_local_io_tx.ui_input &= ~UI_ChannelPullup_LUT[channel];
+    local_io_tx->ui_input &= ~UI_ChannelPullup_LUT[channel];
   } else {
-    s_local_io_tx.ui_input |= UI_ChannelPullup_LUT[channel];
+    local_io_tx->ui_input |= UI_ChannelPullup_LUT[channel];
   }
 }
 
@@ -379,6 +379,8 @@ void vLocalIO_UI(void *argument) {
   status_t status;
   int32_t adc_value = 0;
   int32_t adc_vcc = 0;
+
+  local_io_tx = GetLocalIoTx();
 
   while (1) {
     switch (state) {
