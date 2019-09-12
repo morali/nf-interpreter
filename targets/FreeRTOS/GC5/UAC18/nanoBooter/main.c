@@ -21,7 +21,6 @@
 #include "nanoHAL_ConfigurationManager.h"
 #include "Target_BlockStorage_iMXRTFlashDriver.h"
 
-#include "usb.h"
 #include "usb_vcom.h"
 
 extern usb_cdc_vcom_struct_t s_cdcVcom;
@@ -33,6 +32,8 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 #define LED_GPIO GPIO1
 #define LED_GPIO_PIN (8U)
 
+extern usb_data_t * s_cdc_data_p;
+
 static void blink_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -42,6 +43,9 @@ static void blink_task(void *pvParameters)
 
     /* Init output LED GPIO. */
     GPIO_PinInit(LED_GPIO, LED_GPIO_PIN, &led_config);
+
+    if (s_cdc_data_p->xReceiverTask != NULL)
+        vTaskNotifyGiveFromISR(s_cdc_data_p->xReceiverTask, pdFALSE);
 
     for (;;)
     {
@@ -115,8 +119,10 @@ int main(void)
     // in CLR this is called in nanoHAL_Initialize()
     // for nanoBooter we have to init it here to have access to network configuration blocks
     ConfigurationManager_Initialize();  
+
+    USB_Init();
     
-    xTaskCreate(blink_task, "blink_task", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 1, NULL);
+    xTaskCreate(blink_task, "blink_task", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 3, NULL);
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 1, NULL);
     vTaskStartScheduler();
 

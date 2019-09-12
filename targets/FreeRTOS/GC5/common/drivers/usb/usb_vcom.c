@@ -95,9 +95,7 @@ usb_status_t USB_Init(void)
 
     g_composite_p->attach = 1;
     g_composite_p->cdcVcom[0].startTransactions = 1;
-
-    /* If USB init is sucessful unlock receiver thread  */
-    vTaskNotifyGiveFromISR(s_cdc_data.xReceiverTask, pdFALSE);
+    s_cdc_data_p->initialized = 1;
 
     return kStatus_USB_Success;
 }
