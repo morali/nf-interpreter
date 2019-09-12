@@ -7,8 +7,8 @@
 #define _WIN_DEV_SERIAL_NATIVE_TARGET_H_
 
 #define LPUART_TX_DMA_CHANNEL 0U
-#define UART_DMA_INTERRUPT_PRIO 5U
-#define UART_INTERRUPT_PRIO 5U
+#define UART_DMA_INTERRUPT_PRIO 8U
+#define UART_INTERRUPT_PRIO 7U
 
 #include <target_windows_devices_serialcommunication_config.h>
 #include <win_dev_serial_native.h>
@@ -24,16 +24,7 @@
 #include "fsl_edma.h"
 
 #include "stream_buffer.h"
-#include "semphr.h"
 
-typedef struct {
-    size_t bytes_received;
-    size_t bytes_to_read;
-    uint32_t timeout;
-    uint32_t f_timeout;
-    uint8_t * out_data;
-    uint8_t uartNum;
-} uart_data_t;
 typedef struct
 {
     uint8_t dma_num;
@@ -43,18 +34,16 @@ typedef struct
 
     lpuart_edma_handle_t g_lpuartEdmaHandle;
     edma_handle_t g_lpuartTxEdmaHandle;
+    lpuart_handle_t g_lpuartRxHandle;
 
     HAL_RingBuffer<uint8_t> TxRingBuffer;
     uint8_t* TxBuffer;
+    uint8_t* RxBuffer;
     uint16_t TxOngoingCount;
     uint8_t WatchChar;
-    SemaphoreHandle_t xRxSemaphore = NULL;
-    TaskHandle_t xWriteTaskToNotify = NULL;
     TaskHandle_t xReadTaskToNotify = NULL;
 
-    StreamBufferHandle_t xReceiveBuffer;
     uint32_t ulNotifiedValue;
-    uart_data_t uart_data;
 } NF_PAL_UART;
 
 ////////////////////////////////////////////
