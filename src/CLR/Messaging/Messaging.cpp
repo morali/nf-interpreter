@@ -394,11 +394,10 @@ extern "C" int CLR_Messaging_ProcessPayload(WP_Message* msg)
     CLR_Messaging* m_messaging;
     m_messaging = (CLR_Messaging*)&g_scratchDebuggerMessaging;
     if(!m_messaging->IsInitialized())
-        return false;
+        return true;
     else
     {
-        bool retValue = g_CLR_DBG_Debugger->m_messaging->ProcessPayload(msg);
-        return retValue;
+        return g_CLR_DBG_Debugger->m_messaging->ProcessPayload(msg);
     }
 }
 
