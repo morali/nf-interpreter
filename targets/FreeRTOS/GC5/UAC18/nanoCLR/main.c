@@ -30,6 +30,8 @@
 #include "Panel.h"
 #include "LocalIO.h"
 
+#include "usb_vcom.h"
+
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
@@ -56,6 +58,7 @@ int main(void)
     xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 14, NULL);
     xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 14, NULL);
+    xTaskCreate(vUSBInit, "USBInit", 512, NULL, configMAX_PRIORITIES - 2, NULL);
 
     vTaskStartScheduler();
 

@@ -13,6 +13,16 @@
 usb_device_composite_struct_t * g_composite_p;
 usb_data_t * s_cdc_data_p;
 
+static usb_status_t USB_Init(void);
+
+void vUSBInit(void * argument)
+{
+    (void)argument;
+
+    USB_Init();
+
+    vTaskDelete(NULL);
+}
 /* Data structure of wire protocol usb device */
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) usb_data_t s_cdc_data;
 
@@ -52,7 +62,7 @@ USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static usb_cdc_acm_info_t s_usbCdcA
 * Code
 ******************************************************************************/
 
-usb_status_t USB_Init(void)
+static usb_status_t USB_Init(void)
 {
     usb_status_t error = kStatus_USB_Error;
 
