@@ -11,9 +11,6 @@
 
 static void vRwEvent( void * pvParameters );
 
-const size_t xStreamBufferSizeBytes = UART_RX_BUFER_SIZE;
-const size_t xTriggerLevel = 10;
-
 /////////////////////////////////////////////////////////
 // UART PAL strucs delcared in win_dev_serial_native.h //
 /////////////////////////////////////////////////////////
@@ -482,9 +479,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         else
         {
              /* Return how many bytes were read */
-            // received_data = LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, (uint32_t *) &received_data);
-            memcpy((uint8_t *) dataBuffer->GetFirstElement(), xfer.data, received_data);
-            stack.SetResult_U4(received_data);
+            memcpy((uint8_t *) dataBuffer->GetFirstElement(), xfer.data, xfer.dataSize);
+            stack.SetResult_U4(xfer.dataSize);
         }
 
         (void) options;
