@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2019 The nanoFramework project contributors
 // Portions Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
-// Portions Copyright 2016-2017 NXP. All rights reserved.
+// Portions Copyright 2016-2019 NXP. All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
 
@@ -21,8 +21,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief GPIO driver version 2.0.1. */
-#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 1))
+/*! @brief GPIO driver version 2.0.2. */
+#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
 /*@}*/
 
 extern GPIO_Type *const s_gpioBases[];
@@ -30,18 +30,18 @@ extern GPIO_Type *const s_gpioBases[];
 /*! @brief GPIO direction definition. */
 typedef enum _gpio_pin_direction
 {
-    kGPIO_DigitalInput = 0U,  /*!< Set current pin as digital input.*/
+    kGPIO_DigitalInput  = 0U, /*!< Set current pin as digital input.*/
     kGPIO_DigitalOutput = 1U, /*!< Set current pin as digital output.*/
 } gpio_pin_direction_t;
 
 /*! @brief GPIO interrupt mode definition. */
 typedef enum _gpio_interrupt_mode
 {
-    kGPIO_NoIntmode = 0U,              /*!< Set current pin general IO functionality.*/
-    kGPIO_IntLowLevel = 1U,            /*!< Set current pin interrupt is low-level sensitive.*/
-    kGPIO_IntHighLevel = 2U,           /*!< Set current pin interrupt is high-level sensitive.*/
-    kGPIO_IntRisingEdge = 3U,          /*!< Set current pin interrupt is rising-edge sensitive.*/
-    kGPIO_IntFallingEdge = 4U,         /*!< Set current pin interrupt is falling-edge sensitive.*/
+    kGPIO_NoIntmode              = 0U, /*!< Set current pin general IO functionality.*/
+    kGPIO_IntLowLevel            = 1U, /*!< Set current pin interrupt is low-level sensitive.*/
+    kGPIO_IntHighLevel           = 2U, /*!< Set current pin interrupt is high-level sensitive.*/
+    kGPIO_IntRisingEdge          = 3U, /*!< Set current pin interrupt is rising-edge sensitive.*/
+    kGPIO_IntFallingEdge         = 4U, /*!< Set current pin interrupt is falling-edge sensitive.*/
     kGPIO_IntRisingOrFallingEdge = 5U, /*!< Enable the edge select bit to override the ICR register's configuration.*/
 } gpio_interrupt_mode_t;
 
@@ -195,12 +195,12 @@ static inline uint32_t GPIO_ReadPinInput(GPIO_Type *base, uint32_t pin)
  */
 
 /*!
-* @brief Reads the current GPIO pin pad status.
-*
-* @param base GPIO base pointer.
-* @param pin GPIO port pin number.
-* @retval GPIO pin pad status value.
-*/
+ * @brief Reads the current GPIO pin pad status.
+ *
+ * @param base GPIO base pointer.
+ * @param pin GPIO port pin number.
+ * @retval GPIO pin pad status value.
+ */
 static inline uint8_t GPIO_PinReadPadStatus(GPIO_Type *base, uint32_t pin)
 {
     assert(pin < 32);
@@ -209,9 +209,9 @@ static inline uint8_t GPIO_PinReadPadStatus(GPIO_Type *base, uint32_t pin)
 }
 
 /*!
-* @brief Reads the current GPIO pin pad status.
-* @deprecated Do not use this function.  It has been superceded by @ref GPIO_PinReadPadStatus.
-*/
+ * @brief Reads the current GPIO pin pad status.
+ * @deprecated Do not use this function.  It has been superceded by @ref GPIO_PinReadPadStatus.
+ */
 static inline uint8_t GPIO_ReadPadStatus(GPIO_Type *base, uint32_t pin)
 {
     return GPIO_PinReadPadStatus(base, pin);
