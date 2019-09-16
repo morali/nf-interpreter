@@ -117,8 +117,8 @@ int main(void)
     // for nanoBooter we have to init it here to have access to network configuration blocks
     ConfigurationManager_Initialize();  
 
-    xTaskCreate(blink_task, "blink_task", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 4, NULL);
-    xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 3, NULL);
+    xTaskCreate(blink_task, "blink_task", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 3, NULL);
+    xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 2, NULL);
     xTaskCreate(vUSBInit, "USBInit", 512, NULL, configMAX_PRIORITIES - 1, NULL);
     vTaskStartScheduler();
 

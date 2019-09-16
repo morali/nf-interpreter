@@ -391,10 +391,8 @@ bool CLR_Messaging::ProcessPayload( WP_Message* msg )
 // wrapper function for CLR_Messaging::ProcessPayload(
 extern "C" int CLR_Messaging_ProcessPayload(WP_Message* msg)
 {
-    CLR_Messaging* m_messaging;
-    m_messaging = (CLR_Messaging*)&g_scratchDebuggerMessaging;
-    if(!m_messaging->IsInitialized())
-        return true;
+    if(g_CLR_DBG_Debugger == NULL) 
+        return 0;
     else
     {
         return g_CLR_DBG_Debugger->m_messaging->ProcessPayload(msg);
