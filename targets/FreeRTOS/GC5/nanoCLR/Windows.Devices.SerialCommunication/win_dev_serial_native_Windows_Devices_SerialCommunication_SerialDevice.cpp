@@ -90,8 +90,11 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Quit if parameters or device is invalid or out of range */
         if (base == NULL || uartNum > 8) NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER); 
 
+        LPUART_TransferStopRingBuffer(base, &Uart_PAL[uartNum]->g_lpuartRxHandle);
+
         /* Free ring buffers memory */
         free(Uart_PAL[uartNum]->TxBuffer);
+        free(Uart_PAL[uartNum]->RxBuffer);
 
         /* Deinitialize device and delete FreeRTOS idle tasks */
         LPUART_Deinit(base);   
@@ -430,7 +433,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         InputStreamOptions options = InputStreamOptions_None;
         CLR_RT_HeapBlock* readTimeout;
 
-        uint8_t rxdata[256] = {0};
+        uint8_t rxdata[UART_RX_BUFER_SIZE] = {0};
 
         bool eventResult = true;
 
