@@ -89,13 +89,20 @@ void BOARD_InitHyperRAM(void) {
   FLEXSPI_GetDefaultConfig(&flexspi_config);
 
   /* Init FLEXSPI. */
+  /* enable diff clock and DQS */
   flexspi_config.rxSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
   flexspi_config.enableSckBDiffOpt = true;
   flexspi_config.enableCombination = true;
+  /*Set AHB buffer size for reading data through AHB bus. */
   flexspi_config.ahbConfig.enableAHBPrefetch = true;
+  /*Allow AHB read start address do not follow the alignment requirement. */
+  flexspi_config.ahbConfig.enableReadAddressOpt = true;
   flexspi_config.ahbConfig.enableAHBBufferable = true;
   flexspi_config.ahbConfig.enableAHBCachable = true;
-  flexspi_config.ahbConfig.enableReadAddressOpt = true;
+ 
+  for (uint8_t i = 0; i < FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT; i++) {
+    flexspi_config.ahbConfig.buffer[i].enablePrefetch = false; /* Disable AHB prefetch. */
+  }
 
   FLEXSPI_Init(FLEXSPI2, &flexspi_config);
 
