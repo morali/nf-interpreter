@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2019 The nanoFramework project contributors
-// Portions Copyright 2018 NXP. All rights reserved.
+// Portions Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
+// Portions Copyright 2016-2018 NXP
 // See LICENSE file in the project root for full license information.
 //
 
@@ -124,16 +125,16 @@ void *SDK_Malloc(size_t size, size_t alignbytes)
 
     p_align_addr = (void *)SDK_SIZEALIGN((uint32_t)p_addr + sizeof(mem_align_cb_t), alignbytes);
 
-    p_cb = (mem_align_cb_t *)((uint32_t)p_align_addr - 4);
+    p_cb             = (mem_align_cb_t *)((uint32_t)p_align_addr - 4U);
     p_cb->identifier = SDK_MEM_MAGIC_NUMBER;
-    p_cb->offset = (uint32_t)p_align_addr - (uint32_t)p_addr;
+    p_cb->offset     = (uint32_t)p_align_addr - (uint32_t)p_addr;
 
     return (void *)p_align_addr;
 }
 
 void SDK_Free(void *ptr)
 {
-    mem_align_cb_t *p_cb = (mem_align_cb_t *)((uint32_t)ptr - 4);
+    mem_align_cb_t *p_cb = (mem_align_cb_t *)((uint32_t)ptr - 4U);
 
     if (p_cb->identifier != SDK_MEM_MAGIC_NUMBER)
     {
