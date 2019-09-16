@@ -9,7 +9,6 @@
 #include <nanoHAL_Time.h>
 
 #if defined(NXP_USE_RTC)
-    #include "fsl_snvs_lp.h"
     #include "External_RTC.h"
 #else
     #include "time.h"
