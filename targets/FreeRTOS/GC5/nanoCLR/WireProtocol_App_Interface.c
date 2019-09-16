@@ -17,7 +17,7 @@ int WP_App_ProcessHeader(WP_Message* message)
     // check for reception buffer overflow 
     if(message->m_header.m_size > sizeof(receptionBuffer))
     {
-        return false;
+        return true;
     }
 
     message->m_payload = receptionBuffer;

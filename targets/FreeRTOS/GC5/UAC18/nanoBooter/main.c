@@ -23,8 +23,6 @@
 
 #include "usb_vcom.h"
 
-extern usb_cdc_vcom_struct_t s_cdcVcom;
-
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];

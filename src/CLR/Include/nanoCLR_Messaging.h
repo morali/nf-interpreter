@@ -110,7 +110,6 @@ struct CLR_Messaging
     static bool App_Release       ( void* state,  WP_Message* msg );
 
     bool IsDebuggerInitialized() { return m_fDebuggerInitialized; }
-    bool IsInitialized() { return m_fInitialized; }
     void InitializeDebugger() { m_fDebuggerInitialized = (DebuggerPort_Initialize( m_port ) == true); }
 
 private:
