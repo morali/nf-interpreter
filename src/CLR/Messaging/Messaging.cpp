@@ -287,7 +287,7 @@ void CLR_Messaging::Initialize(
     m_fDebuggerInitialized = (DebuggerPort_Initialize( HalSystemConfig.DebuggerPort ) != false);
 
     m_fInitialized = true;
-
+    
 }
 
 HRESULT CLR_Messaging::DeleteInstance()
@@ -391,8 +391,12 @@ bool CLR_Messaging::ProcessPayload( WP_Message* msg )
 // wrapper function for CLR_Messaging::ProcessPayload(
 extern "C" int CLR_Messaging_ProcessPayload(WP_Message* msg)
 {
-    bool retValue = g_CLR_DBG_Debugger->m_messaging->ProcessPayload(msg);
-    return retValue;
+    if(g_CLR_DBG_Debugger == NULL) 
+        return 0;
+    else
+    {
+        return g_CLR_DBG_Debugger->m_messaging->ProcessPayload(msg);
+    }
 }
 
 //--//

@@ -30,6 +30,8 @@
 #include "Panel.h"
 #include "LocalIO.h"
 
+#include "usb_vcom.h"
+
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
@@ -47,6 +49,7 @@ int main(void)
     I2C2_InitPeripheral();
     SPI_InitPeripheral();
     GlobalEventsFlags_Init();
+    USB_Init();
     //SCB_DisableDCache();
 
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);

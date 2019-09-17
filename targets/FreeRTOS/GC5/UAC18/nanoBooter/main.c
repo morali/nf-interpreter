@@ -21,10 +21,7 @@
 #include "nanoHAL_ConfigurationManager.h"
 #include "Target_BlockStorage_iMXRTFlashDriver.h"
 
-#include "usb.h"
 #include "usb_vcom.h"
-
-extern usb_cdc_vcom_struct_t s_cdcVcom;
 
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
@@ -102,6 +99,7 @@ int main(void)
     //SCB_DisableDCache();
 
     boot_nanoCLR();
+    USB_Init();
 
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
     
@@ -115,7 +113,7 @@ int main(void)
     // in CLR this is called in nanoHAL_Initialize()
     // for nanoBooter we have to init it here to have access to network configuration blocks
     ConfigurationManager_Initialize();  
-    
+
     xTaskCreate(blink_task, "blink_task", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 1, NULL);
     xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 1, NULL);
     vTaskStartScheduler();

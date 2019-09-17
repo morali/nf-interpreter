@@ -14,16 +14,6 @@ bool DebuggerPort_Initialize(COM_HANDLE comPortNum)
 
     NATIVE_PROFILE_PAL_COM();
 
-    if (!s_cdc_data.initialized)
-    {
-        if(USB_Init() == kStatus_USB_Success)
-        {
-            s_cdc_data.initialized = 1;
-            return true;
-        }
-        return false;
-    }
-
     return true;
     (void)comPortNum;
 }
@@ -35,8 +25,6 @@ uint32_t GenericPort_Write( int portNum, const char* data, size_t size )
     /* TODO: implement serial port or SWO */
 
     NATIVE_PROFILE_PAL_COM();
-
-    if(!DebuggerPort_Initialize(0)) return 0;
 
     #ifdef USB_CONSOLE_DEBUG
 
