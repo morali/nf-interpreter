@@ -49,6 +49,7 @@ int main(void)
     I2C2_InitPeripheral();
     SPI_InitPeripheral();
     GlobalEventsFlags_Init();
+    USB_Init();
     //SCB_DisableDCache();
 
     xTaskCreate(CLRStartupThread, "CLRStartupThread", 8192, NULL, configMAX_PRIORITIES - 15, NULL);
@@ -58,7 +59,6 @@ int main(void)
     xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 14, NULL);
     xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 14, NULL);
-    xTaskCreate(vUSBInit, "USBInit", 512, NULL, configMAX_PRIORITIES - 2, NULL);
 
     vTaskStartScheduler();
 

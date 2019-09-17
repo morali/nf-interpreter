@@ -125,7 +125,7 @@ typedef struct _usb_data
     uint8_t initialized;
 } usb_data_t;
 
-void vUSBInit(void *);
+usb_status_t USB_Init(void);
 void USB_DeviceClockInit(void);
 void USB_DeviceIsrEnable(void);
 usb_status_t USB_DeviceCdcVcomInit(usb_device_composite_struct_t *);
