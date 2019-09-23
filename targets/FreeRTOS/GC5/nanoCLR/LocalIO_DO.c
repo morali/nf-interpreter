@@ -9,6 +9,14 @@
 
 static local_io_t *local_io_tx;
 
+/**
+ * @brief  DO LookUpTable
+ * @note   The digital outputs are not connected sequentially so to simplify the code 
+ *         and increase its readability, use this table to refer to the corresponding output
+ * @retval 
+ */
+static const uint8_t DO_LUT[DIGITAL_OUTPUT_PORTS] = {(1 << 3), (1 << 4), (1 << 5), (1 << 7), (1 << 6)};
+
 void InitDO() {
   local_io_tx = GetLocalIoTx();
 }
@@ -33,7 +41,7 @@ bool GetDO(uint32_t DONum) {
     return false;
 
   bool state = false;
-  state = (bool)(local_io_tx->digital_output >> (DONum + 3)) & 1U;
+  state = (local_io_tx->digital_output & DO_LUT[DONum]) == DO_LUT[DONum];
   return state;
 }
 
@@ -49,9 +57,9 @@ void SetDO(bool state, uint32_t DONum) {
     return;
 
   if (state) {
-    local_io_tx->digital_output |= 1U << (DONum + 3);
+    local_io_tx->digital_output |= DO_LUT[DONum];
   } else {
-    local_io_tx->digital_output &= ~(1U << (DONum + 3));
+    local_io_tx->digital_output &= ~DO_LUT[DONum];
   }
 }
 
@@ -65,5 +73,5 @@ void ToggleDO(uint32_t DONum) {
   if (DONum >= GetDONumber())
     return;
 
-  local_io_tx->digital_output ^= 1U << (DONum + 3);
+  local_io_tx->digital_output ^= DO_LUT[DONum];
 }
