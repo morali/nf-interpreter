@@ -44,6 +44,7 @@ struct Settings
 #if !defined(BUILD_RTM)
         CLR_Debug::Printf( "Created EE.\r\n" );
 #endif
+        CLR_EE_DBG_SET( NoCompaction );
 
 #if !defined(BUILD_RTM)
         if(params.WaitForDebugger)
