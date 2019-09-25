@@ -118,33 +118,30 @@ static void CardDetectTask(void *pvParameters)
     }
 }
 
-void SdCardThread(void * argument)
-{
-    (void)argument;
-    
-    s_CardDetectSemaphore = xSemaphoreCreateBinary();
+void vSdCardThread(void *argument) {
+  (void)argument;
 
-    sdCardFileSystemReady = false;
+  s_CardDetectSemaphore = xSemaphoreCreateBinary();
 
-    g_sd.host.base = SD_HOST_BASEADDR;
-    g_sd.host.sourceClock_Hz = SD_HOST_CLK_FREQ;
-    g_sd.usrParam.cd = &s_sdCardDetect;
+  sdCardFileSystemReady = false;
 
-    NVIC_SetPriority(SD_HOST_IRQ, 5U);
+  g_sd.host.base = SD_HOST_BASEADDR;
+  g_sd.host.sourceClock_Hz = SD_HOST_CLK_FREQ;
+  g_sd.usrParam.cd = &s_sdCardDetect;
 
-    /* SD host init function */
-    if (SD_HostInit(&g_sd) != kStatus_Success)
-    {
-        //SD host init fail
-        vTaskDelete(NULL);
-        return;
-    }
+  NVIC_SetPriority(SD_HOST_IRQ, 5U);
 
-    xTaskCreate(CardDetectTask, "CardDetectTask", configMINIMAL_STACK_SIZE + 500, NULL, configMAX_PRIORITIES - 2, NULL);
-
+  /* SD host init function */
+  if (SD_HostInit(&g_sd) != kStatus_Success) {
+    //SD host init fail
     vTaskDelete(NULL);
-}
+    return;
+  }
 
+  xTaskCreate(CardDetectTask, "CardDetectTask", configMINIMAL_STACK_SIZE + 500, NULL, configMAX_PRIORITIES - 2, NULL);
+
+  vTaskDelete(NULL);
+}
 
 ///////////////////////////////////////////
 
