@@ -260,22 +260,7 @@ SECTIONS
         _end_noinit = .;
     } > SRAM_DTC
 
-    /* Reserve and place Heap within memory map */
-    _HeapSize = 0x1000;
-    .heap :  ALIGN(4)
-    {
-        _pvHeapStart = .;
-        . += _HeapSize;
-        . = ALIGN(4);
-        _pvHeapLimit = .;
-    } > SRAM_DTC
-
      _StackSize = 0x1000;
-     /* Reserve space in memory for Stack */
-    .heap2stackfill  :
-    {
-        . += _StackSize;
-    } > SRAM_DTC
     /* Locate actual Stack in memory map */
     .stack ORIGIN(SRAM_DTC) + LENGTH(SRAM_DTC) - _StackSize - 0:  ALIGN(4)
     {
@@ -283,7 +268,7 @@ SECTIONS
         . = ALIGN(4);
         _vStackTop = . + _StackSize;
     } > SRAM_DTC
-
+    
     /* Provide basic symbols giving location and size of main text
      * block, including initial values of RW data sections. Note that
      * these will need extending to give a complete picture with
