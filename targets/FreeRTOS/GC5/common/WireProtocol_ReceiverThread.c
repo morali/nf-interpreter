@@ -4,21 +4,19 @@
 //
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "WireProtocol_HAL_Interface.h"
+#include "task.h"
 
 extern WP_Message inboundMessage;
 
-void WP_Message_Initialize(WP_Message* a);
-void WP_Message_PrepareReception(WP_Message* a);
-void WP_Message_Process(WP_Message* a);
+void WP_Message_Initialize(WP_Message *a);
+void WP_Message_PrepareReception(WP_Message *a);
+void WP_Message_Process(WP_Message *a);
 
-void ReceiverThread(void * argument)
-{
+void vReceiverThread(void *argument) {
   (void)argument;
 
-  while (1)
-  {
+  while (1) {
     WP_Message_Initialize(&inboundMessage);
     WP_Message_PrepareReception(&inboundMessage);
 

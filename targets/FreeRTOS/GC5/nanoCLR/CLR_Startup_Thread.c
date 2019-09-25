@@ -12,8 +12,7 @@
 #include <nanoHAL_v2.h>
 #include <string.h>
 
-void CLRStartupThread(void *argument)
-{
+void vCLRStartupThread(void *argument) {
   (void)argument;
 
   CLR_SETTINGS clrSettings;

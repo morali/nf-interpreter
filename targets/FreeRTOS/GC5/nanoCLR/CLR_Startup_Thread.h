@@ -7,6 +7,6 @@
 #define _CLRSTARTUPTHREAD_
 
 // declaration of RTOS thread
-void CLRStartupThread(void * argument);
+void vCLRStartupThread(void *argument);
 
 #endif //_CLRSTARTUPTHREAD_
