@@ -192,16 +192,31 @@ int Monitor_QueryConfiguration(WP_Message* message)
     Monitor_QueryConfiguration_Command *cmd = (Monitor_QueryConfiguration_Command*)message->m_payload;
     int size          = 0;
 
+    HAL_Configuration_NetworkInterface configNetworkInterface;
+    HAL_Configuration_Wireless80211 configWireless80211NetworkInterface;
+
     switch((DeviceConfigurationOption)cmd->Configuration)
     {
         case DeviceConfigurationOption_Network:
 
-            // TODO missing implementation for now          
+            if(ConfigurationManager_GetConfigurationBlock((void *)&configNetworkInterface, (DeviceConfigurationOption)cmd->Configuration, cmd->BlockIndex) == true)
+            {
+                size = sizeof(HAL_Configuration_NetworkInterface);
+                success = true;
+
+                WP_ReplyToCommand( message, success, false, (uint8_t*)&configNetworkInterface, size );
+            }            
             break;
 
         case DeviceConfigurationOption_Wireless80211Network:
 
-            // TODO missing implementation for now
+            if(ConfigurationManager_GetConfigurationBlock((void *)&configWireless80211NetworkInterface, (DeviceConfigurationOption)cmd->Configuration, cmd->BlockIndex) == true)
+            {
+                size = sizeof(HAL_Configuration_Wireless80211);
+                success = true;
+
+                WP_ReplyToCommand( message, success, false, (uint8_t*)&configWireless80211NetworkInterface, size );
+            }
             break;
 
         case DeviceConfigurationOption_WirelessNetworkAP:

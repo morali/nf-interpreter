@@ -41,7 +41,8 @@ int main(void)
 {
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
-
+    BOARD_InitBootPeripherals();
+    
     //Flash Init shoud be done ASAP - don't move this function
     iMXRTFlexSPIDriver_InitializeDevice(NULL);
 
