@@ -39,6 +39,7 @@ typedef struct
     HAL_RingBuffer<uint8_t> TxRingBuffer;
     uint8_t* TxBuffer;
     uint8_t* RxBuffer;
+    uint16_t RxBytesToRead;
     uint16_t TxOngoingCount;
     uint8_t WatchChar;
     TaskHandle_t xReadTaskToNotify = NULL;
