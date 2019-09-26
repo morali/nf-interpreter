@@ -433,18 +433,32 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         InputStreamOptions options = InputStreamOptions_None;
         CLR_RT_HeapBlock* readTimeout;
 
-        uint8_t rxdata[UART_RX_BUFER_SIZE] = {0};
-
         bool eventResult = true;
 
-        uint8_t uartNum = 0;        
+        uint8_t uartNum = 0;
+        size_t bytesRead = 0;
+        size_t bytesToRead = 0;
+        size_t dataLength = 0;
+
+        uint8_t * data = NULL;
+
+        size_t count = 0;      
 
         if(pThis[ FIELD___disposed ].NumericByRef().u1 != 0) NANOCLR_SET_AND_LEAVE(CLR_E_OBJECT_DISPOSED);
+
+        /* get how many bytes are requested to read */
+        count = stack.Arg2().NumericByRef().s4;
 
         uartNum = pThis[ FIELD___portIndex ].NumericByRef().s4;
         
         /* Dereference the data buffer from the argument */
         dataBuffer = stack.Arg1().DereferenceArray();
+
+        /* get a the pointer to the array by using the first element of the array */
+        data = dataBuffer->GetFirstElement();
+
+         /* get the length of the data buffer */
+        dataLength =  dataBuffer->m_numOfElements;
 
         /* Get the InputStreamOptions option */
         /* TODO: Implement transfer options. */  
@@ -453,40 +467,126 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Set up timeout. */ 
         readTimeout = &pThis[ Library_win_dev_serial_native_Windows_Devices_SerialCommunication_SerialDevice::FIELD___readTimeout ];
         NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks(*readTimeout, timeoutTicks));
+        
+        uint32_t rb_buffer_rv = 0;
+        LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_buffer_rv);
 
-        /* Allocate space for receiving data */
-        lpuart_transfer_t xfer;
-        // xfer.data = (uint8_t *) platform_malloc(stack.Arg2().NumericByRef().s4);
-        xfer.data = rxdata;
-        xfer.dataSize = stack.Arg2().NumericByRef().s4;
+        /* Check what's avaliable in Rx ring buffer */
+        if(rb_buffer_rv >= count) {
 
-        if (xfer.data == NULL)
-            NANOCLR_SET_AND_LEAVE( CLR_E_NULL_REFERENCE );
+            /* read from Rx ring buffer */
+            bytesToRead = count;
 
-        size_t received_data = 0;
+            /* is the read ahead option enabled? */
+            if(options == InputStreamOptions_ReadAhead) {
 
-        /* Receive data */
-        LPUART_TransferReceiveNonBlocking(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &xfer, &received_data);
+                /* yes, check how many bytes we can store in the buffer argument */
+                if(dataLength < rb_buffer_rv) {
 
-        if (received_data == 0 || received_data != xfer.dataSize)
-        {
-            /* Wait for event from task. */
-            NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents(stack.m_owningThread, *timeoutTicks, CLR_RT_ExecutionEngine::c_Event_SerialPortIn, eventResult));
-        }    
-        /* Timeout! */
-        if (!eventResult)        
-        {
-            LPUART_TransferAbortReceive(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle);
-            NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
+                    // read as many bytes has the buffer can hold
+                    bytesToRead = dataLength;
+                }
+                else {
+
+                    // read everything that's available in the ring buffer
+                    bytesToRead = rb_buffer_rv;
+                }
+            }
+
+            /* we have enough bytes, skip wait for event */
+            eventResult = false;
+                
+            /* clear event by getting it */
+            Events_Get(SYSTEM_EVENT_FLAG_COM_IN);
         }
-        else
-        {
-             /* Return how many bytes were read */
-            memcpy((uint8_t *) dataBuffer->GetFirstElement(), xfer.data, xfer.dataSize);
-            stack.SetResult_U4(xfer.dataSize);
+
+        else {
+
+            if(stack.m_customState == 1) {
+
+                /* not enough bytes available, have to read from UART */
+                Uart_PAL[uartNum]->RxBytesToRead = count;
+                
+                /* clear event by getting it */
+                Events_Get(SYSTEM_EVENT_FLAG_COM_IN);
+
+                /* don't read anything from the buffer yet */
+                bytesToRead = 0;
+            }  
         }
 
-        (void) options;
+        LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_buffer_rv);
+
+        while(eventResult) {
+
+            if(stack.m_customState == 1) {
+
+                if(bytesToRead > 0) {
+                    
+                    /* enough bytes available */
+                    eventResult = false;
+                } 
+                else {
+                    /* need to read from the UART
+                    update custom state */
+                    stack.m_customState = 2;
+                }
+            }
+
+            else {
+
+                /* wait for event */
+                NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents(stack.m_owningThread, *timeoutTicks, CLR_RT_ExecutionEngine::c_Event_SerialPortIn, eventResult));
+
+                if(!eventResult) {
+                    
+                    /* event timeout
+
+                    compute how many bytes to read 
+                    considering the InputStreamOptions read ahead option */
+                    if(options == InputStreamOptions_ReadAhead) {
+
+                        /* yes
+                        check how many bytes we can store in the buffer argument */
+                        if(dataLength < rb_buffer_rv) {
+
+                            /* read as many bytes has the buffer can hold */
+                            bytesToRead = dataLength;
+                        }
+                        else {
+
+                            /* read everything that's available in the ring buffer */
+                            bytesToRead = rb_buffer_rv;
+                        }
+                    }
+                    else {
+
+                        /* take InputStreamOptions_Partial as default and read requested quantity or what's available */
+                        bytesToRead = count;
+
+                        if(count > rb_buffer_rv) {
+
+                            /* need to adjust because there aren't enough bytes available */
+                            bytesToRead = rb_buffer_rv;
+                        }
+                    }
+                }
+            }
+        }
+
+        lpuart_transfer_t rb_transfer;
+        rb_transfer.data = data;
+        rb_transfer.dataSize = bytesToRead;
+        
+        if(bytesToRead > 0) {
+            /* pop the requested bytes from the ring buffer */
+            LPUART_TransferReceiveNonBlocking(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_transfer, &bytesRead);
+        }
+
+        /* pop timeout heap block from stack and return how many bytes were read */
+        stack.PopValue();
+        stack.SetResult_U4(bytesRead);
+
     }    
     NANOCLR_NOCLEANUP();
 }
