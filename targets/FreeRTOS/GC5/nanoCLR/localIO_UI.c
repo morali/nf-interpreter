@@ -326,12 +326,15 @@ static void readUIVoltage() {
               break;
             case Gain_2:
               adc_value = (adc_value * 10032) / 10000; //TODO check the correct adjustment for this gain
+              adc_value /= 2;
               break;
             case Gain_4:
               adc_value = (adc_value * 10039) / 10000;
+              adc_value /= 4;
               break;
             case Gain_8:
               adc_value = (adc_value * 10084) / 10000;
+              adc_value /= 8;
               break;
             }
 
