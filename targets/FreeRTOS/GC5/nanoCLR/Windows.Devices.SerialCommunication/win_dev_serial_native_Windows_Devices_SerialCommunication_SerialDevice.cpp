@@ -57,21 +57,118 @@ static void TxEnd(LPUART_Type *base, lpuart_edma_handle_t *handle, status_t stat
 }
 
 /* Interrupt callback invoked when receive transfer is finished */
-static void RxEnd(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *data)
-{
-    NATIVE_INTERRUPT_START
-    (void) base;
-    (void) status;
-    (void) handle;
+// static void RxEnd(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *data)
+// {
+//     NATIVE_INTERRUPT_START
+//     (void) base;
+//     (void) status;
+//     (void) handle;
 
-    uint8_t uartNum = *(uint8_t *) data;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//     uint8_t uartNum = *(uint8_t *) data;
+//     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+//     if(palUart->RxBytesToRead > 0)
+//     {
+//         // yes
+//         // check if the requested bytes are available in the buffer...
+//         //... or if the watch char was received
+//         if((palUart->RxRingBuffer.Length() >= palUart->RxBytesToRead) ||
+//             (c == palUart->WatchChar))
+//         {
+//             // reset Rx bytes to read count
+//             palUart->RxBytesToRead = 0;
+
+//              /* Notify task that we want to receive data. */    
+//             xTaskNotifyFromISR(Uart_PAL[uartNum]->xReadTaskToNotify, 0x02, eSetBits, &xHigherPriorityTaskWoken);
+//         }
+//     }
     
-    /* Notify task that we want to receive data. */    
-    xTaskNotifyFromISR(Uart_PAL[uartNum]->xReadTaskToNotify, 0x02, eSetBits, &xHigherPriorityTaskWoken);
+//     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//     NATIVE_INTERRUPT_END
+// }
+
+static void UART_Handle(LPUART_Type *base, uint8_t uartNum)
+{
+    uint32_t status = 0;
+    char byte;
+    BaseType_t xHigherPriorityTaskWoken;
+
+    status = LPUART_GetStatusFlags(base);
+    
+    uartNum -= 1;
+
+    if (kLPUART_RxOverrunFlag & status) {
+        
+        /* Clear overrun flag, otherwise the RX does not work. */
+        base->STAT = ((base->STAT & 0x3FE00000U) | LPUART_STAT_OR_MASK);
+    }
+
+    if (kLPUART_RxDataRegFullFlag & status) {            
+
+        byte = LPUART_ReadByte(base);
+        Uart_PAL[uartNum]->RxRingBuffer.Push((uint8_t) byte);
+    }       
+
+     if(Uart_PAL[uartNum]->RxBytesToRead > 0) {
+        
+        /* check if the requested bytes are available in the buffer...
+        ... or if the watch char was received */        
+        if((Uart_PAL[uartNum]->RxRingBuffer.Length() >= Uart_PAL[uartNum]->RxBytesToRead) || (byte == Uart_PAL[uartNum]->WatchChar)) {
+
+            /* reset Rx bytes to read count */
+            Uart_PAL[uartNum]->RxBytesToRead = 0;
+
+             /* Notify task that we want to receive data. */    
+            xTaskNotifyFromISR(Uart_PAL[uartNum]->xReadTaskToNotify, 0x02, eSetBits, &xHigherPriorityTaskWoken);
+        }
+    }
+    else {
+        ;
+    }
     
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     NATIVE_INTERRUPT_END
+}
+
+/*
+    Override of the default MIMXRT1060 UART interrupt routines to simple UART_Handle function, which 
+    reads 1 byte of input data to RTOS stream buffer, if theres buffer overflow it drops data and clears interrupts.
+*/
+extern "C"
+{
+   void LPUART1_IRQHandler(void)
+    {
+        UART_Handle(LPUART1, 1);
+    }
+    void LPUART2_IRQHandler(void)
+    {
+        UART_Handle(LPUART2, 2);
+    }
+    void LPUART3_IRQHandler(void)
+    {
+        UART_Handle(LPUART3, 3);
+    }
+    void LPUART4_IRQHandler(void)
+    {
+        UART_Handle(LPUART4 ,4);
+    }
+    void LPUART5_IRQHandler(void)
+    {
+        UART_Handle(LPUART5, 5);
+    }
+    void LPUART6_IRQHandler(void)
+    {
+        UART_Handle(LPUART6, 6);
+    }
+    void LPUART7_IRQHandler(void)
+    {
+        UART_Handle(LPUART7, 7);
+    }
+    /* LPUART8 is currently used for debugging, disable it or will collide with debugger */
+    // void LPUART8_IRQHandler(void)
+    // {
+    //     UART_Handle(LPUART8, 8);
+    // }
 }
 
 /* Deinitialize serial port and allocated free memory */
@@ -93,8 +190,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         LPUART_TransferStopRingBuffer(base, &Uart_PAL[uartNum]->g_lpuartRxHandle);
 
         /* Free ring buffers memory */
-        free(Uart_PAL[uartNum]->TxBuffer);
-        free(Uart_PAL[uartNum]->RxBuffer);
+        platform_free(Uart_PAL[uartNum]->TxBuffer);
+        platform_free(Uart_PAL[uartNum]->RxBuffer);
 
         /* Deinitialize device and delete FreeRTOS idle tasks */
         LPUART_Deinit(base);   
@@ -126,21 +223,32 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* Allocate memory for TX circular buffer */
         Uart_PAL[uartNum]->TxBuffer = (uint8_t *) platform_malloc(UART_TX_BUFER_SIZE * sizeof(uint8_t));
         Uart_PAL[uartNum]->RxBuffer = (uint8_t *) platform_malloc(UART_RX_BUFER_SIZE * sizeof(uint8_t));
-        if (Uart_PAL[uartNum]->TxBuffer == NULL || Uart_PAL[uartNum]->RxBuffer == NULL)
+        if (Uart_PAL[uartNum]->TxBuffer == NULL) {
+            
             NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+        }
+
+        if (Uart_PAL[uartNum]->RxBuffer == NULL) {
+
+            platform_free(Uart_PAL[uartNum]->TxBuffer);
+
+            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+        }
 
         /* Initialize TX buffer */
         Uart_PAL[uartNum]->TxRingBuffer.Initialize(Uart_PAL[uartNum]->TxBuffer, UART_TX_BUFER_SIZE);
         Uart_PAL[uartNum]->TxOngoingCount = 0;
         Uart_PAL[uartNum]->WatchChar = 0;
+        Uart_PAL[uartNum]->RxRingBuffer.Initialize(Uart_PAL[uartNum]->RxBuffer, UART_RX_BUFER_SIZE);
+        Uart_PAL[uartNum]->RxBytesToRead = 0;
                 
         /* Get default config structure for initializing given UART peripheral and enable TX, RX */
         LPUART_GetDefaultConfig(config);
         config->enableRx = true;
         config->enableTx = true;
 
-        LPUART_TransferCreateHandle(base, &Uart_PAL[uartNum]->g_lpuartRxHandle, RxEnd, &Uart_PAL[uartNum]->dma_num);
-        LPUART_TransferStartRingBuffer(base, &Uart_PAL[uartNum]->g_lpuartRxHandle, Uart_PAL[uartNum]->RxBuffer, UART_RX_BUFER_SIZE);
+        // LPUART_TransferCreateHandle(base, &Uart_PAL[uartNum]->g_lpuartRxHandle, RxEnd, &Uart_PAL[uartNum]->dma_num);
+        // LPUART_TransferStartRingBuffer(base, &Uart_PAL[uartNum]->g_lpuartRxHandle, Uart_PAL[uartNum]->RxBuffer, UART_RX_BUFER_SIZE);
         
         /* Enable RX interrupts */
         LPUART_EnableInterrupts(base, kLPUART_RxDataRegFullInterruptEnable | kLPUART_RxOverrunInterruptEnable);
@@ -248,6 +356,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         base->MODIR |= LPUART_MODIR_TXRTSE(1);
         /* Set proper polarisation of RTS for UAC18 board */
         base->MODIR |= LPUART_MODIR_TXRTSPOL(1);
+        /* Enable receiver interrupt */        
+        base->CTRL |= 1U << 21; 
 
         /* Renable transmitter and receiver */
         base->CTRL |= 1U << 19;  
@@ -424,9 +534,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
 
 HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_SerialDevice::NativeRead___U4__SZARRAY_U1__I4__I4( CLR_RT_StackFrame& stack )
 {
-    NANOCLR_HEADER();
-    {   
-        
+    NANOCLR_HEADER();     
+    {
         CLR_RT_HeapBlock_Array* dataBuffer = NULL;
         CLR_RT_HeapBlock* pThis = stack.This(); FAULT_ON_NULL(pThis);
         int64_t*  timeoutTicks;
@@ -444,7 +553,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
 
         size_t count = 0;      
 
-        if(pThis[ FIELD___disposed ].NumericByRef().u1 != 0) NANOCLR_SET_AND_LEAVE(CLR_E_OBJECT_DISPOSED);
+        if(pThis[ FIELD___disposed ].NumericByRef().u1 != 0)
+            NANOCLR_SET_AND_LEAVE(CLR_E_OBJECT_DISPOSED);
 
         /* get how many bytes are requested to read */
         count = stack.Arg2().NumericByRef().s4;
@@ -457,7 +567,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         /* get a the pointer to the array by using the first element of the array */
         data = dataBuffer->GetFirstElement();
 
-         /* get the length of the data buffer */
+            /* get the length of the data buffer */
         dataLength =  dataBuffer->m_numOfElements;
 
         /* Get the InputStreamOptions option */
@@ -468,11 +578,12 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
         readTimeout = &pThis[ Library_win_dev_serial_native_Windows_Devices_SerialCommunication_SerialDevice::FIELD___readTimeout ];
         NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks(*readTimeout, timeoutTicks));
         
-        uint32_t rb_buffer_rv = 0;
-        LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_buffer_rv);
+        // size_t rb_buffer_rv = 0;
+        // rb_buffer_rv = LPUART_TransferGetRxRingBufferLength(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle);
+        // LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_buffer_rv);
 
         /* Check what's avaliable in Rx ring buffer */
-        if(rb_buffer_rv >= count) {
+        if(Uart_PAL[uartNum]->RxRingBuffer.Length() >= count) {
 
             /* read from Rx ring buffer */
             bytesToRead = count;
@@ -481,7 +592,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
             if(options == InputStreamOptions_ReadAhead) {
 
                 /* yes, check how many bytes we can store in the buffer argument */
-                if(dataLength < rb_buffer_rv) {
+                if(dataLength < Uart_PAL[uartNum]->RxRingBuffer.Length()) {
 
                     // read as many bytes has the buffer can hold
                     bytesToRead = dataLength;
@@ -489,7 +600,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
                 else {
 
                     // read everything that's available in the ring buffer
-                    bytesToRead = rb_buffer_rv;
+                    bytesToRead = Uart_PAL[uartNum]->RxRingBuffer.Length();
                 }
             }
 
@@ -515,7 +626,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
             }  
         }
 
-        LPUART_TransferGetReceiveCount(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_buffer_rv);
+        // rb_buffer_rv = LPUART_TransferGetRxRingBufferLength(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle);
 
         while(eventResult) {
 
@@ -548,7 +659,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
 
                         /* yes
                         check how many bytes we can store in the buffer argument */
-                        if(dataLength < rb_buffer_rv) {
+                        if(dataLength < Uart_PAL[uartNum]->RxRingBuffer.Length()) {
 
                             /* read as many bytes has the buffer can hold */
                             bytesToRead = dataLength;
@@ -556,7 +667,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
                         else {
 
                             /* read everything that's available in the ring buffer */
-                            bytesToRead = rb_buffer_rv;
+                            bytesToRead = Uart_PAL[uartNum]->RxRingBuffer.Length();
                         }
                     }
                     else {
@@ -564,30 +675,30 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
                         /* take InputStreamOptions_Partial as default and read requested quantity or what's available */
                         bytesToRead = count;
 
-                        if(count > rb_buffer_rv) {
+                        if(count > Uart_PAL[uartNum]->RxRingBuffer.Length()) {
 
                             /* need to adjust because there aren't enough bytes available */
-                            bytesToRead = rb_buffer_rv;
+                            bytesToRead = Uart_PAL[uartNum]->RxRingBuffer.Length();
                         }
                     }
                 }
             }
         }
 
-        lpuart_transfer_t rb_transfer;
-        rb_transfer.data = data;
-        rb_transfer.dataSize = bytesToRead;
+        // lpuart_transfer_t rb_transfer;
+        // rb_transfer.data = data;
+        // rb_transfer.dataSize = bytesToRead;
         
         if(bytesToRead > 0) {
             /* pop the requested bytes from the ring buffer */
-            LPUART_TransferReceiveNonBlocking(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_transfer, &bytesRead);
+            // LPUART_TransferReceiveNonBlocking(lpuart_bases[uartNum], &Uart_PAL[uartNum]->g_lpuartRxHandle, &rb_transfer, &bytesRead);
+            bytesRead =  Uart_PAL[uartNum]->RxRingBuffer.Pop(data, bytesToRead);
         }
 
         /* pop timeout heap block from stack and return how many bytes were read */
         stack.PopValue();
         stack.SetResult_U4(bytesRead);
-
-    }    
+    }
     NANOCLR_NOCLEANUP();
 }
 
