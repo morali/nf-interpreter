@@ -23,7 +23,6 @@ typedef enum _channel {
 
 
 status_t MCP4728_ChannelSetValue(channel_t channel, uint16_t val);
-status_t MCP4728_ChannelGetValue(channel_t channel);
 status_t MCP4728_ChannelOff(channel_t channel);
 
 

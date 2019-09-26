@@ -1,8 +1,7 @@
 /*
- * i2c.h
+ * Created on Thu Sep 26 2019
  *
- *  Created on: 01.08.2019
- *      Author: Jakub Standarski
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
 #ifndef I2C_H_
@@ -10,34 +9,21 @@
 
 #include "fsl_lpi2c_freertos.h"
 
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                      I2C STRUCTURES DECLARATIONS                                         */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-typedef struct
-{
-  lpi2c_master_config_t masterConfig;
-  lpi2c_rtos_handle_t masterRtosHandle;
-} i2c_t;
-
-extern i2c_t i2c3;
-extern i2c_t i2c2;
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                   I2C PUBLIC FUNCTIONS DECLARATIONS                                      */
-/*                                                                                                          */
-/************************************************************************************************************/
-
 void I2C3_InitPeripheral(void);
 void I2C2_InitPeripheral(void);
 
 /**
+ * @brief  Get handles to I2C transfer structure
+ * @note   
+ * @retval 
+ */
+lpi2c_rtos_handle_t *GetI2C2_Handle();
+lpi2c_rtos_handle_t *GetI2C3_Handle();
+
+/**
  * @brief  Do transfer via I2c
  * @note   
- * @param  *pi2c: Pointer to i2c_t structure
+ * @param  *pi2c_handle: Pointer to lpi2c_rtos_handle_t structure
  * @param  dev_addr: Device Address
  * @param  direction: Direction Read or Write
  * @param  subaddress: 
@@ -46,6 +32,6 @@ void I2C2_InitPeripheral(void);
  * @param  size: number of bytes to write or read
  * @retval transfer status
  */
-status_t I2CTransfer(i2c_t *pi2c, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, size_t size);
+status_t I2CTransfer(lpi2c_rtos_handle_t *pi2c_handle, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, size_t size);
 
 #endif /* I2C_H_ */
