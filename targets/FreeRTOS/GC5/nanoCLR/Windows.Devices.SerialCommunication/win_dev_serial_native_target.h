@@ -23,8 +23,6 @@
 #include "fsl_dmamux.h"
 #include "fsl_edma.h"
 
-#include "stream_buffer.h"
-
 typedef struct
 {
     uint8_t dma_num;
@@ -38,10 +36,13 @@ typedef struct
 
     HAL_RingBuffer<uint8_t> TxRingBuffer;
     uint8_t* TxBuffer;
+    uint16_t TxOngoingCount;
+    
+    HAL_RingBuffer<uint8_t> RxRingBuffer;
     uint8_t* RxBuffer;
     uint16_t RxBytesToRead;
-    uint16_t TxOngoingCount;
     uint8_t WatchChar;
+
     TaskHandle_t xReadTaskToNotify = NULL;
 
     uint32_t ulNotifiedValue;
