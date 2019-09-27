@@ -96,9 +96,9 @@ void vInitializeConfigurationManager(void *params) {
 int main(void) {
 
   //delay for development purposes
-  for (volatile uint32_t i = 0; i < 100000000; i++) {
-    __asm("nop");
-  }
+  // for (volatile uint32_t i = 0; i < 100000000; i++) {
+  //   __asm("nop");
+  // }
 
   BOARD_InitBootPins();
   BOARD_InitBootClocks();

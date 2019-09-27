@@ -64,7 +64,7 @@ bool iMXRTFlexSPIDriver_Write(void *context, ByteAddress startAddress,
   for (uint32_t i = 0; i < pagesNum; i++) {   
     status_t status = flexspi_nor_flash_page_program(
         FLEXSPI, startAddress - (uint32_t)&__flash_start__ + i * FLASH_PAGE_SIZE,
-        (void *)buffer + i * FLASH_PAGE_SIZE);
+        (uint32_t *)(buffer + i * FLASH_PAGE_SIZE));
     
     if (status != kStatus_Success) {
       portEXIT_CRITICAL();

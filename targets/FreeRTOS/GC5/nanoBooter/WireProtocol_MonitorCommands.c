@@ -257,7 +257,16 @@ int Monitor_UpdateConfiguration(WP_Message* message)
         case DeviceConfigurationOption_Wireless80211Network:
         case DeviceConfigurationOption_X509CaRootBundle:
         case DeviceConfigurationOption_All:
-            // TODO missing implementation for now
+            if(ConfigurationManager_StoreConfigurationBlock(cmd->Data, (DeviceConfigurationOption)cmd->Configuration, cmd->BlockIndex, cmd->Length, cmd->Offset) == true)
+            {
+                cmdReply.ErrorCode = 0;
+                success = true;
+            }
+            else 
+            {
+                cmdReply.ErrorCode = 100;
+            }
+            break;
 
         default:
             cmdReply.ErrorCode = 10;
