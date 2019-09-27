@@ -229,6 +229,12 @@ bool ConfigurationManager_StoreConfigurationBlock(void* configurationBlock, Devi
         }
     }
 
+    //check if block is erased
+    if (!iMXRTFlexSPIDriver_IsBlockErased(NULL, storageAddress, blockSize)) {
+      // erase config sector
+      iMXRTFlexSPIDriver_EraseBlock(NULL, (uint32_t)&__nanoConfig_start__);
+    }
+
     // copy the config block content to the config block storage
     success = iMXRTFlexSPIDriver_Write(NULL, storageAddress, blockSize, (unsigned char*)configurationBlock, false);
 

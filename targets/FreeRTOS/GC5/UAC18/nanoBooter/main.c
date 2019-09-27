@@ -22,6 +22,9 @@
 #include <targetHAL.h>
 
 #include "usb_vcom.h"
+#include "i2c.h"
+#include "GlobalEventsFlags.h"
+#include "MAC_address.h"
 
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
@@ -79,37 +82,50 @@ static void boot_nanoCLR(void) {
   }
 }
 
-int main(void) {
-
-  //delay for development purposes
-  // for (volatile uint32_t i = 0; i < 100000000; i++) {
-  //     __asm("nop");
-  // }
-
-  BOARD_ConfigMPU();
-  BOARD_InitBootPins();
-  BOARD_InitBootClocks();
-
-  //SCB_DisableDCache();
-
-  boot_nanoCLR();
-  USB_Init();
-
-  iMXRTFlexSPIDriver_InitializeDevice(NULL);
-
-  // initialize block storage list and devices
-  // in CLR this is called in nanoHAL_Initialize()
-  // for nanoBooter we have to init it in order to provide the flash map for Monitor_FlashSectorMap command
-  BlockStorageList_Initialize();
-  BlockStorage_AddDevices();
+void vInitializeConfigurationManager(void *params) {
+  (void)params;
 
   // initialize configuration manager
   // in CLR this is called in nanoHAL_Initialize()
   // for nanoBooter we have to init it here to have access to network configuration blocks
   ConfigurationManager_Initialize();
 
-  xTaskCreate(vBlinkTask, "BlinkTask", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 1, NULL);
-  xTaskCreate(vReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 1, NULL);
+  vTaskDelete(NULL);
+}
+
+int main(void) {
+
+  //delay for development purposes
+  // for (volatile uint32_t i = 0; i < 100000000; i++) {
+  //   __asm("nop");
+  // }
+
+  BOARD_InitBootPins();
+  BOARD_InitBootClocks();
+  BOARD_InitBootPeripherals();
+
+  //Flash Init shoud be done ASAP - don't move this function
+  iMXRTFlexSPIDriver_InitializeDevice(NULL);
+
+  //SCB_DisableDCache();
+
+  boot_nanoCLR();
+
+  I2C3_InitPeripheral();
+  USB_Init();
+
+  // initialize block storage list and devices
+  // in CLR this is called in nanoHAL_Initialize()
+  // for nanoBooter we have to init it in order to provide the flash map for Monitor_FlashSectorMap command
+  BlockStorageList_Initialize();
+  BlockStorage_AddDevices();
+  GlobalEventsFlags_Init();
+
+  xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
+  xTaskCreate(vInitializeConfigurationManager, "InitCMTask", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
+  xTaskCreate(vBlinkTask, "BlinkTask", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 15, NULL);
+  xTaskCreate(vReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 15, NULL);
+
   vTaskStartScheduler();
 
   for (;;)

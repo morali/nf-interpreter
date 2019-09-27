@@ -516,6 +516,7 @@ void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index, const uint32_t *cmd, 
  * param base FLEXSPI peripheral base address.
  * param clockSource clockSource of type #flexspi_read_sample_clock_t
  */
+__attribute__ ((section(".ramfunc.$RAM2")))
 void FLEXSPI_UpdateRxSampleClock(FLEXSPI_Type *base, flexspi_read_sample_clock_t clockSource)
 {
     uint32_t mcr0Val;

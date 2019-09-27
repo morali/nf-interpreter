@@ -1,83 +1,50 @@
 /*
- * i2c.c
+ * Created on Thu Sep 26 2019
  *
- *  Created on: 01.08.2019
- *      Author: Jakub Standarski
+ * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
+
 
 #include "i2c.h"
 
-/////////////////////////////////
-// I2C CONFIGURATION STRUCTURE //
-//      DECLARED IN i2c.h      //
-/////////////////////////////////
-i2c_t i2c3;
-
-i2c_t i2c2;
-
-
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                            I2C DEFINES                                                   */
-/*                                                                                                          */
-/************************************************************************************************************/
+static lpi2c_rtos_handle_t i2c2_masterRtosHandle;
+static lpi2c_rtos_handle_t i2c3_masterRtosHandle;
 
 /* Clock divider for master lpi2c clock source */
 #define LPI2C3_CLOCK_SOURCE_DIVIDER (5U)
 /* Get frequency of lpi2c clock */
 #define LPI2C3_CLOCK_FREQUENCY ((CLOCK_GetFreq(kCLOCK_Usb1PllClk) / 8) / (LPI2C3_CLOCK_SOURCE_DIVIDER + 1U))
 
+void I2C2_InitPeripheral(void) {
+  NVIC_SetPriority(LPI2C2_IRQn, 3U);
 
+  lpi2c_master_config_t masterConfig;
+  LPI2C_MasterGetDefaultConfig(&masterConfig);
+  masterConfig.hostRequest.source = kLPI2C_HostRequestInputTrigger;
+  masterConfig.baudRate_Hz = 200000;
 
-
-/************************************************************************************************************/
-/*                                                                                                          */
-/*                                  I2C PUBLIC FUNCTIONS DEFINITIONS                                        */
-/*                                                                                                          */
-/************************************************************************************************************/
-
-void I2C3_InitPeripheral(void)
-{
-    NVIC_SetPriority(LPI2C3_IRQn, 3U);
-
-    LPI2C_MasterGetDefaultConfig(&i2c3.masterConfig);
-
-    LPI2C_RTOS_Init(&i2c3.masterRtosHandle, LPI2C3, &i2c3.masterConfig, LPI2C3_CLOCK_FREQUENCY);
+  LPI2C_RTOS_Init(&i2c2_masterRtosHandle, LPI2C2, &masterConfig, LPI2C3_CLOCK_FREQUENCY);
 }
 
-void I2C2_InitPeripheral(void)
-{
-    NVIC_SetPriority(LPI2C2_IRQn, 3U);
-
-    LPI2C_MasterGetDefaultConfig(&i2c2.masterConfig);
-    i2c2.masterConfig.hostRequest.source = kLPI2C_HostRequestInputTrigger;
-    i2c2.masterConfig.baudRate_Hz = 200000;
-
-    LPI2C_RTOS_Init(&i2c2.masterRtosHandle, LPI2C2, &i2c2.masterConfig, LPI2C3_CLOCK_FREQUENCY);
+lpi2c_rtos_handle_t *GetI2C2_Handle() {
+  return &i2c2_masterRtosHandle;
 }
 
+void I2C3_InitPeripheral(void) {
+  NVIC_SetPriority(LPI2C3_IRQn, 3U);
 
+  lpi2c_master_config_t masterConfig;
+  LPI2C_MasterGetDefaultConfig(&masterConfig);
+  masterConfig.hostRequest.source = kLPI2C_HostRequestInputTrigger;
 
-void I2C_MasterStructureInit(lpi2c_master_transfer_t *pTransfer, uint16_t slaveAddress, uint32_t subaddress,
-                             size_t subaddressSize, uint32_t flags)
-{
-    pTransfer->slaveAddress   = slaveAddress;
-    pTransfer->subaddress     = subaddress;
-    pTransfer->subaddressSize = subaddressSize;
-    pTransfer->flags          = flags;
-}                            
-
-
-
-void I2C_SetBufferAndDirection(lpi2c_master_transfer_t *pTransfer, uint8_t *buffer, size_t dataSize, lpi2c_direction_t direction)
-{
-    pTransfer->data      = buffer;
-    pTransfer->dataSize  = dataSize;
-    pTransfer->direction = direction;
+  LPI2C_RTOS_Init(&i2c3_masterRtosHandle, LPI2C3, &masterConfig, LPI2C3_CLOCK_FREQUENCY);
 }
 
-status_t I2CTransfer(i2c_t *pi2c, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, size_t size) {
+lpi2c_rtos_handle_t *GetI2C3_Handle() {
+  return &i2c3_masterRtosHandle;
+}
+
+status_t I2CTransfer(lpi2c_rtos_handle_t *pi2c_handle, uint8_t dev_addr, lpi2c_direction_t direction, uint32_t subaddress, uint8_t subaddressSize, uint8_t *buff, size_t size) {
   lpi2c_master_transfer_t transfer;
 
   memset(&transfer, 0, sizeof(transfer));
@@ -89,7 +56,7 @@ status_t I2CTransfer(i2c_t *pi2c, uint8_t dev_addr, lpi2c_direction_t direction,
   transfer.dataSize = size;
   transfer.flags = kLPI2C_TransferDefaultFlag;
 
-  status_t status = LPI2C_RTOS_Transfer(&pi2c->masterRtosHandle, &transfer);
+  status_t status = LPI2C_RTOS_Transfer(pi2c_handle, &transfer);
 
   return status;
 }

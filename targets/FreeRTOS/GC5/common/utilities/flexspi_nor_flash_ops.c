@@ -18,7 +18,7 @@
 /*******************************************************************************
  * Variables
  *****************************************************************************/
-flexspi_device_config_t deviceconfig = {
+static flexspi_device_config_t deviceconfig = {
     .flexspiRootClk = 133000000,
     .flashSize = FLASH_SIZE,
     .CSIntervalUnit = kFLEXSPI_CsIntervalUnit1SckCycle,
@@ -210,6 +210,9 @@ status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 
     status = flexspi_nor_wait_bus_busy(base);
 
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
     return status;
 }
 
@@ -247,6 +250,9 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address)
 
     status = flexspi_nor_wait_bus_busy(base);
 
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
     return status;
 }
 
@@ -281,6 +287,9 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t dstAddr, co
 
     status = flexspi_nor_wait_bus_busy(base);
 
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
     return status;
 }
 
@@ -300,6 +309,9 @@ status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId)
     status_t status = FLEXSPI_TransferBlocking(base, &flashXfer);
 
     *vendorId = temp;
+
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
 
     return status;
 }

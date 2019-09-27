@@ -44,7 +44,7 @@ MEMORY
   __top_SRAM_OC = 0x20200000 + 0xc0000 ; /* 768K bytes */  
   __top_RAM3 = 0x20200000 + 0xc0000 ; /* 768K bytes */  
 
-__flash_start__         = ORIGIN(BOARD_FLASH);
+__flash_start__         = __base_BOARD_FLASH;
 __nanoImage_start__     = ORIGIN(BOARD_FLASH);
 __nanoImage_size__      = LENGTH(BOARD_FLASH);
 __nanoImage_end__       = __nanoImage_start__ + __nanoImage_size__;
