@@ -13,11 +13,6 @@
 #include <target_windows_devices_serialcommunication_config.h>
 #include <win_dev_serial_native.h>
 
-#include <nanoCLR_Interop.h>
-#include <nanoCLR_Runtime.h>
-#include <nanoCLR_Checks.h>
-#include <corlib_native.h>
-
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
 #include "fsl_dmamux.h"
@@ -43,28 +38,8 @@ typedef struct
     uint16_t RxBytesToRead;
     uint8_t WatchChar;
 
-    TaskHandle_t xReadTaskToNotify = NULL;
+    TaskHandle_t xRWTaskToNotify;
 
-    uint32_t ulNotifiedValue;
 } NF_PAL_UART;
-
-////////////////////////////////////////////
-// declaration of the the UART PAL strucs //
-////////////////////////////////////////////
-
-/* TODO: This is implementation of one UART devices, need to add the rest of structures or find better way to keep uarts config */
-
-LPUART_Type *const lpuart_bases[] = { (LPUART_Type *)0u, LPUART2, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-
-extern NF_PAL_UART Uart_PAL1;
-extern NF_PAL_UART Uart_PAL2;
-extern NF_PAL_UART Uart_PAL3;
-extern NF_PAL_UART Uart_PAL4;
-extern NF_PAL_UART Uart_PAL5;
-extern NF_PAL_UART Uart_PAL6;
-extern NF_PAL_UART Uart_PAL7;
-extern NF_PAL_UART Uart_PAL8;
-
-extern NF_PAL_UART* Uart_PAL[];
 
 #endif  //_WIN_DEV_SERIAL_NATIVE_TARGET_H_
