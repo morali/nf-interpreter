@@ -427,13 +427,13 @@ status_t PHY_GetLinkSpeedDuplex(ENET_Type *base, uint32_t phyAddr, phy_speed_t *
     assert(duplex);
 
     status_t result = kStatus_Success;
-    uint32_t data, ctlReg;
+    uint32_t ctlReg;
 
     /* Read the control two register. */
     result = PHY_Read(base, phyAddr, PHY_CONTROL1_REG, &ctlReg);
     if (result == kStatus_Success)
     {
-        data = ctlReg & PHY_CTL1_SPEEDUPLX_MASK;
+        uint32_t data = ctlReg & PHY_CTL1_SPEEDUPLX_MASK;
         if ((PHY_CTL1_10FULLDUPLEX_MASK == data) || (PHY_CTL1_100FULLDUPLEX_MASK == data))
         {
             /* Full duplex. */

@@ -54,7 +54,6 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetRemovableSt
 
     CLR_RT_HeapBlock* storageFolder;
     CLR_RT_TypeDef_Index storageFolderTypeDef;
-    CLR_RT_HeapBlock* hbObj;
     CLR_RT_HeapBlock& top   = stack.PushValueAndClear();
 
     // is the SD card file system ready?
@@ -104,7 +103,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetRemovableSt
             }
 
             // dereference the object in order to reach its fields
-            hbObj = storageFolder->Dereference();
+            CLR_RT_HeapBlock *hbObj = storageFolder->Dereference();
 
             // set the managed fields
             NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( hbObj[ Library_win_storage_native_Windows_Storage_StorageFolder::FIELD___name ], workingDrive ));
