@@ -28,14 +28,14 @@ struct FileOperation
 static volatile FRESULT threadOperationResult;
 
 // ReadText working thread
-static void ReadTextWorkingThread(void * arg)
+static void ReadTextWorkingThread(void *arg)
 {
 
     FileOperation*  fileIoOperation = (FileOperation*)arg;
 
     // need an extra one for the terminator
     uint32_t readLength = fileIoOperation->ContentLength + 1;
-    
+
     // read string
     if(f_gets((TCHAR*)fileIoOperation->Content, readLength, fileIoOperation->File))
     {

@@ -111,9 +111,8 @@ static int32_t UniversalInputFilter(uint8_t tau, int64_t *memValue, int64_t *las
   return value;
 }
 
+static uint8_t lastFilter[UINumber];
 static bool configurationChanged(uint8_t configNo) {
-  static uint8_t lastFilter[UINumber];
-
   if (lastFilter[configNo] != localIO_UI.config[configNo].filter) {
     lastFilter[configNo] = localIO_UI.config[configNo].filter;
     return true;

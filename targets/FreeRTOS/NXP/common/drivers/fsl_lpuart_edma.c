@@ -138,8 +138,13 @@ static void LPUART_ReceiveEDMACallback(edma_handle_t *handle, void *param, bool 
     lpuart_edma_private_handle_t *lpuartPrivateHandle = (lpuart_edma_private_handle_t *)param;
 
     /* Avoid warning for unused parameters. */
+<<<<<<< HEAD:targets/FreeRTOS/NXP/common/drivers/fsl_lpuart_edma.c
     handle = handle;
     tcds = tcds;
+=======
+    (void)handle;
+    (void)tcds;
+>>>>>>> remove some cppcheck warnings:targets/FreeRTOS/GC5/common/drivers/fsl_lpuart_edma.c
 
     if (transferDone)
     {
