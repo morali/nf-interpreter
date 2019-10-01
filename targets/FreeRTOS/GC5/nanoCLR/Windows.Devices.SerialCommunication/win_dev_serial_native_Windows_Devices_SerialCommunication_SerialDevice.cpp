@@ -717,14 +717,18 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
   NANOCLR_HEADER();
   {
     char deviceSelectorString[41] = {0};
-
+    int len = 0;
     for (uint8_t i = 1; i < (sizeof(Uart_PAL) / sizeof(Uart_PAL[0])); i++) {
       if (Uart_PAL[i] != NULL) {
         char com[6] = "COM1,";
         com[3] = i + '0';
+        len += 5;
         strcat(deviceSelectorString, com);
       }
     }
+
+    //remove trailing comma
+    deviceSelectorString[len - 1] = 0;
 
     /* because the caller is expecting a result to be returned */
     /* we need set a return result in the stack argument using the a ppropriate SetResult according to the variable type (a string here) */
