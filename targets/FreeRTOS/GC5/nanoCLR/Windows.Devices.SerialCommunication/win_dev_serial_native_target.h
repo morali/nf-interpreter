@@ -7,8 +7,8 @@
 #define _WIN_DEV_SERIAL_NATIVE_TARGET_H_
 
 #define LPUART_TX_DMA_CHANNEL 0U
-#define UART_DMA_INTERRUPT_PRIO 8U
-#define UART_INTERRUPT_PRIO 7U
+#define UART_DMA_INTERRUPT_PRIO 2U
+#define UART_INTERRUPT_PRIO 3U
 
 #include <target_windows_devices_serialcommunication_config.h>
 #include <win_dev_serial_native.h>

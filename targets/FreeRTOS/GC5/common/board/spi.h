@@ -13,13 +13,13 @@
 #define LPSPI2_CLOCK_SOURCE_DIVIDER (7U)
 
 #define LPSPI2_BAUDRATE 1000000U
-#define LPSPI2_IRQ_PRIO 5U
+#define LPSPI2_IRQ_PRIO 7U
 #define LPSPI2_CLOCK_FREQUENCY                                                 \
   (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
 
 #define LPSPI3_BUFFSIZE 3U
 #define LPSPI3_BAUDRATE 5000000U
-#define LPSPI3_IRQ_PRIO 6U
+#define LPSPI3_IRQ_PRIO 7U
 #define LPSPI3_CLOCK_FREQUENCY                                                 \
   (CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk) / (LPSPI2_CLOCK_SOURCE_DIVIDER + 1U))
 

@@ -57,7 +57,7 @@ static void vRWEvent(void *pvParameters) {
 /* Interrupt callback invoked when a transmission buffer is completely transfered by DMA */
 static void TxEnd(LPUART_Type *base, lpuart_edma_handle_t *handle, status_t status, void *data) {
   NATIVE_INTERRUPT_START(void)
-  base;
+  (void)base;
   (void)handle;
   (void)status;
 
@@ -81,7 +81,7 @@ static void UART_Handle(LPUART_Type *base, uint8_t uartNum) {
   if (kLPUART_RxOverrunFlag & status) {
 
     /* Clear overrun flag, otherwise the RX does not work. */
-    base->STAT = ((base->STAT & 0x3FE00000U) | LPUART_STAT_OR_MASK);
+    base->STAT |= 1U << LPUART_STAT_OR_SHIFT;
   }
 
   if (kLPUART_RxDataRegFullFlag & status) {
@@ -342,8 +342,8 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
     /* Set proper polarisation of RTS for UAC18 board */
     base->MODIR |= LPUART_MODIR_TXRTSPOL(1);
     /* Enable receiver interrupt */
-    base->CTRL |= 1U << 21;
-
+    base->CTRL |= 1U << LPUART_CTRL_RIE_SHIFT;
+    base->CTRL |= 1U << LPUART_CTRL_ORIE_SHIFT;
     /* Renable transmitter and receiver */
     base->CTRL |= 1U << 19;
     base->CTRL |= 1U << 18;
