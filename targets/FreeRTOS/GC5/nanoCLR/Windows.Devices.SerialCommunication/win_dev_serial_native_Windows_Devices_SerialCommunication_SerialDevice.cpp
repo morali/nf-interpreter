@@ -96,7 +96,7 @@ static void UART_Handle(LPUART_Type *base, uint8_t uartNum) {
 
       /* check if the requested bytes are available in the buffer...
             ... or if the watch char was received */
-      if ((palUart->RxRingBuffer.Length() >= palUart->RxBytesToRead) || (byte == palUart->WatchChar)) {
+      if (palUart->RxRingBuffer.Length() >= palUart->RxBytesToRead) {
 
         /* reset Rx bytes to read count */
         palUart->RxBytesToRead = 0;
