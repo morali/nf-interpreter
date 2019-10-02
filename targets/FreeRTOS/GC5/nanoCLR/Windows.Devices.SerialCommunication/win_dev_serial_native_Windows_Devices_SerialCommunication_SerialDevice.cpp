@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "win_dev_serial_native_target.h"
 #include <nanoHAL.h>
+#include "fsl_cache.h"
 
 /////////////////////////////////////////////////////////
 // UART PAL strucs delcared in win_dev_serial_native.h //
@@ -481,7 +482,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
       lpuart_transfer_t xfer;
       xfer.data = (uint8_t *)palUart->TxRingBuffer.Reader();
       xfer.dataSize = length;
-      //DCACHE_CleanInvalidateByRange((uint32_t)xfer.data, length);
+      DCACHE_CleanInvalidateByRange((uint32_t)xfer.data, length);
 
       /* Initiate DMA transfer to UART peripheral with xfer data structure */
       LPUART_SendEDMA(lpuart_bases[uartNum], &palUart->g_lpuartEdmaHandle, &xfer);
