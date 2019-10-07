@@ -37,6 +37,7 @@ option(API_Hardware.Stm32                       "option for Hardware.Stm32")
 # iSMA only
 option(API_iSMA.GPIO                            "option for iSMA.GPIO")
 option(API_iSMA.LocalIO                         "option for iSMA.LocalIO")
+option(API_iSMA.Log                             "option for iSMA.Log")
 
 #################################################################
 # macro to perform individual settings to add an API to the build
@@ -88,6 +89,12 @@ macro(ParseNativeAssemblies)
     if(API_iSMA.LocalIO)
         ##### API name here (doted name)
         PerformSettingsForApiEntry("iSMA.LocalIO")
+    endif()
+
+    # iSMA.Log
+    if(API_iSMA.Log)
+        ##### API name here (doted name)
+        PerformSettingsForApiEntry("iSMA.Log")
     endif()
 
     # Hardware.Esp32
