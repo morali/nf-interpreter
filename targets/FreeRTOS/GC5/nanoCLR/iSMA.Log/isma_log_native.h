@@ -13,6 +13,7 @@
 struct Library_isma_log_native_iSMA_Log_Log
 {
     NANOCLR_NATIVE_DECLARE(AddLog___STATIC__VOID__iSMALogLogEntry);
+    NANOCLR_NATIVE_DECLARE(GetLogs___STATIC__SZARRAY_iSMALogLogEntry);
 
     //--//
 
