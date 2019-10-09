@@ -74,7 +74,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4( CLR_RT_StackFrame& stack ) {
   NANOCLR_HEADER();
 
   CLR_RT_TypeDef_Index logEntryTypeDef;
@@ -111,4 +111,31 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::SetLogBufferSize___STATIC__VOID__U
   removeOldLogs();
 
   NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogBufferSize___STATIC__U2(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
+
+  CLR_UINT16 value = maxLogLength;
+  stack.SetResult_I4(value);
+
+  NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel( CLR_RT_StackFrame& stack )
+{
+    NANOCLR_HEADER();
+
+    NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    NANOCLR_NOCLEANUP();
+}
+
+HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSetting___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry( CLR_RT_StackFrame& stack )
+{
+    NANOCLR_HEADER();
+
+    NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    NANOCLR_NOCLEANUP();
 }

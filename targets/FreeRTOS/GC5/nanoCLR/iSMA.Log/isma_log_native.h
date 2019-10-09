@@ -12,9 +12,25 @@
 
 struct Library_isma_log_native_iSMA_Log_Log
 {
+    static const int FIELD_STATIC__onChannelCreated = 0;
+
     NANOCLR_NATIVE_DECLARE(AddLog___STATIC__VOID__iSMALogLogEntry);
-    NANOCLR_NATIVE_DECLARE(GetLogs___STATIC__SZARRAY_iSMALogLogEntry);
+    NANOCLR_NATIVE_DECLARE(GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4);
     NANOCLR_NATIVE_DECLARE(SetLogBufferSize___STATIC__VOID__U2);
+    NANOCLR_NATIVE_DECLARE(GetLogBufferSize___STATIC__U2);
+    NANOCLR_NATIVE_DECLARE(SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel);
+    NANOCLR_NATIVE_DECLARE(GetChannelSetting___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry);
+
+    //--//
+
+};
+
+struct Library_isma_log_native_iSMA_Log_Log__Channel
+{
+    static const int FIELD_STATIC__definedChannels = 1;
+
+    static const int FIELD__myChannel = 1;
+
 
     //--//
 
@@ -24,8 +40,9 @@ struct Library_isma_log_native_iSMA_Log_LogEntry
 {
     static const int FIELD___timestamp = 1;
     static const int FIELD___logChannel = 2;
-    static const int FIELD___text = 3;
-    static const int FIELD___exception = 4;
+    static const int FIELD___logLevel = 3;
+    static const int FIELD___text = 4;
+    static const int FIELD___exception = 5;
 
 
     //--//
