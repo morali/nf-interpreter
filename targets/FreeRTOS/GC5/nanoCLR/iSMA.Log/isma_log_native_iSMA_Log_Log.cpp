@@ -18,16 +18,18 @@ static logEntry_t *logListTail = NULL;
 static logEntry_t *logListHead = NULL;
 static uint32_t logLength = 0;
 
-static uint32_t maxLogLength = 10;
+static uint32_t maxLogLength = 1000;
 
-static void removeOldLog() {
-  logEntry_t *lt = logListTail;
+static void removeOldLogs() {
+  while (logLength > maxLogLength) {
+    logEntry_t *lt = logListTail;
 
-  logListTail = logListTail->next;
+    logListTail = logListTail->next;
 
-  delete lt->gc;
-  platform_free(lt);
-  logLength--;
+    delete lt->gc;
+    free(lt);
+    logLength--;
+  }
 }
 
 static void appendLogEntry(CLR_RT_HeapBlock *logEntry) {
@@ -46,9 +48,8 @@ static void appendLogEntry(CLR_RT_HeapBlock *logEntry) {
 
   logLength++;
 
-  while (logLength > maxLogLength) {
-    removeOldLog();
-  }
+  removeOldLogs();
+  NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogEntry(CLR_RT_StackFrame &stack) {
@@ -88,4 +89,14 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
   }
 
   NANOCLR_NOCLEANUP();
+}
+
+HRESULT Library_isma_log_native_iSMA_Log_Log::SetLogBufferSize___STATIC__VOID__U2(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
+
+  maxLogLength = stack.Arg0().NumericByRef().u2;
+
+  removeOldLogs();
+
+  NANOCLR_NOCLEANUP_NOLABEL();
 }
