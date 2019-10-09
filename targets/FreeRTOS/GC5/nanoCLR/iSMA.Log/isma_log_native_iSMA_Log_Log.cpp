@@ -27,7 +27,7 @@ static void removeOldLog() {
 
   delete lt->gc;
   platform_free(lt);
-  maxLogLength--;
+  logLength--;
 }
 
 static void appendLogEntry(CLR_RT_HeapBlock *logEntry) {
