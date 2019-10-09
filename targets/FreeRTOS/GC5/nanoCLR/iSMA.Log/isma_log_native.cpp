@@ -16,7 +16,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_isma_log_native_iSMA_Log_Log::SetLogBufferSize___STATIC__VOID__U2,
     Library_isma_log_native_iSMA_Log_Log::GetLogBufferSize___STATIC__U2,
     Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel,
-    Library_isma_log_native_iSMA_Log_Log::GetChannelSetting___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry,
+    Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry,
     NULL,
     NULL,
     NULL,
@@ -39,7 +39,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_Log =
 {
     "iSMA.Log", 
-    0xA4BB650B,
+    0x5299C2D8,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

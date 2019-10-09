@@ -19,7 +19,7 @@ struct Library_isma_log_native_iSMA_Log_Log
     NANOCLR_NATIVE_DECLARE(SetLogBufferSize___STATIC__VOID__U2);
     NANOCLR_NATIVE_DECLARE(GetLogBufferSize___STATIC__U2);
     NANOCLR_NATIVE_DECLARE(SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel);
-    NANOCLR_NATIVE_DECLARE(GetChannelSetting___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry);
+    NANOCLR_NATIVE_DECLARE(GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry);
 
     //--//
 

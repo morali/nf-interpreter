@@ -74,7 +74,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4( CLR_RT_StackFrame& stack ) {
+HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   CLR_RT_TypeDef_Index logEntryTypeDef;
@@ -122,20 +122,26 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogBufferSize___STATIC__U2(CLR_
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel( CLR_RT_StackFrame& stack )
-{
-    NANOCLR_HEADER();
+HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
 
-    NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+  (void)stack;
 
-    NANOCLR_NOCLEANUP();
+  NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSetting___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry( CLR_RT_StackFrame& stack )
-{
-    NANOCLR_HEADER();
+HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
 
-    NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+  CLR_RT_TypeDef_Index dictionaryEntryTypeDef;
+  CLR_RT_HeapBlock &top = stack.PushValueAndClear();
 
-    NANOCLR_NOCLEANUP();
+  // find <DictionaryEntry> type, don't bother checking the result as it exists for sure
+  bool found = g_CLR_RT_TypeSystem.FindTypeDef("DictionaryEntry", "System.Collections", dictionaryEntryTypeDef);
+
+  (void)found;
+  // create an array of <DictionaryEntry>
+  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, 0, dictionaryEntryTypeDef));
+
+  NANOCLR_NOCLEANUP();
 }
