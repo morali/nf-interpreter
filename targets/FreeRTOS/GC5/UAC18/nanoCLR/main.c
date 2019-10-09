@@ -37,6 +37,10 @@
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 
+// override malloc and free functions with own allocator
+void *malloc(size_t sz) { return platform_malloc(sz); }
+void free(void *p) { platform_free(p); }
+
 int main(void)
 {
     BOARD_InitBootPins();
