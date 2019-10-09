@@ -32,11 +32,23 @@ static void removeOldLogs() {
   }
 }
 
-static void appendLogEntry(CLR_RT_HeapBlock *logEntry) {
-  logEntry_t *newLog = (logEntry_t *)platform_malloc(sizeof(logEntry_t));
+static HRESULT appendLogEntry(CLR_RT_HeapBlock *logEntry) {
+  NANOCLR_HEADER();
+
+  // allocate memory for new logEntry
+  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
+
+  if (newLog == NULL) {
+    NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+  }
   newLog->logEntry = logEntry;
   newLog->gc = new CLR_RT_ProtectFromGC(*logEntry);
   newLog->next = NULL;
+
+  if (newLog->gc == NULL) {
+    free(newLog);
+    NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+  }
 
   if (logListTail == NULL) {
     logListTail = newLog;
@@ -57,9 +69,9 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
 
   CLR_RT_HeapBlock *logEntry = stack.Arg0().Dereference();
 
-  appendLogEntry(logEntry);
+  NANOCLR_CHECK_HRESULT(appendLogEntry(logEntry));
 
-  NANOCLR_NOCLEANUP_NOLABEL();
+  NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry(CLR_RT_StackFrame &stack) {
