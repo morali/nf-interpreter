@@ -179,12 +179,17 @@ static void addChannel(const char *channelName, uint8_t level) {
 HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogEntry(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
+  // get logEntry
   CLR_RT_HeapBlock *logEntry = stack.Arg0().Dereference();
 
+  // get channel name and log level
   const char *channelName = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logChannel].DereferenceString()->StringText();
   uint32_t logLevel = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logLevel].NumericByRefConst().u4;
+
+  // find channel with given name
   logChannel_t *channel = findChannel(channelName);
 
+  // if channel exists and loglevel is grater then chanelLevel then add logEntry to buffer
   if (channel != NULL) {
     if (logLevel >= channel->logLevel) {
       appendLogEntry(logEntry);
