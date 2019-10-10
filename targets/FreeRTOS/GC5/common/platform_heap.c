@@ -34,7 +34,6 @@ static size_t	xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * he
 static size_t mem_size(void *pv)
 {
     uint8_t *puc = (uint8_t *)pv;
-    BlockLink_t *pxLink;
 
     if (pv != NULL)
     {
@@ -43,7 +42,7 @@ static size_t mem_size(void *pv)
         puc -= xHeapStructSize;
 
         /* This casting is to keep the compiler from issuing warnings. */
-        pxLink = (void *)puc;
+        BlockLink_t *pxLink = (void *)puc;
 
         return pxLink->xBlockSize & ~xBlockAllocatedBit;
     }

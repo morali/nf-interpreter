@@ -257,9 +257,6 @@ bool ConfigurationManager_StoreConfigurationBlock(void* configurationBlock, Devi
 bool ConfigurationManager_UpdateConfigurationBlock(void* configurationBlock, DeviceConfigurationOption configuration, uint32_t configurationIndex)
 {
     ByteAddress storageAddress;
-    uint32_t blockOffset;
-    uint8_t* blockAddressInCopy;
-    uint32_t blockSize;
     bool success = FALSE;
 
     // config sector size
@@ -270,6 +267,8 @@ bool ConfigurationManager_UpdateConfigurationBlock(void* configurationBlock, Dev
 
     if(configSectorCopy != NULL)
     {
+        uint32_t blockSize;
+
         // copy config sector from flash to RAM
         memcpy(configSectorCopy, &__nanoConfig_start__, sizeOfConfigSector);
 
@@ -329,10 +328,10 @@ bool ConfigurationManager_UpdateConfigurationBlock(void* configurationBlock, Dev
             // flash block is erased
 
             // subtract the start address of config sector to get the offset
-            blockOffset = storageAddress - (uint32_t)&__nanoConfig_start__;
+            uint32_t blockOffset = storageAddress - (uint32_t)&__nanoConfig_start__;
 
             // set pointer to block to udpate
-            blockAddressInCopy = configSectorCopy + blockOffset;
+            uint8_t* blockAddressInCopy = configSectorCopy + blockOffset;
             
             // replace config block with new content by replacing memory
             memcpy(blockAddressInCopy, configurationBlock, blockSize);

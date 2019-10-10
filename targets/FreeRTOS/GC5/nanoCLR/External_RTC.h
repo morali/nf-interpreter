@@ -22,7 +22,7 @@ extern "C" {
 
 struct tm *RTC_ReadTime();
 
-void RTC_SetTime(struct tm *rtcTime);
+void RTC_SetTime(struct tm *rtcSetTime);
 
 void vRtcThread(void *pvParameters);
 

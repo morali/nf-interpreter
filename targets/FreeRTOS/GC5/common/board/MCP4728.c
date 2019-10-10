@@ -15,11 +15,11 @@ channel_t s_channel;
  * @param  val: 12bit value
  * @retval if transmission was a sucess
  */
-status_t MCP4728_ChannelSetValue(channel_t s_channel, uint16_t val) {
+status_t MCP4728_ChannelSetValue(channel_t channel, uint16_t val) {
   uint8_t command[3];
   status_t status;
 
-  command[0] = (2 << 5) | ((s_channel & 0x03) << 1); //multi write command, kanal, udac = 0
+  command[0] = (2 << 5) | ((channel & 0x03) << 1); //multi write command, kanal, udac = 0
   command[1] = (1 << 7) | (0 << 4) | (val >> 8);     //VREF i  najstarsze bity
   command[2] = val;
 
@@ -33,10 +33,10 @@ status_t MCP4728_ChannelSetValue(channel_t s_channel, uint16_t val) {
  * @param  s_channel: channel to disable
  * @retval if disabling was a success
  */
-status_t MCP4728_ChannelOff(channel_t s_channel) {
+status_t MCP4728_ChannelOff(channel_t channel) {
   uint8_t command[3];
 
-  command[0] = (2 << 5) | ((s_channel & 0x03) << 1); /* multi write command with udac = 0 */
+  command[0] = (2 << 5) | ((channel & 0x03) << 1); /* multi write command with udac = 0 */
   command[1] = (3 << 5);                             /* powerdown (500k to the ground) */
   command[2] = 0;
 

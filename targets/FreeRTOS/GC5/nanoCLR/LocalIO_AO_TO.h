@@ -61,7 +61,7 @@ extern "C" {
 localIO_AO_TO_t *GetTOAOConfig();
 
 uint32_t GetAONumber();
-void SetAOMode(uint32_t id, AO_Mode_t pwm);
+void SetAOMode(uint32_t id, AO_Mode_t mode);
 void SetAOFrequency(uint32_t id, PWM_Freq_t frequency);
 void SetAODutyCycle(uint32_t id, uint32_t duty);
 void SetAOVoltage(uint32_t id, uint16_t voltage);
