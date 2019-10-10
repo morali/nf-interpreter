@@ -10,6 +10,19 @@
 #include <nanoCLR_Interop.h>
 #include <nanoCLR_Runtime.h>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// !!! KEEP IN SYNC WITH iSMA.Log.Log.LogLevel (in managed code) !!! //
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+enum LogLevel
+{
+    Spam = 0,
+    Troubleshot,
+    Important,
+    Error,
+    Critical,
+    Undefined
+};
+
 struct Library_isma_log_native_iSMA_Log_Log
 {
     static const int FIELD_STATIC__onChannelCreated = 0;

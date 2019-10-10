@@ -8,6 +8,7 @@
 #include <corlib_native.h>
 
 struct logEntry {
+  uint32_t logId;
   CLR_RT_HeapBlock *logEntry;
   CLR_RT_ProtectFromGC *gc;
   struct logEntry *next;
@@ -18,7 +19,7 @@ typedef struct logEntry logEntry_t;
 static logEntry_t *logListTail = NULL;
 static logEntry_t *logListHead = NULL;
 static uint32_t logLength = 0;
-
+static uint32_t logId = 0;
 static uint32_t maxLogLength = 1000;
 
 /**
@@ -63,6 +64,7 @@ static bool appendLogEntry(CLR_RT_HeapBlock *logEntry) {
     return false;
   }
 
+  newLog->logId = logId++;
   // set pointer to the new logEntry
   newLog->logEntry = logEntry;
   // protect logEntry against GarbageCollector
@@ -159,6 +161,8 @@ static void addChannel(const char *channelName, uint8_t level) {
   // copy name and set level
   hal_strcpy_s(newChannel->channelName, nameLen, channelName);
   newChannel->logLevel = level;
+  // set pointer to next channel to NULL
+  newChannel->next = NULL;
 
   // add element to list
   if (logChannelTail == NULL) {
@@ -190,10 +194,30 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
   CLR_RT_HeapBlock *logEntry;
   logEntry_t *log = logListTail;
 
+  uint32_t startIndex = stack.Arg0().NumericByRef().u4;
+  uint32_t maxItemsToRetrieve = stack.Arg1().NumericByRef().u4;
+
+  uint32_t logsNo = 0;
+
+  logEntry_t *startLog = NULL;
+
+  // count number of logs to return
+  for (uint32_t i = 0; i < logLength; i++) {
+    if (log->logId >= startIndex) {
+      startLog = log;
+      logsNo = logLength - i;
+      break;
+    }
+    log = log->next;
+  }
+
+  // if number of logs exceed maxItemsToRetive then decrease number of returned logs
+  if (logsNo > maxItemsToRetrieve) {
+    logsNo = maxItemsToRetrieve;
+  }
+
   // find <LogEntry> type, don't bother checking the result as it exists for sure
   g_CLR_RT_TypeSystem.FindTypeDef("LogEntry", "iSMA.Log", logEntryTypeDef);
-
-  uint32_t logsNo = logLength;
   // create an array of <LogEntry>
   NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, logsNo, logEntryTypeDef));
 
@@ -202,9 +226,13 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
 
   for (uint32_t i = 0; i < logsNo; i++) {
     // set reference to LogEntry object
-    logEntry->SetObjectReference(log->logEntry);
+    logEntry->SetObjectReference(startLog->logEntry);
 
-    log = log->next;
+    // set id of the last logEntry
+    stack.Arg2().Dereference()->NumericByRef().u4 = startLog->logId;
+
+    // get the next log and next logEntry in array
+    startLog = startLog->next;
     logEntry++;
   }
 
