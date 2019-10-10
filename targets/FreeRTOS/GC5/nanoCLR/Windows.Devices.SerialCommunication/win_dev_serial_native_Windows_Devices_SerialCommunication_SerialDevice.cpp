@@ -269,6 +269,18 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
       break;
     }
 
+    switch (pThis[FIELD___stopBits].NumericByRef().s4) {
+      default:
+      NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
+      break;
+    case SerialStopBitCount_One:
+      config->stopBitCount = kLPUART_OneStopBit;
+      break;
+    case SerialStopBitCount_Two:
+      config->stopBitCount = kLPUART_TwoStopBit;
+      break;
+    }
+
     /* enable RTS  */
     config->enableRxRTS = false;
     config->enableTxCTS = false;
