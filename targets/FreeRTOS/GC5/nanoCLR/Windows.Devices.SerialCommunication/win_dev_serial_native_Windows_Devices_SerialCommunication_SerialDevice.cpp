@@ -453,6 +453,7 @@ HRESULT Library_win_dev_serial_native_Windows_Devices_SerialCommunication_Serial
 
       length = stack.m_evalStack[1].NumericByRef().s4;
     } else {
+      palUart->TxRingBuffer.Pop(palUart->TxOngoingCount);
       palUart->TxOngoingCount = 0;
       NANOCLR_SET_AND_LEAVE(CLR_E_TIMEOUT);
     }
