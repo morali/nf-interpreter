@@ -181,7 +181,15 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
 
   CLR_RT_HeapBlock *logEntry = stack.Arg0().Dereference();
 
-  appendLogEntry(logEntry);
+  const char *channelName = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logChannel].DereferenceString()->StringText();
+  uint32_t logLevel = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logLevel].NumericByRefConst().u4;
+  logChannel_t *channel = findChannel(channelName);
+
+  if (channel != NULL) {
+    if (logLevel >= channel->logLevel) {
+      appendLogEntry(logEntry);
+    }
+  }
 
   NANOCLR_NOCLEANUP_NOLABEL();
 }
