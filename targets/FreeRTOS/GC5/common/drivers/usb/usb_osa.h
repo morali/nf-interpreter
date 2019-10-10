@@ -19,9 +19,9 @@
  ******************************************************************************/
 /* @brief Define USB stack */
 
-#define USB_STACK_FREERTOS
-
+#define USB_STACK_BM
 /*! @brief Define big endian */
+
 #define USB_BIG_ENDIAN (0U)
 /*! @brief Define little endian */
 #define USB_LITTLE_ENDIAN (1U)

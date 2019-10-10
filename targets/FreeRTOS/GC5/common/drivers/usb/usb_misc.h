@@ -9,6 +9,8 @@
 #ifndef __USB_MISC_H__
 #define __USB_MISC_H__
 
+#define USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE (1U)
+
 #ifndef ENDIANNESS
 
 #error ENDIANNESS should be defined, and then rebulid the project.
