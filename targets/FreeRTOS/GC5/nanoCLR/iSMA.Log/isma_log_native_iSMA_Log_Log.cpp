@@ -181,9 +181,9 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
 
   CLR_RT_HeapBlock *logEntry = stack.Arg0().Dereference();
 
-  NANOCLR_CHECK_HRESULT(appendLogEntry(logEntry));
+  appendLogEntry(logEntry);
 
-  NANOCLR_NOCLEANUP();
+  NANOCLR_NOCLEANUP_NOLABEL();
 }
 
 HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4(CLR_RT_StackFrame &stack) {
@@ -282,16 +282,12 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARR
   NANOCLR_HEADER();
 
   CLR_RT_TypeDef_Index dictionaryEntryTypeDef;
-  CLR_RT_TypeDef_Index byteTypeDef;
   CLR_RT_HeapBlock &top = stack.PushValueAndClear();
   CLR_RT_HeapBlock *logChannel;
   logChannel_t *channel = logChannelTail;
 
   // find <DictionaryEntry> type, don't bother checking the result as it exists for sure
   g_CLR_RT_TypeSystem.FindTypeDef("DictionaryEntry", "System.Collections", dictionaryEntryTypeDef);
-
-  // find <Byte> type, don't bother checking the result as it exists for sure
-  g_CLR_RT_TypeSystem.FindTypeDef("Byte", "System", byteTypeDef);
 
   uint32_t len = logChannelLength;
   // create an array of <DictionaryEntry>
@@ -314,8 +310,8 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARR
     // channel level
     CLR_RT_HeapBlock &hbByteObj = hbObj[Library_corlib_native_System_Collections_DictionaryEntry::FIELD__Value];
 
-    // create an instance of <Byte>
-    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(hbByteObj, byteTypeDef));
+    // create an instance of <UInt8>
+    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(hbByteObj, g_CLR_RT_WellKnownTypes.m_UInt8));
 
     hbByteObj.NumericByRef().u1 = channel->logLevel;
 
