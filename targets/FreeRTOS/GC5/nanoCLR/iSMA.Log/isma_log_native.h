@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // !!! KEEP IN SYNC WITH iSMA.Log.Log.LogLevel (in managed code) !!! //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-enum LogLevel
+typedef enum LogLevel
 {
     Spam = 0,
     Troubleshot,
@@ -21,7 +21,7 @@ enum LogLevel
     Error,
     Critical,
     Undefined
-};
+} logLevel_t;
 
 struct Library_isma_log_native_iSMA_Log_Log
 {

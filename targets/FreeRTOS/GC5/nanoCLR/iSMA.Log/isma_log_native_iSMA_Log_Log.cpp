@@ -7,10 +7,25 @@
 #include "isma_log_native.h"
 #include <corlib_native.h>
 
-struct logEntry {
-  uint32_t logId;
+typedef struct {
+  uint64_t timestamp;
+  const char *channel;
+  logLevel_t level;
+  char *message;
+} nativeLog_t;
+
+typedef struct {
   CLR_RT_HeapBlock *logEntry;
   CLR_RT_ProtectFromGC *gc;
+} managedLog_t;
+
+struct logEntry {
+  uint32_t logId;
+  uint8_t logType; // 0 - managed , 1 - nativeLog
+  union {
+    managedLog_t managedLog;
+    nativeLog_t nativeLog;
+  };
   struct logEntry *next;
 };
 
@@ -37,8 +52,13 @@ static void removeOldLogs() {
     // set pointer tail pointer to the next element
     logListTail = logListTail->next;
 
-    // remove GC protection
-    delete lt->gc;
+    if (lt->logType == 0) {
+      // remove GC protection
+      delete lt->managedLog.gc;
+    } else {
+      // free memory allocated by message
+      free(lt->nativeLog.message);
+    }
 
     // free space
     free(lt);
@@ -64,18 +84,84 @@ static bool appendLogEntry(CLR_RT_HeapBlock *logEntry) {
     return false;
   }
 
-  newLog->logId = logId++;
+  // set log type to managed
+  newLog->logType = 0;
   // set pointer to the new logEntry
-  newLog->logEntry = logEntry;
+  newLog->managedLog.logEntry = logEntry;
   // protect logEntry against GarbageCollector
-  newLog->gc = new CLR_RT_ProtectFromGC(*logEntry);
+  newLog->managedLog.gc = new CLR_RT_ProtectFromGC(*logEntry);
   newLog->next = NULL;
 
   // if protection faild free memory and return
-  if (newLog->gc == NULL) {
+  if (newLog->managedLog.gc == NULL) {
     free(newLog);
     return false;
   }
+
+  // asign logId and increment it
+  newLog->logId = logId++;
+
+  // add new element to list
+  if (logListTail == NULL) {
+    logListTail = newLog;
+    logListHead = newLog;
+  } else {
+    logListHead->next = newLog;
+    logListHead = newLog;
+  }
+
+  // increase log list length
+  logLength++;
+
+  // remove oldest logs
+  removeOldLogs();
+
+  return true;
+}
+
+extern "C" bool addLog(const char *channel, logLevel_t level, const char *message);
+bool addLog(const char *channel, logLevel_t level, const char *message) {
+
+  // allocate memory for new logEntry
+  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
+
+  // return if allocation faild
+  if (newLog == NULL) {
+    return false;
+  }
+
+  // set logType to native
+  newLog->logType = 1;
+
+  // set channel name
+  newLog->nativeLog.channel = channel;
+
+  // calc message length
+  size_t messageLen = hal_strlen_s(message) + 1;
+
+  // allocate space for message
+  newLog->nativeLog.message = (char *)malloc(messageLen);
+
+  // if allocation failed
+  if (newLog->nativeLog.message == NULL) {
+    // free space for element
+    free(newLog);
+    return false;
+  }
+
+  // copy message
+  hal_strcpy_s(newLog->nativeLog.message, messageLen, message);
+
+  // set log level
+  newLog->nativeLog.level = level;
+
+  // set timestamp
+  newLog->nativeLog.timestamp = HAL_Time_CurrentDateTime(false);
+
+  // asign logId and increment it
+  newLog->logId = logId++;
+
+  newLog->next = NULL;
 
   // add new element to list
   if (logListTail == NULL) {
@@ -97,7 +183,7 @@ static bool appendLogEntry(CLR_RT_HeapBlock *logEntry) {
 
 struct logChannel {
   char *channelName;
-  uint8_t logLevel;
+  logLevel_t logLevel;
   struct logChannel *next;
 };
 
@@ -135,7 +221,8 @@ static logChannel_t *findChannel(const char *channelName) {
  * @param  level: log level of the new channel
  * @retval None
  */
-static void addChannel(const char *channelName, uint8_t level) {
+extern "C" void addChannel(const char *channelName, logLevel_t level);
+void addChannel(const char *channelName, logLevel_t level) {
 
   // allocate new element list
   logChannel_t *newChannel = (logChannel_t *)malloc(sizeof(logChannel_t));
@@ -238,8 +325,37 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
   logEntry = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
   for (uint32_t i = 0; i < logsNo; i++) {
-    // set reference to LogEntry object
-    logEntry->SetObjectReference(startLog->logEntry);
+    if (startLog->logType == 0) {
+      // set reference to LogEntry object
+      logEntry->SetObjectReference(startLog->managedLog.logEntry);
+    } else {
+      // its native log
+      // create an instance of <LogEntry>
+      NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*logEntry, logEntryTypeDef));
+
+      // dereference the object in order to reach its fields
+      CLR_RT_HeapBlock *hbObj = logEntry->Dereference();
+
+      // get a reference to the timestamp managed field...
+      CLR_RT_HeapBlock &timestampFieldRef = hbObj[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___timestamp];
+      CLR_INT64 *pRes = (CLR_INT64 *)&timestampFieldRef.NumericByRef().s8;
+      // ...and set it with the timestamp
+      *pRes = startLog->nativeLog.timestamp;
+
+      // log channel name
+      NANOCLR_CHECK_HRESULT(
+          CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logChannel], startLog->nativeLog.channel));
+
+      // get a reference to the logLevel managed field...
+      CLR_RT_HeapBlock &logLevelFieldRef = hbObj[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logLevel];
+      CLR_UINT8 *pU8Res = (CLR_UINT8 *)&logLevelFieldRef.NumericByRef().u8;
+      // ...and set it with the level
+      *pU8Res = startLog->nativeLog.level;
+
+      // log text
+      NANOCLR_CHECK_HRESULT(
+          CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___text], startLog->nativeLog.message));
+    }
 
     // set id of the last logEntry
     stack.Arg2().Dereference()->NumericByRef().u4 = startLog->logId;
@@ -275,7 +391,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__
   NANOCLR_HEADER();
 
   const char *channelName = stack.Arg0().RecoverString();
-  uint8_t logLevel = stack.Arg1().NumericByRef().u1;
+  logLevel_t logLevel = (logLevel_t)stack.Arg1().NumericByRef().u1;
 
   // check if channel exist
   logChannel_t *channel = findChannel(channelName);
