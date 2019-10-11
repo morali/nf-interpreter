@@ -8,7 +8,6 @@
 #include "isma_log_native.h"
 #include <corlib_native.h>
 
-
 struct logChannel {
   char *channelName;
   logLevel_t logLevel;
@@ -464,13 +463,13 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARR
     NANOCLR_CHECK_HRESULT(
         CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_corlib_native_System_Collections_DictionaryEntry::FIELD__Key], channel->channelName));
 
-    // channel level
+    // get a reference to the Value managed field...
     CLR_RT_HeapBlock &hbByteObj = hbObj[Library_corlib_native_System_Collections_DictionaryEntry::FIELD__Value];
-
-    // create an instance of <UInt8>
-    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(hbByteObj, g_CLR_RT_WellKnownTypes.m_UInt8));
-
-    hbByteObj.NumericByRef().u1 = channel->logLevel;
+    hbByteObj.SetDataId(CLR_RT_HEAPBLOCK_RAW_ID(DATATYPE_U1, 0, 1));
+    hbByteObj.ClearData();
+    CLR_UINT8 *pByte = (CLR_UINT8 *)&hbByteObj.NumericByRef().u1;
+    // ...and set it with the Loglevel
+    *pByte = channel->logLevel;
 
     logChannel++;
     channel = channel->next;
