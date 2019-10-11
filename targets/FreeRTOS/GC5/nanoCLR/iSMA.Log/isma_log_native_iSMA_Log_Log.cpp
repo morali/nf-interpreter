@@ -4,182 +4,10 @@
  * Copyright (c) 2019 Global Control 5 Sp. z o.o.
  */
 
+#include "isma_log_logLevel.h"
 #include "isma_log_native.h"
 #include <corlib_native.h>
 
-typedef struct {
-  uint64_t timestamp;
-  const char *channel;
-  logLevel_t level;
-  char *message;
-} nativeLog_t;
-
-typedef struct {
-  CLR_RT_HeapBlock *logEntry;
-  CLR_RT_ProtectFromGC *gc;
-} managedLog_t;
-
-struct logEntry {
-  uint32_t logId;
-  uint8_t logType; // 0 - managed , 1 - nativeLog
-  union {
-    managedLog_t managedLog;
-    nativeLog_t nativeLog;
-  };
-  struct logEntry *next;
-};
-
-typedef struct logEntry logEntry_t;
-
-static logEntry_t *logListTail = NULL;
-static logEntry_t *logListHead = NULL;
-static uint32_t logLength = 0;
-static uint32_t logId = 0;
-static uint32_t maxLogLength = 1000;
-
-/**
- * @brief  Remove the oldest log.
- * @note   Run this function after add new log or after change maxLogLength
- * @retval None
- */
-static void removeOldLogs() {
-
-  // do while the list length is longer then the maximum length
-  while (logLength > maxLogLength) {
-    // get a pointer to tail
-    logEntry_t *lt = logListTail;
-
-    // set pointer tail pointer to the next element
-    logListTail = logListTail->next;
-
-    if (lt->logType == 0) {
-      // remove GC protection
-      delete lt->managedLog.gc;
-    } else {
-      // free memory allocated by message
-      free(lt->nativeLog.message);
-    }
-
-    // free space
-    free(lt);
-
-    // decrease list length
-    logLength--;
-  }
-}
-
-/**
- * @brief  Append new log to the log list
- * @note
- * @param  *logEntry: pointer to the new logEntry
- * @retval return false if out of memory, true on success
- */
-static bool appendLogEntry(CLR_RT_HeapBlock *logEntry) {
-
-  // allocate memory for new logEntry
-  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
-
-  // return if allocation faild
-  if (newLog == NULL) {
-    return false;
-  }
-
-  // set log type to managed
-  newLog->logType = 0;
-  // set pointer to the new logEntry
-  newLog->managedLog.logEntry = logEntry;
-  // protect logEntry against GarbageCollector
-  newLog->managedLog.gc = new CLR_RT_ProtectFromGC(*logEntry);
-  newLog->next = NULL;
-
-  // if protection faild free memory and return
-  if (newLog->managedLog.gc == NULL) {
-    free(newLog);
-    return false;
-  }
-
-  // asign logId and increment it
-  newLog->logId = logId++;
-
-  // add new element to list
-  if (logListTail == NULL) {
-    logListTail = newLog;
-    logListHead = newLog;
-  } else {
-    logListHead->next = newLog;
-    logListHead = newLog;
-  }
-
-  // increase log list length
-  logLength++;
-
-  // remove oldest logs
-  removeOldLogs();
-
-  return true;
-}
-
-extern "C" bool addLog(const char *channel, logLevel_t level, const char *message);
-bool addLog(const char *channel, logLevel_t level, const char *message) {
-
-  // allocate memory for new logEntry
-  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
-
-  // return if allocation faild
-  if (newLog == NULL) {
-    return false;
-  }
-
-  // set logType to native
-  newLog->logType = 1;
-
-  // set channel name
-  newLog->nativeLog.channel = channel;
-
-  // calc message length
-  size_t messageLen = hal_strlen_s(message) + 1;
-
-  // allocate space for message
-  newLog->nativeLog.message = (char *)malloc(messageLen);
-
-  // if allocation failed
-  if (newLog->nativeLog.message == NULL) {
-    // free space for element
-    free(newLog);
-    return false;
-  }
-
-  // copy message
-  hal_strcpy_s(newLog->nativeLog.message, messageLen, message);
-
-  // set log level
-  newLog->nativeLog.level = level;
-
-  // set timestamp
-  newLog->nativeLog.timestamp = HAL_Time_CurrentDateTime(false);
-
-  // asign logId and increment it
-  newLog->logId = logId++;
-
-  newLog->next = NULL;
-
-  // add new element to list
-  if (logListTail == NULL) {
-    logListTail = newLog;
-    logListHead = newLog;
-  } else {
-    logListHead->next = newLog;
-    logListHead = newLog;
-  }
-
-  // increase log list length
-  logLength++;
-
-  // remove oldest logs
-  removeOldLogs();
-
-  return true;
-}
 
 struct logChannel {
   char *channelName;
@@ -221,7 +49,7 @@ static logChannel_t *findChannel(const char *channelName) {
  * @param  level: log level of the new channel
  * @retval None
  */
-extern "C" void addChannel(const char *channelName, logLevel_t level);
+extern "C" {
 void addChannel(const char *channelName, logLevel_t level) {
 
   // allocate new element list
@@ -262,6 +90,212 @@ void addChannel(const char *channelName, logLevel_t level) {
 
   logChannelLength++;
 }
+}
+
+typedef struct {
+  uint64_t timestamp;
+  const char *channel;
+  logLevel_t level;
+  char *message;
+} nativeLog_t;
+
+typedef struct {
+  CLR_RT_HeapBlock *logEntry;
+  CLR_RT_ProtectFromGC *gc;
+} managedLog_t;
+
+typedef enum { MANAGED, NATIVE } logType_t;
+
+struct logEntry {
+  uint32_t logId;
+  logType_t logType;
+  union {
+    managedLog_t managedLog;
+    nativeLog_t nativeLog;
+  };
+  struct logEntry *next;
+};
+
+typedef struct logEntry logEntry_t;
+
+static logEntry_t *logListTail = NULL;
+static logEntry_t *logListHead = NULL;
+static uint32_t logLength = 0;
+static uint32_t logId = 0;
+static uint32_t maxLogLength = 1000;
+
+/**
+ * @brief  Remove the oldest log.
+ * @note   Run this function after add new log or after change maxLogLength
+ * @retval None
+ */
+static void removeOldLogs() {
+
+  // do while the list length is longer then the maximum length
+  while (logLength > maxLogLength) {
+    // get a pointer to tail
+    logEntry_t *lt = logListTail;
+
+    // set pointer tail pointer to the next element
+    logListTail = logListTail->next;
+
+    if (lt->logType == MANAGED) {
+      // remove GC protection
+      delete lt->managedLog.gc;
+    } else {
+      // free memory allocated by message
+      free(lt->nativeLog.message);
+    }
+
+    // free space
+    free(lt);
+
+    // decrease list length
+    logLength--;
+  }
+}
+
+/**
+ * @brief  Append newLog to list
+ * @note
+ * @param  *newLog: pointer to newLog
+ * @retval None
+ */
+static void appendLogEntry(logEntry_t *newLog) {
+  // asign logId and increment it
+  newLog->logId = logId++;
+
+  // add new element to list
+  if (logListTail == NULL) {
+    logListTail = newLog;
+    logListHead = newLog;
+  } else {
+    logListHead->next = newLog;
+    logListHead = newLog;
+  }
+
+  // increase log list length
+  logLength++;
+
+  // remove oldest logs
+  removeOldLogs();
+}
+
+/**
+ * @brief  Append new log to the log list
+ * @note
+ * @param  *logEntry: pointer to the new logEntry
+ * @retval return false if out of memory, true on success
+ */
+static bool addLogEntry(CLR_RT_HeapBlock *logEntry) {
+
+  // allocate memory for new logEntry
+  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
+
+  // return if allocation faild
+  if (newLog == NULL) {
+    return false;
+  }
+
+  // set log type to managed
+  newLog->logType = MANAGED;
+  // set pointer to the new logEntry
+  newLog->managedLog.logEntry = logEntry;
+  // protect logEntry against GarbageCollector
+  newLog->managedLog.gc = new CLR_RT_ProtectFromGC(*logEntry);
+  newLog->next = NULL;
+
+  // if protection faild free memory and return
+  if (newLog->managedLog.gc == NULL) {
+    free(newLog);
+    return false;
+  }
+
+  appendLogEntry(newLog);
+
+  return true;
+}
+
+/**
+ * @brief  Check if channel accepts logs with given log level
+ * @note
+ * @param  channelName: pointer to channelName
+ * @param  logLevel: log level
+ * @retval true if channel accepts logs with given log level
+ */
+static bool checkChannel(const char *channelName, logLevel_t logLevel) {
+  // find channel with given name
+  logChannel_t *channel = findChannel(channelName);
+
+  // if channel not exists not allow to add log
+  if (channel == NULL) {
+    return false;
+  }
+
+  // if log level smaller then chanel level not allow to add log
+  if (logLevel < channel->logLevel) {
+    return false;
+  }
+
+  return true;
+}
+
+extern "C" {
+/**
+ * @brief  Adds log from native code
+ * @note
+ * @param  channelName: pointer to channel name. Should be const.
+ * @param  level: log level
+ * @param  message: pointer to message text. Content of message is copied
+ * @retval None
+ */
+void addLog(const char *channel, logLevel_t level, const char *message) {
+
+  if (!checkChannel(channel, level)) {
+    return;
+  }
+
+  // allocate memory for new logEntry
+  logEntry_t *newLog = (logEntry_t *)malloc(sizeof(logEntry_t));
+
+  // return if allocation faild
+  if (newLog == NULL) {
+    return;
+  }
+
+  // set logType to native
+  newLog->logType = NATIVE;
+
+  // set channel name
+  newLog->nativeLog.channel = channel;
+
+  // calc message length
+  size_t messageLen = hal_strlen_s(message) + 1;
+
+  // allocate space for message
+  newLog->nativeLog.message = (char *)malloc(messageLen);
+
+  // if allocation failed
+  if (newLog->nativeLog.message == NULL) {
+    // free space for element
+    free(newLog);
+    return;
+  }
+
+  // copy message
+  hal_strcpy_s(newLog->nativeLog.message, messageLen, message);
+
+  // set log level
+  newLog->nativeLog.level = level;
+
+  // set timestamp
+  newLog->nativeLog.timestamp = HAL_Time_CurrentDateTime(false);
+
+  appendLogEntry(newLog);
+
+  return;
+}
+}
 
 HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogEntry(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
@@ -271,16 +305,10 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
 
   // get channel name and log level
   const char *channelName = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logChannel].DereferenceString()->StringText();
-  uint32_t logLevel = logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logLevel].NumericByRefConst().u4;
+  logLevel_t logLevel = (logLevel_t)logEntry[Library_isma_log_native_iSMA_Log_LogEntry::FIELD___logLevel].NumericByRefConst().u1;
 
-  // find channel with given name
-  logChannel_t *channel = findChannel(channelName);
-
-  // if channel exists and loglevel is grater then chanelLevel then add logEntry to buffer
-  if (channel != NULL) {
-    if (logLevel >= channel->logLevel) {
-      appendLogEntry(logEntry);
-    }
+  if (checkChannel(channelName, logLevel)) {
+    addLogEntry(logEntry);
   }
 
   NANOCLR_NOCLEANUP_NOLABEL();
@@ -325,7 +353,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
   logEntry = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
 
   for (uint32_t i = 0; i < logsNo; i++) {
-    if (startLog->logType == 0) {
+    if (startLog->logType == MANAGED) {
       // set reference to LogEntry object
       logEntry->SetObjectReference(startLog->managedLog.logEntry);
     } else {

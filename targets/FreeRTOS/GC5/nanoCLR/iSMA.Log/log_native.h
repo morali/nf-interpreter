@@ -7,20 +7,9 @@
 #ifndef _LOG_NATIVE_H_
 #define _LOG_NATIVE_H_
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-// !!! KEEP IN SYNC WITH iSMA.Log.Log.LogLevel (in managed code) !!! //
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-typedef enum LogLevel
-{
-    Spam = 0,
-    Troubleshot,
-    Important,
-    Error,
-    Critical,
-    Undefined
-} logLevel_t;
+#include "isma_log_logLevel.h"
 
 void addChannel(const char *channelName, logLevel_t level);
-bool addLog(const char *channel, logLevel_t level, const char *message);
+void addLog(const char *channel, logLevel_t level, const char *message);
 
 #endif
