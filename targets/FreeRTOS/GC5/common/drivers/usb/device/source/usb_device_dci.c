@@ -372,6 +372,7 @@ static usb_status_t USB_DeviceControl(usb_device_handle handle, usb_device_contr
 static usb_status_t USB_DeviceResetNotification(usb_device_struct_t *handle,
                                                 usb_device_callback_message_struct_t *message)
 {
+    (void) message;
 #if (defined(USB_DEVICE_CONFIG_USE_TASK) && (USB_DEVICE_CONFIG_USE_TASK > 0U))
     USB_OSA_SR_ALLOC();
 #endif
@@ -412,7 +413,6 @@ static usb_status_t USB_DeviceResetNotification(usb_device_struct_t *handle,
 
     handle->isResetting = 0U;
     return kStatus_USB_Success;
-    (void) message;
 }
 
 #if (defined(USB_DEVICE_CONFIG_LOW_POWER_MODE) && (USB_DEVICE_CONFIG_LOW_POWER_MODE > 0U))
@@ -514,7 +514,6 @@ static usb_status_t USB_DeviceDetachNotification(usb_device_struct_t *handle,
     /* Call device callback to notify the application that the device is disconnected from a host.
     the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventDetach, NULL);
-    (void) message;
 }
 
 /*!
@@ -533,7 +532,6 @@ static usb_status_t USB_DeviceAttachNotification(usb_device_struct_t *handle,
     /* Call device callback to notify the application that the device is connected to a host.
     the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventAttach, NULL);
-    (void) message;
 }
 #endif
 
@@ -1034,7 +1032,9 @@ usb_status_t USB_DeviceSendRequest(usb_device_handle handle, uint8_t endpointAdd
  */
 usb_status_t USB_DeviceRecvRequest(usb_device_handle handle, uint8_t endpointAddress, uint8_t *buffer, uint32_t length)
 {
-    return USB_DeviceTransfer(handle, (endpointAddress & USB_ENDPOINT_NUMBER_MASK) | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT), buffer, length);
+    return USB_DeviceTransfer(handle, (endpointAddress & USB_ENDPOINT_NUMBER_MASK) |
+                                          (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
+                              buffer, length);
 }
 
 /*!

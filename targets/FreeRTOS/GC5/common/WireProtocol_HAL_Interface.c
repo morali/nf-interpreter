@@ -37,8 +37,8 @@ WP_Message inboundMessage;
 
 #ifdef HAL_USE_SERIAL_USB
 
-extern usb_data_t * s_cdc_data_p;
-extern usb_device_composite_struct_t * g_composite_p;
+extern usb_data_t* s_cdc_data_p;
+extern usb_cdc_vcom_struct_t* s_cdcVcom_p;
 
 int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
 {    
@@ -54,8 +54,8 @@ int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
         return true;
     }
     
-    xStreamBufferSetTriggerLevel(s_cdc_data_p->data_in[0], requested_bytes);
-    bytes_received = xStreamBufferReceive(s_cdc_data_p->data_in[0], (void *) ptr, requested_bytes, portMAX_DELAY);
+    xStreamBufferSetTriggerLevel(s_cdc_data_p->data_in, requested_bytes);
+    bytes_received = xStreamBufferReceive(s_cdc_data_p->data_in, (void *) ptr, requested_bytes, portMAX_DELAY);
 
     ptr  += bytes_received;
     *size -= bytes_received;
@@ -65,22 +65,20 @@ int WP_ReceiveBytes(uint8_t* ptr, uint16_t* size)
 int WP_TransmitMessage(WP_Message* message)
 {
     usb_status_t error = kStatus_USB_Error;
-    usb_cdc_vcom_struct_t *vcomInstance;
 
-    s_cdc_data_p->xWriteToNotify[0] = xTaskGetCurrentTaskHandle();
-    vcomInstance = &g_composite_p->cdcVcom[0];
+    s_cdc_data_p->xWriteToNotify = xTaskGetCurrentTaskHandle();
 
     uint8_t * send_addr = (uint8_t *) &(message->m_header);
     uint32_t send_size = sizeof(message->m_header);
 
     /* Check for buffer overflow */
-    if ((send_size + message->m_header.m_size) > sizeof(s_cdc_data_p->s_currSendBuf[0]) / sizeof(uint8_t))
+    if ((send_size + message->m_header.m_size) > sizeof(s_cdc_data_p->s_currSendBuf) / sizeof(uint8_t))
     { 
         configASSERT(1);
     }
 
-    memcpy(s_cdc_data_p->s_currSendBuf[0], send_addr, send_size);
-    memcpy(s_cdc_data_p->s_currSendBuf[0] + send_size, (uint8_t *) (message->m_payload), message->m_header.m_size);
+    memcpy(s_cdc_data_p->s_currSendBuf, send_addr, send_size);
+    memcpy(s_cdc_data_p->s_currSendBuf + send_size, (uint8_t *) (message->m_payload), message->m_header.m_size);
 
     send_size = send_size + message->m_header.m_size;
 
@@ -93,7 +91,7 @@ int WP_TransmitMessage(WP_Message* message)
     }
     */ 
 
-    error = USB_DeviceSendRequest(g_composite_p->deviceHandle, vcomInstance->bulkInEndpoint, s_cdc_data_p->s_currSendBuf[0], send_size);
+    error = USB_DeviceSendRequest(s_cdcVcom_p->deviceHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_cdc_data_p->s_currSendBuf, send_size);
     if (error != kStatus_USB_Success) 
         return false;
     
