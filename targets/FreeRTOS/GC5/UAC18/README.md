@@ -42,7 +42,7 @@ Pre-configured cmake-variants.json for this board
           "FREERTOS_BOARD": "NXP_MIMXRT1060_EVK",
           "FREERTOS_VERSION": "v1.4.8",
           "CMSIS_VERSION": "5.4.0",
-          "FATFS_VERSION": "R0.13c",
+          "FATFS_VERSION": "R0.14",
           "NF_BUILD_RTM": "OFF",
           "NF_FEATURE_DEBUGGER": "ON",
           "NF_FEATURE_HAS_SDCARD": "ON",
