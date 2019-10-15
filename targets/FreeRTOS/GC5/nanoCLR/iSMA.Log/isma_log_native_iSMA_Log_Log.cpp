@@ -296,7 +296,7 @@ void addLog(const char *channel, logLevel_t level, const char *message) {
 }
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogEntry(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::AddLog___STATIC__VOID__iSMALogLogEntry(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   // get logEntry
@@ -313,7 +313,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::AddLog___STATIC__VOID__iSMALogLogE
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::GetLogs___STATIC__SZARRAY_iSMALogLogEntry__U4__U4__BYREF_U4(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   CLR_RT_TypeDef_Index logEntryTypeDef;
@@ -395,7 +395,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogs___STATIC__SZARRAY_iSMALogL
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::SetLogBufferSize___STATIC__VOID__U2(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::SetLogBufferSize___STATIC__VOID__U2(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   maxLogLength = stack.Arg0().NumericByRef().u2;
@@ -405,7 +405,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::SetLogBufferSize___STATIC__VOID__U
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogBufferSize___STATIC__U2(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::GetLogBufferSize___STATIC__U2(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   CLR_UINT16 value = maxLogLength;
@@ -414,7 +414,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::GetLogBufferSize___STATIC__U2(CLR_
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   const char *channelName = stack.Arg0().RecoverString();
@@ -434,7 +434,7 @@ HRESULT Library_isma_log_native_iSMA_Log_Log::SetChannelSetting___STATIC__VOID__
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_Log::GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   CLR_RT_TypeDef_Index dictionaryEntryTypeDef;
