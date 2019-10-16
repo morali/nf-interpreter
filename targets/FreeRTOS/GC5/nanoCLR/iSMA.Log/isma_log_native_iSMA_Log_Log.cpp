@@ -434,37 +434,36 @@ HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::SetChannelSetting___STATIC
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_log_native_iSMA_Log_FirmwareLog::GetChannelSettings___STATIC__SZARRAY_iSMALogChannel(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
-  CLR_RT_TypeDef_Index dictionaryEntryTypeDef;
+  CLR_RT_TypeDef_Index channelTypeDef;
   CLR_RT_HeapBlock &top = stack.PushValueAndClear();
   CLR_RT_HeapBlock *logChannel;
   logChannel_t *channel = logChannelTail;
 
-  // find <DictionaryEntry> type, don't bother checking the result as it exists for sure
-  g_CLR_RT_TypeSystem.FindTypeDef("DictionaryEntry", "System.Collections", dictionaryEntryTypeDef);
+  // find <Channel> type, don't bother checking the result as it exists for sure
+  g_CLR_RT_TypeSystem.FindTypeDef("Channel", "iSMA.Log", channelTypeDef);
 
   uint32_t len = logChannelLength;
-  // create an array of <DictionaryEntry>
-  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, len, dictionaryEntryTypeDef));
+  // create an array of <Channel>
+  NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(top, len, channelTypeDef));
 
-  // get a pointer to the first object in the array (which is of type <DictionaryEntry>)
+  // get a pointer to the first object in the array (which is of type <Channel>)
   logChannel = (CLR_RT_HeapBlock *)top.DereferenceArray()->GetFirstElement();
   while (len--) {
 
-    // create an instance of <DictionaryEntry>
-    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*logChannel, dictionaryEntryTypeDef));
+    // create an instance of <Channel>
+    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*logChannel, channelTypeDef));
 
     // dereference the object in order to reach its fields
     CLR_RT_HeapBlock *hbObj = logChannel->Dereference();
 
     // channel name
-    NANOCLR_CHECK_HRESULT(
-        CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_corlib_native_System_Collections_DictionaryEntry::FIELD__Key], channel->channelName));
+    NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(hbObj[Library_isma_log_native_iSMA_Log_Channel::FIELD__Name], channel->channelName));
 
     // get a reference to the Value managed field...
-    CLR_RT_HeapBlock &hbByteObj = hbObj[Library_corlib_native_System_Collections_DictionaryEntry::FIELD__Value];
+    CLR_RT_HeapBlock &hbByteObj = hbObj[Library_isma_log_native_iSMA_Log_Channel::FIELD__Level];
     hbByteObj.SetDataId(CLR_RT_HEAPBLOCK_RAW_ID(DATATYPE_U1, 0, 1));
     hbByteObj.ClearData();
     CLR_UINT8 *pByte = (CLR_UINT8 *)&hbByteObj.NumericByRef().u1;
