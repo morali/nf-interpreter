@@ -17,7 +17,7 @@
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"     /* Declarations of disk functions */
 #include "fsl_sd_disk.h"
-
+#include "External_RTC.h"
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
@@ -109,3 +109,14 @@ DRESULT disk_ioctl (
 	return res;
 }
 
+DWORD get_fattime(void)
+{
+    struct tm *tmr = RTC_ReadTime();
+    int year = (tmr->tm_year < 80) ? 0 : tmr->tm_year - 80;
+    return    ((DWORD)(year) << 25)
+            | ((DWORD)(tmr->tm_mon + 1) << 21)
+            | ((DWORD)tmr->tm_mday << 16)
+            | (WORD)(tmr->tm_hour << 11)
+            | (WORD)(tmr->tm_min << 5)
+            | (WORD)(tmr->tm_sec >> 1);
+}
