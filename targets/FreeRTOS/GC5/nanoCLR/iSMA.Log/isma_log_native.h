@@ -11,6 +11,16 @@
 #include <nanoCLR_Runtime.h>
 
 
+struct Library_isma_log_native_iSMA_Log_Channel
+{
+    static const int FIELD__Name = 1;
+    static const int FIELD__Level = 2;
+
+
+    //--//
+
+};
+
 struct Library_isma_log_native_iSMA_Log_FirmwareLog
 {
     NANOCLR_NATIVE_DECLARE(AddLog___STATIC__VOID__iSMALogLogEntry);
@@ -18,7 +28,7 @@ struct Library_isma_log_native_iSMA_Log_FirmwareLog
     NANOCLR_NATIVE_DECLARE(SetLogBufferSize___STATIC__VOID__U2);
     NANOCLR_NATIVE_DECLARE(GetLogBufferSize___STATIC__U2);
     NANOCLR_NATIVE_DECLARE(SetChannelSetting___STATIC__VOID__STRING__iSMALogLogLevel);
-    NANOCLR_NATIVE_DECLARE(GetChannelSettings___STATIC__SZARRAY_mscorlibSystemCollectionsDictionaryEntry);
+    NANOCLR_NATIVE_DECLARE(GetChannelSettings___STATIC__SZARRAY_iSMALogChannel);
 
     //--//
 
