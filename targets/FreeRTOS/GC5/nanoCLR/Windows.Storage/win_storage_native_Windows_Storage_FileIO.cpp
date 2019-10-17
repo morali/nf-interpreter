@@ -210,7 +210,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
 
         // spawn working thread to perform the write transaction
         BaseType_t ret;
-        ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", configMINIMAL_STACK_SIZE + 300, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+        ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", configMINIMAL_STACK_SIZE + 600, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
         if (ret != pdPASS)
         {
