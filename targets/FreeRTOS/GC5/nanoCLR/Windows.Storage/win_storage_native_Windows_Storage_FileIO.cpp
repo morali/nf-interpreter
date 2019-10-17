@@ -20,6 +20,7 @@ typedef Library_win_storage_native_Windows_Storage_StorageFile StorageFile;
 struct FileOperation
 {
     FIL*        File;
+    const char* FileName;
     char*       Content;
     uint32_t    ContentLength;
 };
@@ -84,32 +85,40 @@ static void WriteTextWorkingThread(void *arg)
 }
 
 // WriteBinary working thread
-static void WriteBinaryWorkingThread(void *arg)
-{
-    UINT        bytesWritten;
+static void WriteBinaryWorkingThread(void *arg) {
+  UINT bytesWritten;
 
-    FileOperation*  fileIoOperation = (FileOperation*)arg;
+  FileOperation *fileIoOperation = (FileOperation *)arg;
 
-    threadOperationResult = f_write(fileIoOperation->File, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesWritten);
+  FIL file; 
 
-    if( (threadOperationResult == FR_OK) && 
-        (bytesWritten == fileIoOperation->ContentLength))
-    {
-        // expected number of bytes written
-        threadOperationResult = FR_OK;
-    }
+  // open file (which is supposed to already exist)
+  // need to use FA_OPEN_ALWAYS because we are writting the file content from start
+  threadOperationResult = f_open(&file, fileIoOperation->FileName, FA_OPEN_ALWAYS | FA_WRITE);
 
-    // close file
-    f_close(fileIoOperation->File);
-
+  if (threadOperationResult != FR_OK) {
     // free memory
-    free(fileIoOperation->File);
     free(fileIoOperation);
+    return;
+  }
 
-    // fire event for FileIO operation complete
-    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
-  
-    vTaskDelete(NULL);
+  threadOperationResult = f_write(&file, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesWritten);
+
+  if ((threadOperationResult == FR_OK) && (bytesWritten == fileIoOperation->ContentLength)) {
+    // expected number of bytes written
+    threadOperationResult = FR_OK;
+  }
+
+  // close file
+  f_close(&file);
+
+  // free memory
+  free(fileIoOperation);
+
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+
+  vTaskDelete(NULL);
 }
 
 // ReadBinary working thread
@@ -162,15 +171,11 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
     CLR_INT64*          timeout;
     bool                eventResult = true;
 
-    char workingDrive[DRIVE_LETTER_LENGTH];
     const TCHAR*        filePath;
-    FileOperation* fileIoOperation;
+    
 
     char*               buffer;
     uint32_t            bufferLength;
-
-    FIL*                file;
-    FRESULT             operationResult;
 
     // get a pointer to the managed object instance and check that it's not NULL
     CLR_RT_HeapBlock* pThis = stack.This();  FAULT_ON_NULL(pThis);
@@ -192,40 +197,20 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
     
     if(stack.m_customState == 1)
     {   
-        // copy the first 2 letters of the path for the drive
-        // path is 'D:\folder\file.txt', so we need 'D:'
-        memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
-
-        // create file struct
-        file = (FIL*)malloc(sizeof(FIL));
-        // check allocation
-        if(file == NULL)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-        }
-
-        // open file (which is supposed to already exist)
-        // need to use FA_OPEN_ALWAYS because we are writting the file content from start
-        operationResult = f_open(file, filePath, FA_OPEN_ALWAYS | FA_WRITE);
-        
-        if(operationResult != FR_OK)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-        }
-
         // protect the content buffer from GC so the working thread can access those
         CLR_RT_ProtectFromGC gcContent( *bufferArray );
 
         // setup FileIO operation
-        fileIoOperation = (FileOperation*)malloc(sizeof(FileOperation));
+        FileOperation *fileIoOperation = (FileOperation*)malloc(sizeof(FileOperation));
 
-        fileIoOperation->File = file;
+        //fileIoOperation->File = file;
+        fileIoOperation->FileName = filePath;
         fileIoOperation->Content = buffer;
         fileIoOperation->ContentLength = bufferLength;
 
         // spawn working thread to perform the write transaction
         BaseType_t ret;
-        ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+        ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", configMINIMAL_STACK_SIZE + 300, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
         if (ret != pdPASS)
         {

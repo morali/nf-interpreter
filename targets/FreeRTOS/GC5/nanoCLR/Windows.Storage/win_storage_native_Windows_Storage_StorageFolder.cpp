@@ -552,9 +552,62 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::GetStorageFile
     NANOCLR_CLEANUP_END();
 }
 
+struct FileOperation {
+  const char *FilePath;
+  uint8_t mode;
+  enum CreationCollisionOption options;
+};
+
+// this is the FileIO working thread
+static volatile FRESULT threadOperationResult;
+
+// CreateFile working thread
+static void CreateFileWorkingThread(void *arg) {
+
+  FileOperation *fileIoOperation = (FileOperation *)arg;
+
+  // create file struct
+  FIL file;
+
+  // open file
+  FRESULT operationResult = f_open(&file, fileIoOperation->FilePath, fileIoOperation->mode);
+
+  // process operation result according to creation options
+  if ((operationResult == FR_EXIST) && (fileIoOperation->options == CreationCollisionOption_FailIfExists)) {
+    // file already exists
+    threadOperationResult = FR_EXIST;
+    f_close(&file);
+    return;
+  }
+  if ((operationResult == FR_NO_FILE) && (fileIoOperation->options == CreationCollisionOption_OpenIfExists)) {
+    // file doesn't exist
+    threadOperationResult = FR_NO_FILE;
+    f_close(&file);
+    return;
+  }
+
+  threadOperationResult = FR_OK;
+
+  // close file
+  f_close(&file);
+
+  // free memory
+  free((void *)fileIoOperation->FilePath);
+  free(fileIoOperation);
+
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+
+  vTaskDelete(NULL);
+}
+
 HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNative___WindowsStorageStorageFile__STRING__U4( CLR_RT_StackFrame& stack )
 {
     NANOCLR_HEADER();
+    
+    CLR_RT_HeapBlock    hbTimeout;
+    CLR_INT64*          timeout;
+    bool                eventResult = true;
 
     CLR_RT_TypeDef_Index    storageFileTypeDef;
     CLR_RT_HeapBlock*       storageFile;
@@ -564,8 +617,6 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
 
     CreationCollisionOption options;
 
-    FIL             file;  
-    FRESULT         operationResult;
     uint8_t         modeFlags = 0;
     char*           filePath = NULL;
 
@@ -581,106 +632,154 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
     // get a pointer to the desired file name
     fileName = stack.Arg1().DereferenceString()->StringText();
 
-    // setup file path
-    filePath = (char*)malloc(2 * FF_LFN_BUF + 1);
+    // !! need to cast to CLR_INT64 otherwise it wont setup a proper timeout infinite
+    hbTimeout.SetInteger((CLR_INT64)-1);
 
-    // sanity check for successfull malloc
-    if(filePath == NULL)
-    {
-        // failed to allocate memory
-        NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-    }
+    NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks( hbTimeout, timeout ));
 
-    // clear working buffer
-    memset(filePath, 0, 2 * FF_LFN_BUF + 1);
+    if(stack.m_customState == 1)
+    {   
 
-    // compose file path
-    CombinePath(filePath, workingPath, fileName);
+        // setup file path
+        filePath = (char*)malloc(2 * FF_LFN_BUF + 1);
 
-    // compute mode flags from CreationCollisionOption
-    switch (options)
-    {
-        case CreationCollisionOption_ReplaceExisting:
-            modeFlags = FA_CREATE_ALWAYS;
-            break;
+        // sanity check for successfull malloc
+        if(filePath == NULL)
+        {
+            // failed to allocate memory
+            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+        }
 
-        case CreationCollisionOption_FailIfExists:
-            modeFlags = FA_CREATE_NEW;
-            break;
+        // clear working buffer
+        memset(filePath, 0, 2 * FF_LFN_BUF + 1);
 
-        case CreationCollisionOption_OpenIfExists:
-            modeFlags = FA_OPEN_ALWAYS;
-            break;
-    
-        case CreationCollisionOption_GenerateUniqueName:
-            // this operation is not supported in nanoFramework
-            NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
-            break;
+        // compose file path
+        CombinePath(filePath, workingPath, fileName);
 
-        default:
-            break;
-    }
+        // compute mode flags from CreationCollisionOption
+        switch (options)
+        {
+            case CreationCollisionOption_ReplaceExisting:
+                modeFlags = FA_CREATE_ALWAYS;
+                break;
 
-    // open file
-    operationResult = f_open(&file, filePath, modeFlags);
+            case CreationCollisionOption_FailIfExists:
+                modeFlags = FA_CREATE_NEW;
+                break;
 
-    // process operation result according to creation options
-    if( (operationResult == FR_EXIST) &&
-        (options == CreationCollisionOption_FailIfExists))
-    {
-        // file already exists
-        NANOCLR_SET_AND_LEAVE(CLR_E_PATH_ALREADY_EXISTS);
-    }
-    if( (operationResult == FR_NO_FILE) &&
-        (options == CreationCollisionOption_OpenIfExists))
-    {
-        // file doesn't exist
-        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-    }
-
-    if(operationResult == FR_OK)
-    {
-        // file created (or opened) succesfully
-        // OK to close it
-        f_close(&file);
+            case CreationCollisionOption_OpenIfExists:
+                modeFlags = FA_OPEN_ALWAYS;
+                break;
         
-        // compose return object
-        // find <StorageFile> type, don't bother checking the result as it exists for sure
-        g_CLR_RT_TypeSystem.FindTypeDef( "StorageFile", "Windows.Storage", storageFileTypeDef );
+            case CreationCollisionOption_GenerateUniqueName:
+                // this operation is not supported in nanoFramework
+                NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
+                break;
 
-        // create a <StorageFile>
-        NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(stack.PushValue(), storageFileTypeDef));
-        
-        // get a handle to the storage file
-        storageFile = stack.TopValue().Dereference();
+            default:
+                break;
+        }
 
-        // file name
-        NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___name ], fileName ));
+        // setup File operation
+        FileOperation *fileOperation = (FileOperation*)malloc(sizeof(FileOperation));
 
-        NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___path ], filePath ));
+        fileOperation->FilePath = filePath;
+        fileOperation->mode = modeFlags;
 
-        // get a reference to the dateCreated managed field...
-        CLR_RT_HeapBlock& dateFieldRef = storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___dateCreated ];
-        CLR_INT64* pRes = (CLR_INT64*)&dateFieldRef.NumericByRef().s8;
-        // ...and set it with the current DateTime
-        *pRes = HAL_Time_CurrentDateTime(false);
+        // spawn working thread to perform the write transaction
+        BaseType_t ret;
+        ret = xTaskCreate(CreateFileWorkingThread, "CreateFile", configMINIMAL_STACK_SIZE + 600, fileOperation, configMAX_PRIORITIES - 2, NULL);
+
+        if (ret != pdPASS)
+        {
+            NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
+        }
+
+        // bump custom state
+        stack.m_customState = 2; 
     }
-    else
+
+    while(eventResult)
     {
-        // failed to create the file
-        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
+        // non-blocking wait allowing other threads to run while we wait for the write operation to complete
+        NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents( stack.m_owningThread, *timeout, CLR_RT_ExecutionEngine::c_Event_StorageIo, eventResult ));
+
+        if(eventResult)
+        {
+            // event occurred
+
+            if(threadOperationResult == FR_DISK_ERR)
+            {
+                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_IO );
+            }
+            else if(threadOperationResult == FR_NO_FILE)
+            {
+                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_NOT_FOUND );
+            }
+            else if(threadOperationResult == FR_EXIST)
+            {
+                NANOCLR_SET_AND_LEAVE( CLR_E_PATH_ALREADY_EXISTS);
+            }
+            else if(threadOperationResult == FR_INVALID_DRIVE)
+            {
+                // failed to change drive
+                NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
+            }
+
+            // pop timeout heap block from stack
+            stack.PopValue();
+
+            // compose return object
+            // find <StorageFile> type, don't bother checking the result as it exists for sure
+            g_CLR_RT_TypeSystem.FindTypeDef( "StorageFile", "Windows.Storage", storageFileTypeDef );
+
+            // create a <StorageFile>
+            NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(stack.PushValue(), storageFileTypeDef));
+            
+            // get a handle to the storage file
+            storageFile = stack.TopValue().Dereference();
+
+            // setup file path
+            filePath = (char*)malloc(2 * FF_LFN_BUF + 1);
+
+            // sanity check for successfull malloc
+            if(filePath == NULL)
+            {
+                // failed to allocate memory
+                NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+            }
+
+            // clear working buffer
+            memset(filePath, 0, 2 * FF_LFN_BUF + 1);
+
+            // compose file path
+            CombinePath(filePath, workingPath, fileName);
+
+            // file name
+            NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___name ], fileName ));
+
+            NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___path ], filePath ));
+
+            // get a reference to the dateCreated managed field...
+            CLR_RT_HeapBlock& dateFieldRef = storageFile[ Library_win_storage_native_Windows_Storage_StorageFile::FIELD___dateCreated ];
+            CLR_INT64* pRes = (CLR_INT64*)&dateFieldRef.NumericByRef().s8;
+            // ...and set it with the current DateTime
+            *pRes = HAL_Time_CurrentDateTime(false);
+
+            free(filePath);
+
+            // done here
+            break;
+        }
+        else
+        {
+            NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
+        }
     }
     
+    
 
-    NANOCLR_CLEANUP();
-
-    // free buffer memory, if allocated
-    if(filePath != NULL)
-    {
-        free(filePath);
-    }
-
-    NANOCLR_CLEANUP_END();
+    NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFolderNative___WindowsStorageStorageFolder__STRING__U4( CLR_RT_StackFrame& stack )
