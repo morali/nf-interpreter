@@ -2018,8 +2018,9 @@ struct CLR_RT_ProtectFromGC
 
     typedef void (*Callback)( void* state );
 
-    static CLR_RT_ProtectFromGC* s_first;
+    static CLR_RT_ProtectFromGC* s_head;
 
+    CLR_RT_ProtectFromGC*        m_prev;
     CLR_RT_ProtectFromGC*        m_next;
     void**                       m_data;
     Callback                     m_fpn;

@@ -7,12 +7,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CLR_RT_ProtectFromGC* CLR_RT_ProtectFromGC::s_first = NULL;
+CLR_RT_ProtectFromGC* CLR_RT_ProtectFromGC::s_head = NULL;
 
 void CLR_RT_ProtectFromGC::Initialize( CLR_RT_HeapBlock& ref )
 {
     NATIVE_PROFILE_CLR_CORE();
-    m_next = s_first; s_first = this;
+    m_prev = NULL;
+    m_next = s_head;
+    if (s_head != NULL) {
+      s_head->m_prev = this;
+    }
+    s_head = this;
 
     m_data = (void**)&ref;
     m_fpn  =          NULL;
@@ -32,7 +37,12 @@ void CLR_RT_ProtectFromGC::Initialize( CLR_RT_HeapBlock& ref )
 void CLR_RT_ProtectFromGC::Initialize( void** data, Callback fpn )
 {
     NATIVE_PROFILE_CLR_CORE();
-    m_next = s_first; s_first = this;
+    m_prev = NULL;
+    m_next = s_head;
+    if (s_head != NULL) {
+      s_head->m_prev = this;
+    }
+    s_head = this;
 
     m_data  = data;
     m_fpn   = fpn;
@@ -42,7 +52,14 @@ void CLR_RT_ProtectFromGC::Initialize( void** data, Callback fpn )
 void CLR_RT_ProtectFromGC::Cleanup()
 {
     NATIVE_PROFILE_CLR_CORE();
-    s_first = m_next;
+    if (m_prev != NULL) {
+      m_prev->m_next = m_next;
+    } else {
+      s_head = m_next;
+    }
+    if (m_next != NULL) {
+      m_next->m_prev = m_prev;
+    }
 
     if(m_flags & c_ResetKeepAlive)
     {
@@ -70,7 +87,7 @@ void CLR_RT_ProtectFromGC::InvokeAll()
     NATIVE_PROFILE_CLR_CORE();
     CLR_RT_ProtectFromGC* ptr;
 
-    ptr = s_first;
+    ptr = s_head;
     while(ptr)
     {
         ptr->Invoke();
