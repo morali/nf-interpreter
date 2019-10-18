@@ -564,7 +564,7 @@ static volatile FRESULT threadOperationResult;
 // CreateFile working thread
 static void CreateFileWorkingThread(void *arg) {
 
-  FileOperation *fileIoOperation = (FileOperation *)arg;
+  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
 
   // create file struct
   FIL file;
@@ -617,7 +617,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
 
     CreationCollisionOption options;
 
-    uint8_t         modeFlags = 0;
+    
     char*           filePath = NULL;
 
     // get a pointer to the managed object instance and check that it's not NULL
@@ -656,6 +656,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
         // compose file path
         CombinePath(filePath, workingPath, fileName);
 
+        uint8_t modeFlags = 0;
         // compute mode flags from CreationCollisionOption
         switch (options)
         {
@@ -681,7 +682,7 @@ HRESULT Library_win_storage_native_Windows_Storage_StorageFolder::CreateFileNati
         }
 
         // setup File operation
-        FileOperation *fileOperation = (FileOperation*)malloc(sizeof(FileOperation));
+        FileOperation *fileOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
 
         fileOperation->FilePath = filePath;
         fileOperation->mode = modeFlags;
