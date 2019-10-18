@@ -33,7 +33,7 @@
           "FREERTOS_BOARD": "UAC18",
           "FREERTOS_VERSION": "v1.4.8",
           "CMSIS_VERSION": "5.5.1",
-          "FATFS_VERSION": "R0.13c",
+          "FATFS_VERSION": "R0.14",
           "LWIP_VERSION": "STABLE-2_0_3_RELEASE",
           "NF_BUILD_RTM": "OFF",
           "NF_FEATURE_DEBUGGER": "ON",

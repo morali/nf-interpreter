@@ -86,7 +86,7 @@ DRESULT sd_disk_ioctl(uint8_t physicalDrive, uint8_t command, void *buffer)
         case GET_BLOCK_SIZE:
             if (buffer)
             {
-                *(uint32_t *)buffer = g_sd.csd.eraseSectorSize;
+                *(uint32_t *)buffer = g_sd.csd.eraseSectorSize + 1;
             }
             else
             {

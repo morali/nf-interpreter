@@ -20,6 +20,7 @@ typedef Library_win_storage_native_Windows_Storage_StorageFile StorageFile;
 struct FileOperation
 {
     FIL*        File;
+    const char* FileName;
     char*       Content;
     uint32_t    ContentLength;
 };
@@ -28,117 +29,116 @@ struct FileOperation
 static volatile FRESULT threadOperationResult;
 
 // ReadText working thread
-static void ReadTextWorkingThread(void *arg)
-{
+static void ReadTextWorkingThread(void *arg) {
 
-    FileOperation*  fileIoOperation = (FileOperation*)arg;
+  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
 
-    // need an extra one for the terminator
-    uint32_t readLength = fileIoOperation->ContentLength + 1;
+  // need an extra one for the terminator
+  uint32_t readLength = fileIoOperation->ContentLength + 1;
 
-    // read string
-    if(f_gets((TCHAR*)fileIoOperation->Content, readLength, fileIoOperation->File))
-    {
-        threadOperationResult = FR_OK;
-    }
-    else
-    {
-        threadOperationResult = (FRESULT)f_error(fileIoOperation->File);
-    }
+  // read string
+  if (f_gets((TCHAR *)fileIoOperation->Content, readLength, fileIoOperation->File)) {
+    threadOperationResult = FR_OK;
+  } else {
+    threadOperationResult = (FRESULT)f_error(fileIoOperation->File);
+  }
 
-    // close file
-    f_close(fileIoOperation->File);
+  // close file
+  f_close(fileIoOperation->File);
 
-    // free memory
-    platform_free(fileIoOperation->File);
-    platform_free(fileIoOperation);
+  // free memory
+  free(fileIoOperation->File);
+  free(fileIoOperation);
 
-    // fire event for FileIO operation complete
-    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
 
-    vTaskDelete(NULL);
+  vTaskDelete(NULL);
 }
 
 // WriteText working thread
-static void WriteTextWorkingThread(void *arg)
-{
+static void WriteTextWorkingThread(void *arg) {
 
-    FileOperation*  fileIoOperation = (FileOperation*)arg;
-    if(f_puts(fileIoOperation->Content, fileIoOperation->File) == (int)fileIoOperation->ContentLength)
-    {
-        // expected number of bytes written
-        threadOperationResult = FR_OK;
-    }
+  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
+  if (f_puts(fileIoOperation->Content, fileIoOperation->File) == (int)fileIoOperation->ContentLength) {
+    // expected number of bytes written
+    threadOperationResult = FR_OK;
+  }
 
-    // close file
-    f_close(fileIoOperation->File);
+  // close file
+  f_close(fileIoOperation->File);
 
-    // free memory
-    platform_free(fileIoOperation->File);
-    platform_free(fileIoOperation);
+  // free memory
+  free(fileIoOperation->File);
+  free(fileIoOperation);
 
-    // fire event for FileIO operation complete
-    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
-  
-    vTaskDelete(NULL);
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+
+  vTaskDelete(NULL);
 }
 
 // WriteBinary working thread
-static void WriteBinaryWorkingThread(void *arg)
-{
-    UINT        bytesWritten;
+static void WriteBinaryWorkingThread(void *arg) {
+  UINT bytesWritten;
 
-    FileOperation*  fileIoOperation = (FileOperation*)arg;
+  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
 
-    threadOperationResult = f_write(fileIoOperation->File, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesWritten);
+  FIL file;
 
-    if( (threadOperationResult == FR_OK) && 
-        (bytesWritten == fileIoOperation->ContentLength))
-    {
-        // expected number of bytes written
-        threadOperationResult = FR_OK;
-    }
+  // open file (which is supposed to already exist)
+  // need to use FA_OPEN_ALWAYS because we are writting the file content from start
+  threadOperationResult = f_open(&file, fileIoOperation->FileName, FA_OPEN_ALWAYS | FA_WRITE);
 
-    // close file
-    f_close(fileIoOperation->File);
-
+  if (threadOperationResult != FR_OK) {
     // free memory
-    platform_free(fileIoOperation->File);
-    platform_free(fileIoOperation);
+    free(fileIoOperation);
+    return;
+  }
 
-    // fire event for FileIO operation complete
-    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
-  
-    vTaskDelete(NULL);
+  threadOperationResult = f_write(&file, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesWritten);
+
+  if ((threadOperationResult == FR_OK) && (bytesWritten == fileIoOperation->ContentLength)) {
+    // expected number of bytes written
+    threadOperationResult = FR_OK;
+  }
+
+  // close file
+  f_close(&file);
+
+  // free memory
+  free(fileIoOperation);
+
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+
+  vTaskDelete(NULL);
 }
 
 // ReadBinary working thread
-static void ReadBinaryWorkingThread(void *arg)
-{
-    UINT        bytesRead;
+static void ReadBinaryWorkingThread(void *arg) {
+  UINT bytesRead;
 
-    FileOperation*  fileIoOperation = (FileOperation*)arg;
+  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
 
-    threadOperationResult = f_read(fileIoOperation->File, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesRead);
+  threadOperationResult = f_read(fileIoOperation->File, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesRead);
 
-    if( (threadOperationResult == FR_OK) && 
-        (bytesRead == fileIoOperation->ContentLength))
-    {
-        // expected number of bytes read
-        threadOperationResult = FR_OK;
-    }
+  if ((threadOperationResult == FR_OK) && (bytesRead == fileIoOperation->ContentLength)) {
+    // expected number of bytes read
+    threadOperationResult = FR_OK;
+  }
 
-    // close file
-    f_close(fileIoOperation->File);
+  // close file
+  f_close(fileIoOperation->File);
 
-    // free memory
-    platform_free(fileIoOperation->File);
-    platform_free(fileIoOperation);
+  // free memory
+  free(fileIoOperation->File);
+  free(fileIoOperation);
 
-    // fire event for FileIO operation complete
-    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
-  
-    vTaskDelete(NULL);
+  // fire event for FileIO operation complete
+  Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+
+  vTaskDelete(NULL);
 }
 
 ////////////////////////////////////////////////
@@ -158,20 +158,15 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
 
     CLR_RT_HeapBlock_Array* bufferArray;
 
-    char workingDrive[DRIVE_LETTER_LENGTH];
-
     CLR_RT_HeapBlock    hbTimeout;
     CLR_INT64*          timeout;
     bool                eventResult = true;
 
-    FileOperation* fileIoOperation;
+    const TCHAR*        filePath;
+    
 
     char*               buffer;
     uint32_t            bufferLength;
-
-    const TCHAR*        filePath;
-    FIL*                file;
-    FRESULT             operationResult;
 
     // get a pointer to the managed object instance and check that it's not NULL
     CLR_RT_HeapBlock* pThis = stack.This();  FAULT_ON_NULL(pThis);
@@ -193,51 +188,28 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
     
     if(stack.m_customState == 1)
     {   
-        // copy the first 2 letters of the path for the drive
-        // path is 'D:\folder\file.txt', so we need 'D:'
-        memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
+        // protect the content buffer from GC so the working thread can access those
+        CLR_RT_ProtectFromGC gcContent( *bufferArray );
 
-        // create file struct
-        file = (FIL*)platform_malloc(sizeof(FIL));
-        // check allocation
-        if(file == NULL)
+        // setup FileIO operation
+        FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
+
+        //fileIoOperation->File = file;
+        fileIoOperation->FileName = filePath;
+        fileIoOperation->Content = buffer;
+        fileIoOperation->ContentLength = bufferLength;
+
+        // spawn working thread to perform the write transaction
+        BaseType_t ret;
+        ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", configMINIMAL_STACK_SIZE + 600, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+
+        if (ret != pdPASS)
         {
-            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+            NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
         }
 
-        // open file (which is supposed to already exist)
-        // need to use FA_OPEN_ALWAYS because we are writting the file content from start
-        operationResult = f_open(file, filePath, FA_OPEN_ALWAYS | FA_WRITE);
-        
-        if(operationResult != FR_OK)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-        }
-        else
-        {
-            // protect the StorageFile and the content buffer from GC so the working thread can access those
-            CLR_RT_ProtectFromGC gcStorageFile( *pThis );
-            CLR_RT_ProtectFromGC gcContent( *bufferArray );
-
-            // setup FileIO operation
-            fileIoOperation = (FileOperation*)platform_malloc(sizeof(FileOperation));
-
-            fileIoOperation->File = file;
-            fileIoOperation->Content = buffer;
-            fileIoOperation->ContentLength = bufferLength;
-
-            // spawn working thread to perform the write transaction
-            BaseType_t ret;
-            ret = xTaskCreate(WriteBinaryWorkingThread, "WriteBin", 2048, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
-
-            if (ret != pdPASS)
-            {
-                NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
-            }
-
-            // bump custom state
-            stack.m_customState = 2;
-        }
+        // bump custom state
+        stack.m_customState = 2; 
     }
 
     while(eventResult)
@@ -284,13 +256,9 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__V
 
     CLR_RT_HeapBlock_String* content;
 
-    char workingDrive[DRIVE_LETTER_LENGTH];
-
     CLR_RT_HeapBlock    hbTimeout;
     CLR_INT64*          timeout;
     bool                eventResult = true;
-
-    FileOperation*  fileIoOperation;
 
     const TCHAR*         filePath;
     FIL*                file;
@@ -312,12 +280,8 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__V
     
     if(stack.m_customState == 1)
     {   
-        // copy the first 2 letters of the path for the drive
-        // path is 'D:\folder\file.txt', so we need 'D:'
-        memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
-
         // create file struct
-        file = (FIL*)platform_malloc(sizeof(FIL));
+        file = (FIL*)malloc(sizeof(FIL));
         // check allocation
         if(file == NULL)
         {
@@ -339,7 +303,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__V
             CLR_RT_ProtectFromGC gcContent( *content );
 
             // setup FileIO operation
-            fileIoOperation = (FileOperation*)platform_malloc(sizeof(FileOperation));
+            FileOperation* fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
 
             fileIoOperation->File = file;
             fileIoOperation->Content = (char*)content->StringText();
@@ -347,7 +311,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__V
 
             // spawn working thread to perform the write transaction
             BaseType_t ret;
-            ret = xTaskCreate(WriteTextWorkingThread, "WriteText", 2048, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+            ret = xTaskCreate(WriteTextWorkingThread, "WriteText", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
             if (ret != pdPASS)
             {
@@ -405,13 +369,9 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
     CLR_INT64*          timeout;
     bool                eventResult = true;
 
-    FileOperation*  fileIoOperation;
-
-    char workingDrive[DRIVE_LETTER_LENGTH];
     const TCHAR*        filePath;
 
     FIL*                file;
-    static FILINFO      fileInfo;
     FRESULT             operationResult;
 
     // get a pointer to the managed object instance and check that it's not NULL
@@ -427,15 +387,8 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
    
     if(stack.m_customState == 1)
     {
-        // protect the StorageFile from GC
-        CLR_RT_ProtectFromGC gcStorageFile( *pThis );
-
-        // copy the first 2 letters of the path for the drive
-        // path is 'D:\folder\file.txt', so we need 'D:'
-        memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
-
         // create file struct
-        file = (FIL*)platform_malloc(sizeof(FIL));
+        file = (FIL*)malloc(sizeof(FIL));
         // check allocation
         if(file == NULL)
         {
@@ -450,43 +403,43 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
         {
             NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
         }
-        else
+        
+        // get file details
+        static FILINFO fileInfo;
+        f_stat(filePath, &fileInfo);
+
+        CLR_RT_HeapBlock buffer;
+        buffer.SetObjectReference( NULL );
+        CLR_RT_ProtectFromGC gc2( buffer );
+
+        // create a new byte array with the appropriate size (and type)
+        NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance( buffer, (CLR_INT32)fileInfo.fsize, g_CLR_RT_WellKnownTypes.m_UInt8 ));
+
+        // store this to the argument passed byref
+        NANOCLR_CHECK_HRESULT(buffer.StoreToReference( stack.Arg1(), 0 ));
+
+        // get a pointer to the buffer array to improve readability on the code ahead
+        CLR_RT_HeapBlock_Array* bufferArray = buffer.DereferenceArray();
+
+        // setup FileIO operation
+        FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
+
+        fileIoOperation->File = file;
+        fileIoOperation->Content = (char*)bufferArray->GetFirstElement();
+        fileIoOperation->ContentLength = bufferArray->m_numOfElements;
+
+        // spawn working thread to perform the read transaction
+        BaseType_t ret;
+        ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+
+        if (ret != pdPASS)
         {
-            // get file details
-            f_stat(filePath, &fileInfo);
-
-            CLR_RT_HeapBlock buffer;
-            buffer.SetObjectReference( NULL );
-            CLR_RT_ProtectFromGC gc2( buffer );
-
-            // create a new byte array with the appropriate size (and type)
-            NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance( buffer, (CLR_INT32)fileInfo.fsize, g_CLR_RT_WellKnownTypes.m_UInt8 ));
-
-            // store this to the argument passed byref
-            NANOCLR_CHECK_HRESULT(buffer.StoreToReference( stack.Arg1(), 0 ));
-
-            // get a pointer to the buffer array to improve readability on the code ahead
-            CLR_RT_HeapBlock_Array* bufferArray = buffer.DereferenceArray();
-
-            // setup FileIO operation
-            fileIoOperation = (FileOperation*)platform_malloc(sizeof(FileOperation));
-
-            fileIoOperation->File = file;
-            fileIoOperation->Content = (char*)bufferArray->GetFirstElement();
-            fileIoOperation->ContentLength = bufferArray->m_numOfElements;
-
-            // spawn working thread to perform the read transaction
-            BaseType_t ret;
-            ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", 2048, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
-
-            if (ret != pdPASS)
-            {
-                NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
-            }
-
-            // bump custom state
-            stack.m_customState = 2;
+            NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
         }
+
+        // bump custom state
+        stack.m_customState = 2;
+        
     }
 
     while(eventResult)
@@ -535,9 +488,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STAT
     CLR_INT64*          timeout;
     bool                eventResult = true;
 
-    FileOperation*  fileIoOperation;
-
-    char workingDrive[DRIVE_LETTER_LENGTH];
     const TCHAR*        filePath;
 
     FIL*                file;
@@ -559,13 +509,14 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STAT
     {
         // protect the StorageFile and the content buffer from GC so the working thread can access those
         CLR_RT_ProtectFromGC gcStorageFile( *pThis );
-
+        
+        char workingDrive[DRIVE_LETTER_LENGTH];
         // copy the first 2 letters of the path for the drive
         // path is 'D:\folder\file.txt', so we need 'D:'
         memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
 
         // create file struct
-        file = (FIL*)platform_malloc(sizeof(FIL));
+        file = (FIL*)malloc(sizeof(FIL));
         // check allocation
         if(file == NULL)
         {
@@ -597,7 +548,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STAT
             NANOCLR_CHECK_HRESULT(hbText.StoreToReference( stack.Arg1(), 0 ));
 
             // setup FileIO operation
-            fileIoOperation = (FileOperation*)platform_malloc(sizeof(FileOperation));
+            FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
 
             fileIoOperation->File = file;
             fileIoOperation->Content = (char*)textString->StringText();
@@ -605,7 +556,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STAT
 
             // spawn working thread to perform the read transaction
             BaseType_t ret;
-            ret = xTaskCreate(ReadTextWorkingThread, "ReadText", 2048, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+            ret = xTaskCreate(ReadTextWorkingThread, "ReadText", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
             if (ret != pdPASS)
             {
