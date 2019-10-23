@@ -10,9 +10,6 @@
 
     HRESULT Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4( CLR_RT_StackFrame& stack )
     {
-      #if (DP_FLOATINGPOINT == TRUE)
-        stack.NotImplementedStub();  
-      #else
 
         NATIVE_PROFILE_CLR_CORE();
         NANOCLR_HEADER();
@@ -24,14 +21,10 @@
 
         NANOCLR_NOCLEANUP_NOLABEL();        
 
-      #endif 
     }
 
     HRESULT Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
     {
-      #if (DP_FLOATINGPOINT == TRUE)
-        return stack.NotImplementedStub();
-      #else
 
         NATIVE_PROFILE_CLR_CORE();
         NANOCLR_HEADER();
@@ -44,14 +37,10 @@
 
         NANOCLR_NOCLEANUP_NOLABEL();
 
-      #endif 
     }
 
     HRESULT Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
     {
-      #if (DP_FLOATINGPOINT == TRUE)
-        return stack.NotImplementedStub();
-      #else
 
         NATIVE_PROFILE_CLR_CORE();
         NANOCLR_HEADER();
@@ -64,7 +53,6 @@
 
         NANOCLR_NOCLEANUP_NOLABEL();
 
-      #endif 
     }
 
 #else
