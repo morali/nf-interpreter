@@ -25,15 +25,19 @@
 
 #include "BACnetThread.h"
 #include "FreeRTOS.h"
-#include "MAC_address.h"
+#include "GlobalEventsFlags.h"
 #include "task.h"
 
 #include <signal.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "MAC_address.h"
+#include "nanoHAL_ConfigurationManager.h"
 
 #include "address.h"
 #include "apdu.h"
@@ -60,10 +64,21 @@
 /* include the device object */
 #include "device.h"
 
-#include "GlobalEventsFlags.h"
-
 /** Buffer used for receiving */
 static uint8_t *Rx_Buf;
+
+static void TSM_Timeout(uint8_t invoke_id) { tsm_free_invoke_id(invoke_id); }
+
+/** Allocate memory for buffers, handlers and other BACnet objects
+ *
+ */
+static void Allocate_Memory() {
+  Rx_Buf = (uint8_t *)malloc(MAX_MPDU);
+  memset(Rx_Buf, 0, sizeof(uint8_t) * MAX_MPDU);
+
+  Handler_Transmit_Buffer = (uint8_t *)malloc(MAX_PDU);
+  memset(Handler_Transmit_Buffer, 0, sizeof(uint8_t) * MAX_PDU);
+}
 
 /** Initialize the handlers we will utilize.
  * @see Device_Init, apdu_set_unconfirmed_handler, apdu_set_confirmed_handler
@@ -84,23 +99,15 @@ static void Init_Service_Handlers(void) {
   apdu_set_confirmed_handler(SERVICE_CONFIRMED_WRITE_PROP_MULTIPLE, handler_write_property_multiple);
 }
 
-static void TSM_Timeout(uint8_t invoke_id) { tsm_free_invoke_id(invoke_id); }
-
-void setBIP_port(uint16_t port) {
-  if (bip_get_port() != htons(port)) {
-    bip_set_port(htons(port));
-  }
-}
-
+/** BACnet main application thread
+ *
+ */
 void vBACnetThread(void *parameters) {
   (void)parameters;
-  xEventGroupWaitBits(xGlobalEventsFlags, EVENT_ETH_OK, pdFALSE, pdTRUE, portMAX_DELAY);
-  setBIP_port(47808);
-  Rx_Buf = (uint8_t *)malloc(MAX_MPDU);
-  memset(Rx_Buf, 0, sizeof(uint8_t) * MAX_MPDU);
 
-  Handler_Transmit_Buffer = (uint8_t *)malloc(MAX_PDU);
-  memset(Handler_Transmit_Buffer, 0, sizeof(uint8_t) * MAX_PDU);
+  Allocate_Memory();
+
+  xEventGroupWaitBits(xGlobalEventsFlags, EVENT_ETH_OK, pdFALSE, pdTRUE, portMAX_DELAY);
 
   tsm_init();
   tsm_set_timeout_handler(TSM_Timeout);
@@ -108,19 +115,24 @@ void vBACnetThread(void *parameters) {
   BACNET_ADDRESS src = {0}; /* address where message came from */
   uint16_t pdu_len = 0;
   unsigned timeout = 100; /* milliseconds */
+  
+  bip_set_port(htons(47808));
 
-  /* load any static address bindings to show up
-     in our device bindings list */
+  /* load any static address bindings to show up in our device bindings list */
   address_init();
   Init_Service_Handlers();
   dlenv_init();
 
-  /* For now IP and mask is hardcoded */
-  uint8_t ip_i[] = {192, 168, 10, 100};
-  uint8_t mask_i[] = {255, 255, 255, 0};
+  HAL_Configuration_NetworkInterface networkConfig;
 
-  uint8_t *ip = ip_i;
-  uint8_t *mask = mask_i;
+  uint8_t ip[4];
+  uint8_t mask[4];
+
+  if (ConfigurationManager_GetConfigurationBlock((void *)&networkConfig, DeviceConfigurationOption_Network, 0) == true) {
+
+    memcpy(ip, &networkConfig.IPv4Address, 4*sizeof(uint8_t));
+    memcpy(mask, &networkConfig.IPv4NetMask, 4*sizeof(uint8_t));
+  }
 
   uint32_t broadcast = 0;
   for (int i = 0; i < 4; i++) {
@@ -131,6 +143,7 @@ void vBACnetThread(void *parameters) {
 
   /* broadcast an I-Am on startup */
   Send_I_Am(Handler_Transmit_Buffer);
+
   /* loop forever */
   while (1) {
 
