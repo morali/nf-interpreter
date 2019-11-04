@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "MAC_address.h"
 #include "nanoHAL_ConfigurationManager.h"
 
 #include "address.h"
