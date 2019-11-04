@@ -47,6 +47,7 @@
 #include "wp.h" /* WriteProperty handling */
 
 /* include the device object */
+#include "av.h"
 #include "device.h"
 
 #if defined(INTRINSIC_REPORTING)
@@ -75,9 +76,15 @@ extern bool Routed_Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_da
 static object_functions_t *Object_Table;
 
 static const object_functions_t My_Object_Table[] = {
+    /* Device object */
     {OBJECT_DEVICE, NULL /* Init - don't init Device or it will recourse! */, Device_Count, Device_Index_To_Instance, Device_Valid_Object_Instance_Number,
      Device_Object_Name, Device_Read_Property_Local, Device_Write_Property_Local, Device_Property_Lists, DeviceGetRRInfo, NULL /* Iterator */,
-     NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */}};
+     NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */},
+
+    /* Analog value object */
+    {OBJECT_ANALOG_VALUE, Analog_Value_Init, Analog_Value_Count, Analog_Value_Index_To_Instance, Analog_Value_Valid_Instance, Analog_Value_Object_Name,
+     Analog_Value_Read_Property, Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, NULL /* Iterator */,
+     NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, Analog_Value_Intrinsic_Reporting}};
 
 static char My_Password[32] = "AAC20BACnet";
 

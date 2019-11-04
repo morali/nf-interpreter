@@ -176,6 +176,7 @@ static void Analog_Value_COV_Detect(unsigned int index, float value) {
  * @return  true if values are within range and present-value is set.
  */
 bool Analog_Value_Present_Value_Set(uint32_t object_instance, float value, uint8_t priority) {
+  (void)priority;
   unsigned index = 0;
   bool status = false;
 
@@ -718,6 +719,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
 }
 
 void Analog_Value_Intrinsic_Reporting(uint32_t object_instance) {
+  (void)object_instance;
 #if defined(INTRINSIC_REPORTING)
   BACNET_EVENT_NOTIFICATION_DATA event_data;
   BACNET_CHARACTER_STRING msgText;

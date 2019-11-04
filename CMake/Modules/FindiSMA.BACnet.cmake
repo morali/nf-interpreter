@@ -24,6 +24,7 @@ set(iSMA.BACnet_SRCS
     abort.c
     address.c
     apdu.c
+    av.c
     bacaddr.c
     bacapp.c
     bacdcode.c
