@@ -20,6 +20,7 @@ find_package(BuildUtils REQUIRED)
 find_package(FreeRTOS REQUIRED)
 find_package(CMSIS REQUIRED)
 find_package(WireProtocol REQUIRED)
+find_package(iSMA.BACnet REQUIRED)
 
 # packages for nanoFramework libraries
 #######################################
@@ -85,7 +86,7 @@ add_executable(
     ${TARGET_NXP_COMMON_SOURCES}
     ${TARGET_NXP_NANOCLR_SOURCES}
     ${NANOCLR_PROJECT_SOURCES}
-
+    
     ${FREERTOS_SOURCES}
 
     ${WireProtocol_SOURCES}
@@ -105,6 +106,7 @@ add_executable(
 
     # sources for nanoFramework APIs
     "${TARGET_NANO_APIS_SOURCES}"
+    "${iSMA.BACnet_SOURCES}"
 )
 
 # add dependency from FreeRTOS (this is required to make sure the FreeRTOS repo is downloaded before the build starts)
@@ -163,6 +165,8 @@ target_include_directories(${NANOCLR_PROJECT_NAME}.elf PUBLIC
     # incudes for Networking and TLS
     "${NF_Networking_INCLUDE_DIRS}"
     #"${mbedTLS_INCLUDE_DIRS}"
+
+    "${iSMA.BACnet_INCLUDE_DIRS}"
     
 )
 

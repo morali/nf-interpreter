@@ -27,6 +27,8 @@
 #include "fsl_gpio.h"
 #include "fsl_iomuxc.h"
 
+#include "GlobalEventsFlags.h"
+
 /*! @brief The ENET PHY address. */
 #define BOARD_ENET0_PHY_ADDRESS (0x02U) /* Phy address of enet port 0. */
 
@@ -61,6 +63,9 @@ static void stack_init(const lwipthread_opts_t *opts)
                        ethernetif0_init, tcpip_input);
     netifapi_netif_set_default(&thisif);
     netifapi_netif_set_up(&thisif);
+
+    /* Set event when TCP/IP Stack is up and running */
+    xEventGroupSetBits(xGlobalEventsFlags, EVENT_ETH_OK);
 
     //mdns_resp_init();
     //mdns_resp_add_netif(&thisif, opts->ourHostName, 60);

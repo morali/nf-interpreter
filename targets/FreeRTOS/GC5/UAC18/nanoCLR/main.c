@@ -34,6 +34,7 @@
 #include "usb_vcom.h"
 
 #include "log_native.h"
+#include "BACnetThread.h"
 
 //configure heap memory
 __attribute__((section(".noinit.$SRAM_OC.ucHeap")))
@@ -72,6 +73,7 @@ int main(void)
     xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
     xTaskCreate(vPanelThread, "PanelThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 14, NULL);
     xTaskCreate(vLocalIOThread, "LocalIOhread", configMINIMAL_STACK_SIZE + 100, NULL, configMAX_PRIORITIES - 14, NULL);
+    xTaskCreate(vBACnetThread, "bacnet", configMINIMAL_STACK_SIZE + 2048, NULL, (configMAX_PRIORITIES  - 14), NULL);
     
     addLog("Firmware", Troubleshot, "Start system");
     vTaskStartScheduler();
