@@ -48,8 +48,6 @@ set(iSMA.BACnet_SRCS
     wpm.c
     version.c
     
-    #bacnet_core_inc
-
     #bacnet_handlers
     dlenv.c
     h_cov.c
@@ -65,9 +63,9 @@ set(iSMA.BACnet_SRCS
     s_iam.c
     
     #bacnet_object
-    bacfile.c
+    # bacfile.c
     device.c
-    lc.c
+    # lc.c
 )
 
 foreach(SRC_FILE ${iSMA.BACnet_SRCS})
@@ -83,7 +81,7 @@ foreach(SRC_FILE ${iSMA.BACnet_SRCS})
 
         CMAKE_FIND_ROOT_PATH_BOTH
     )
-    message("${SRC_FILE} >> ${iSMA.BACnet_SRC_FILE}") # debug helper
+    # message("${SRC_FILE} >> ${iSMA.BACnet_SRC_FILE}") # debug helper
     list(APPEND iSMA.BACnet_SOURCES ${iSMA.BACnet_SRC_FILE})
 endforeach()
 
