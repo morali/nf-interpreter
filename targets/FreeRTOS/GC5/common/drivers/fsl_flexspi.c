@@ -117,10 +117,11 @@ __attribute__ ((section(".ramfunc.$RAM2")))
 uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
 {
     uint32_t instance;
-
+    for(int i = 0; i < 1000; i++);
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_flexspiBases); instance++)
     {
+        for(int i = 0; i < 1000; i++);
         if (s_flexspiBases[instance] == base)
         {
             break;

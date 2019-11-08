@@ -18,6 +18,7 @@ set(iSMA.BACnet_SRCS
     
     # bacnet_app    
     BACnetThread.c
+    common.c
     bip-init.c
 
     # bacnet_core

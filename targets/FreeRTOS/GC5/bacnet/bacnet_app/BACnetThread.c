@@ -63,6 +63,9 @@
 /* include the device object */
 #include "device.h"
 
+#include "bacnet_objects.h"
+#include "common.h"
+
 /** Buffer used for receiving */
 static uint8_t *Rx_Buf;
 
@@ -114,7 +117,7 @@ void vBACnetThread(void *parameters) {
   BACNET_ADDRESS src = {0}; /* address where message came from */
   uint16_t pdu_len = 0;
   unsigned timeout = 100; /* milliseconds */
-  
+
   bip_set_port(htons(47808));
 
   /* load any static address bindings to show up in our device bindings list */
@@ -129,8 +132,8 @@ void vBACnetThread(void *parameters) {
 
   if (ConfigurationManager_GetConfigurationBlock((void *)&networkConfig, DeviceConfigurationOption_Network, 0) == true) {
 
-    memcpy(ip, &networkConfig.IPv4Address, 4*sizeof(uint8_t));
-    memcpy(mask, &networkConfig.IPv4NetMask, 4*sizeof(uint8_t));
+    memcpy(ip, &networkConfig.IPv4Address, 4 * sizeof(uint8_t));
+    memcpy(mask, &networkConfig.IPv4NetMask, 4 * sizeof(uint8_t));
   }
 
   uint32_t broadcast = 0;
@@ -140,12 +143,18 @@ void vBACnetThread(void *parameters) {
 
   bip_set_broadcast_addr(broadcast);
 
+
+  BACnetObj_t * av_head = B_RetHead(av);
+  B_Initialize(av_head);
+  
+  AddObject(av);
+  AddObject(av);
+
   /* broadcast an I-Am on startup */
   Send_I_Am(Handler_Transmit_Buffer);
 
   /* loop forever */
   while (1) {
-
     pdu_len = datalink_receive(&src, Rx_Buf, MAX_MPDU, timeout);
     /* process */
     if (pdu_len) {
