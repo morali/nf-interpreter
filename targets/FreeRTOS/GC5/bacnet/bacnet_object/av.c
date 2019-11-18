@@ -41,8 +41,8 @@
 #include "device.h"
 #include "handlers.h"
 
-#include "bacnet_objects.h"
 #include "common.h"
+#include "isma_bacnet_objects.h"
 
 #include <math.h>
 
@@ -95,17 +95,14 @@ void Analog_Value_Init(void) {
 /* more complex, and then you need validate that the */
 /* given instance exists */
 bool Analog_Value_Valid_Instance(uint32_t object_instance) {
-  BACnetAV_t *analogValue = FindIdRet(av, object_instance);
-  if (analogValue != NULL)
-    return true;
-  return false;
+  (void) object_instance;
+  return true;
 }
 
 /* we simply have 0-n object instances.  Yours might be */
 /* more complex, and then count how many you have */
 unsigned Analog_Value_Count(void) {
-  BACnetAV_t *av_head = retObj(av);
-  return Size(av, av_head);
+  return 1;
 }
 
 /* we simply have 0-n object instances.  Yours might be */
@@ -125,55 +122,58 @@ uint32_t Analog_Value_Index_To_Instance(unsigned index) { return index; }
  */
 bool Analog_Value_Present_Value_Set(uint32_t object_instance, float value, uint8_t priority) {
 
-  bool status = false;
-  BACnetAV_t *analogValue = FindIdRet(av, object_instance);
-  if (analogValue != NULL) {
-    analogValue->in[priority - 1] = value;
-    status = true;
-  }
-  return status;
+  // bacObj_AV_t *analogValue = FindIdRet(av, object_instance);
+  (void) object_instance;  
+  (void) value;
+  (void) priority;
+  return true;
 }
 
 float Analog_Value_Present_Value(uint32_t object_instance) {
-  float value = 0.0;
+  // float value = 0.0;
 
-  BACnetAV_t *analogValue = FindIdRet(av, object_instance);
-  if (analogValue != NULL) {
-    value = analogValue->relinquishDefault;
-    for (uint32_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
-      if (!isnan(analogValue->in[i])) {
-        value = analogValue->in[i];
-        break;
-      }
-    }
-  }
+  // bacObj_AV_t *analogValue = FindIdRet(av, object_instance);
+  // if (analogValue != NULL) {
+  //   value = analogValue->relinquishDefault;
+  //   for (uint32_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+  //     if (!isnan(analogValue->in[i])) {
+  //       value = analogValue->in[i];
+  //       break;
+  //     }
+  //   }
+  // }
+  (void) object_instance;
 
-  return value;
+  return 1.1;
 }
 
 /* note: the object name must be unique within this device */
 bool Analog_Value_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name) {
-  static char text_string[32] = ""; /* okay for single thread */
   bool status = false;
+  (void) object_instance;
+  (void) object_name;
 
-  BACnetAV_t *analogValue = FindIdRet(av, object_instance);
-  if (analogValue != NULL) {
-    snprintf(text_string, sizeof(text_string), analogValue->name);
-    status = characterstring_init_ansi(object_name, text_string);
-  }
+  // bacObj_AV_t *analogValue = FindIdRet(av, object_instance);
+  // if (analogValue != NULL) {
+  //   snprintf(text_string, sizeof(text_string), analogValue->name);
+  //   status = characterstring_init_ansi(object_name, text_string);
+  // }
 
   return status;
 }
 
 /* note: the object name must be unique within this device */
 bool Analog_Value_Object_Descr(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name) {
-  static char text_string[32] = ""; /* okay for single thread */
+  (void) object_instance;
+  (void) object_name;
+  // static char text_string[32] = ""; /* okay for single thread */
   bool status = false;
-  BACnetAV_t *analogValue = FindIdRet(av, object_instance);
-  if (analogValue != NULL) {
-    snprintf(text_string, sizeof(text_string), analogValue->descr);
-    status = characterstring_init_ansi(object_name, text_string);
-  }
+  // bacObj_AV_t *analogValue = FindIdRet(av, object_instance);
+  // // bacObj_AV_t *analogValue = NULL;
+  // if (analogValue != NULL) {
+  //   // snprintf(text_string, sizeof(text_string), analogValue->descr);
+  //   status = characterstring_init_ansi(object_name, text_string);
+  // }
 
   return status;
 }
@@ -186,7 +186,7 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
   float real_value = NAN;
   bool state = false;
   uint8_t *apdu = NULL;
-  BACnetAV_t *CurrentAV;
+  void *CurrentAV;
   int32_t len = 0;
   uint16_t i = 0;
 #if defined(INTRINSIC_REPORTING)
@@ -198,7 +198,7 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
 
   apdu = rp_data->application_data;
 
-  CurrentAV = FindIdRet(av, rp_data->object_instance);
+  CurrentAV = NULL; // FindIdRet(av, rp_data->object_instance);
   if (CurrentAV == NULL) {
     return BACNET_STATUS_ERROR;
   }
@@ -234,7 +234,7 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
 #endif
     bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
     bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-    bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE, CurrentAV->outOfService);
+    // bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE, CurrentAV->outOfService);
 
     apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
     break;
@@ -248,12 +248,12 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
     break;
 
   case PROP_OUT_OF_SERVICE:
-    state = CurrentAV->outOfService;
+    // state = CurrentAV->outOfService;
     apdu_len = encode_application_boolean(&apdu[0], state);
     break;
 
   case PROP_UNITS:
-    apdu_len = encode_application_enumerated(&apdu[0], CurrentAV->units);
+    // apdu_len = encode_application_enumerated(&apdu[0], CurrentAV->units);
     break;
 
   case PROP_PROPERTY_LIST:
@@ -268,12 +268,12 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
     else if (rp_data->array_index == BACNET_ARRAY_ALL) {
       for (i = 0; i < BACNET_MAX_PRIORITY; i++) {
         /* FIXME: check if we have room before adding it to APDU */
-        if (isnan(CurrentAV->in[i]))
-          len = encode_application_null(&apdu[apdu_len]);
-        else {
-          real_value = CurrentAV->in[i];
-          len = encode_application_real(&apdu[apdu_len], real_value);
-        }
+        // if (isnan(CurrentAV->in[i]))
+        //   len = encode_application_null(&apdu[apdu_len]);
+        // else {
+        //   real_value = CurrentAV->in[i];
+        //   len = encode_application_real(&apdu[apdu_len], real_value);
+        // }
         /* add it if we have room */
         if ((apdu_len + len) < MAX_APDU)
           apdu_len += len;
@@ -286,12 +286,12 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
       }
     } else {
       if (rp_data->array_index <= BACNET_MAX_PRIORITY) {
-        if (isnan(CurrentAV->in[rp_data->array_index - 1]))
-          apdu_len = encode_application_null(&apdu[apdu_len]);
-        else {
-          real_value = CurrentAV->in[rp_data->array_index - 1];
-          apdu_len = encode_application_real(&apdu[apdu_len], real_value);
-        }
+        // if (isnan(CurrentAV->in[rp_data->array_index - 1]))
+        //   apdu_len = encode_application_null(&apdu[apdu_len]);
+        // else {
+        //   real_value = CurrentAV->in[rp_data->array_index - 1];
+        //   apdu_len = encode_application_real(&apdu[apdu_len], real_value);
+        // }
       } else {
         rp_data->error_class = ERROR_CLASS_PROPERTY;
         rp_data->error_code = ERROR_CODE_INVALID_ARRAY_INDEX;
@@ -300,11 +300,11 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
     }
     break;
   case PROP_RELINQUISH_DEFAULT:
-    if (isnan(CurrentAV->relinquishDefault)) {
-      apdu_len = encode_application_null(&apdu[0]);
-    } else {
-      apdu_len = encode_application_real(&apdu[0], CurrentAV->relinquishDefault);
-    }
+    // if (isnan(CurrentAV->relinquishDefault)) {
+    //   apdu_len = encode_application_null(&apdu[0]);
+    // } else {
+    //   apdu_len = encode_application_real(&apdu[0], CurrentAV->relinquishDefault);
+    // }
     break;
 #if defined(INTRINSIC_REPORTING)
   case PROP_TIME_DELAY:
@@ -414,7 +414,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   bool status = false; /* return value */
   int len = 0;
   BACNET_APPLICATION_DATA_VALUE value;
-  BACnetAV_t *CurrentAV;
+  // void *CurrentAV;
 
   /* decode the some of the request */
   len = bacapp_decode_application_data(wp_data->application_data, wp_data->application_data_len, &value);
@@ -433,10 +433,10 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     return false;
   }
 
-  CurrentAV = FindIdRet(av, wp_data->object_instance);
-  if (CurrentAV == NULL) {
+  // CurrentAV = FindIdRet(av, wp_data->object_instance);
+  // if (CurrentAV == NULL) {
     return false;
-  }
+  // }
 
   switch (wp_data->object_property) {
   case PROP_PRESENT_VALUE:
@@ -481,7 +481,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
 
   case PROP_RELINQUISH_DEFAULT:
     if (value.tag != BACNET_APPLICATION_TAG_NULL && !isnan(value.type.Real)) {
-      CurrentAV->relinquishDefault = value.type.Real;
+      // CurrentAV->relinquishDefault = value.type.Real;
       status = true;
     } else {
       wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -492,14 +492,14 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   case PROP_OUT_OF_SERVICE:
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_BOOLEAN, &wp_data->error_class, &wp_data->error_code);
     if (status) {
-      CurrentAV->outOfService = value.type.Boolean;
+      // CurrentAV->outOfService = value.type.Boolean;
     }
     break;
 
   case PROP_UNITS:
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_ENUMERATED, &wp_data->error_class, &wp_data->error_code);
     if (status) {
-      CurrentAV->units = value.type.Enumerated;
+      // CurrentAV->units = value.type.Enumerated;
     }
     break;
 
@@ -622,7 +622,7 @@ void Analog_Value_Intrinsic_Reporting(uint32_t object_instance) {
 #if defined(INTRINSIC_REPORTING)
   BACNET_EVENT_NOTIFICATION_DATA event_data;
   BACNET_CHARACTER_STRING msgText;
-  BACnetAV_t *CurrentAV;
+  bacObj_AV_t *CurrentAV;
   uint8_t FromState = 0;
   uint8_t ToState;
   float ExceededLimit = 0.0f;
@@ -925,7 +925,7 @@ int Analog_Value_Event_Information(unsigned index, BACNET_GET_EVENT_INFORMATION_
 }
 
 int Analog_Value_Alarm_Ack(BACNET_ALARM_ACK_DATA *alarmack_data, BACNET_ERROR_CODE *error_code) {
-  BACnetAV_t *CurrentAV;
+  bacObj_AV_t *CurrentAV;
 
   CurrentAV = FindIdRet(av, alarmack_data->eventObjectIdentifier.instance);
   if (CurrentAV == NULL) {

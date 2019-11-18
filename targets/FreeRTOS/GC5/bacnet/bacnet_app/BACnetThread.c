@@ -62,12 +62,86 @@
 
 /* include the device object */
 #include "device.h"
-
-#include "bacnet_objects.h"
-#include "common.h"
+#include "isma_bacnet_objects.h"
+#include "isma_bacnet_objects_helper.h"
 
 /** Buffer used for receiving */
 static uint8_t *Rx_Buf;
+
+/* Disable optimalizations for testing purposes */
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+
+uint32_t bacnet_test() {
+
+  volatile uint32_t retSize = 0;
+  volatile uint32_t value = 0;
+
+  char __name[12] = "Test Name!!";
+  char __modelName[3] = "RC";
+  char __firmwareRevision[5] = "0.99";
+  char __applicationSoftwareRevision[5] = "1.22";
+  char __location[7] = "Poland";
+  char __device_description[16] = "Room Controller";
+  char __vendorName[4] = "GC5";
+
+  const char *ret_string_value = __name;
+
+  retSize = getBaseValue(_updatePending, (void *)&value);
+  retSize = getBaseValue(_identifier, (void *)&value);
+  retSize = getBaseValue(_type, (void *)&value);
+  retSize = getBaseValue(_name, (void *)&ret_string_value);
+
+  setBaseValue(_name, (void *)__name);
+  value = 10;
+  setBaseValue(_identifier, (void *)&value);
+  value = 3;
+  setBaseValue(_type, (void *)&value);
+  value = 1;
+  setBaseValue(_updatePending, (void *)&value);
+
+  retSize = getBaseValue(_name, (void *)&ret_string_value);
+  retSize = getBaseValue(_identifier, (void *)&value);
+  retSize = getBaseValue(_type, (void *)&value);
+  retSize = getBaseValue(_updatePending, (void *)&value);
+
+  retSize = getDeviceValue(_systemStatus, (void *)&value);
+  retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
+  retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
+  retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
+  retSize = getDeviceValue(_location, (void *)&ret_string_value);
+  retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
+  retSize = getDeviceValue(_protocolVersion, (void *)&value);
+  retSize = getDeviceValue(_protocolRevision, (void *)&value);
+  retSize = getDeviceValue(_vendorName, (void *)&ret_string_value);
+
+  value = 6;
+  setDeviceValue(_systemStatus, (void *)&value);
+  setDeviceValue(_modelName, (void *)&__modelName);
+  setDeviceValue(_firmwareRevision, (void *)&__firmwareRevision);
+  setDeviceValue(_applicationSoftwareRevision, (void *)&__applicationSoftwareRevision);
+  setDeviceValue(_location, (void *)&__location);
+  setDeviceValue(_device_description, (void *)&__device_description);
+  value = 14;
+  setDeviceValue(_protocolVersion, (void *)&value);
+  value = 2;
+  setDeviceValue(_protocolRevision, (void *)&value);
+  setDeviceValue(_vendorName, (void*)&__vendorName);
+
+  retSize = getDeviceValue(_systemStatus, (void *)&value);
+  retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
+  retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
+  retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
+  retSize = getDeviceValue(_location, (void *)&ret_string_value);
+  retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
+  retSize = getDeviceValue(_protocolVersion, (void *)&value);
+  retSize = getDeviceValue(_protocolRevision, (void *)&value);
+  retSize = getDeviceValue(_vendorName, (void*)&ret_string_value);
+
+  return retSize;
+}
+
+#pragma GCC pop_options
 
 static void TSM_Timeout(uint8_t invoke_id) { tsm_free_invoke_id(invoke_id); }
 
@@ -120,11 +194,17 @@ void vBACnetThread(void *parameters) {
 
   bip_set_port(htons(47808));
 
+  bacObj_Device_t *deviceObject = getDeviceObject();
+
+  while (deviceObject == NULL) {
+    vTaskDelay(1000);
+    deviceObject = getDeviceObject();
+  }
+
   /* load any static address bindings to show up in our device bindings list */
   address_init();
   Init_Service_Handlers();
   dlenv_init();
-
   HAL_Configuration_NetworkInterface networkConfig;
 
   uint8_t ip[4];
@@ -143,19 +223,15 @@ void vBACnetThread(void *parameters) {
 
   bip_set_broadcast_addr(broadcast);
 
-
-  BACnetObj_t * av_head = B_RetHead(av);
-  B_Initialize(av_head);
-  
-  AddObject(av);
-  AddObject(av);
-
   /* broadcast an I-Am on startup */
   Send_I_Am(Handler_Transmit_Buffer);
 
   /* loop forever */
-  while (1) {
+  while (1) {    
     pdu_len = datalink_receive(&src, Rx_Buf, MAX_MPDU, timeout);
+    // if (deviceObject != NULL) {
+    //   bacnet_test();
+    // }
     /* process */
     if (pdu_len) {
       npdu_handler(&src, Rx_Buf, pdu_len);

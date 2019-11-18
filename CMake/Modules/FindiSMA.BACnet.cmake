@@ -4,18 +4,23 @@
 #
 
 # native code directory
-# set(BASE_PATH_FOR_THIS_MODULE "${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}")
+set(BASE_PATH_FOR_THIS_MODULE "c:/nanoFramework/nf-interpreter/targets/FreeRTOS/GC5/nanoCLR/iSMA.BACnet")
 
 # set include directories
 list(APPEND iSMA.BACnet_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_app)
 list(APPEND iSMA.BACnet_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_object)
 list(APPEND iSMA.BACnet_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_core_inc)
-# list(APPEND iSMA.BACnet_INCLUDE_DIRS ${BASE_PATH_FOR_THIS_MODULE})
-# list(APPEND iSMA.BACnet_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet)
+list(APPEND iSMA.BACnet_INCLUDE_DIRS ${BASE_PATH_FOR_THIS_MODULE})
 
 # source files
 set(iSMA.BACnet_SRCS
-    
+
+    # class library source files
+    isma_bacnet_native_iSMA_BACnet_FirmwareApi.cpp
+    isma_bacnet_native.cpp
+    isma_bacnet_objects_helper.cpp
+    isma_bacnet_bacdcode.c
+
     # bacnet_app    
     BACnetThread.c
     common.c
@@ -80,6 +85,9 @@ foreach(SRC_FILE ${iSMA.BACnet_SRCS})
             ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_core
             ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_handlers
             ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_object
+
+            # class library source files
+            ${BASE_PATH_FOR_THIS_MODULE}
 
         CMAKE_FIND_ROOT_PATH_BOTH
     )

@@ -42,6 +42,7 @@ option(API_iSMA.GPIO                            "option for iSMA.GPIO")
 option(API_iSMA.LocalIO                         "option for iSMA.LocalIO")
 option(API_iSMA.Log                             "option for iSMA.Log")
 option(API_iSMA.DeviceInfo                      "option for iSMA.DeviceInfo")
+option(API_iSMA.BACnet                          "option for iSMA.BACnet")
 
 #################################################################
 # macro to perform individual settings to add an API to the build
@@ -106,6 +107,11 @@ macro(ParseNativeAssemblies)
         ##### API name here (doted name)
         PerformSettingsForApiEntry("iSMA.DeviceInfo")
     endif()
+     # iSMA.BACnet
+     if(API_iSMA.BACnet)
+        ##### API name here (doted name)
+        PerformSettingsForApiEntry("iSMA.BACnet")
+     endif()
 
     # Hardware.Esp32
     if(API_Hardware.Esp32)

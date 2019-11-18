@@ -13,7 +13,6 @@ list(APPEND iSMA.GPIO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/CLR/Include)
 list(APPEND iSMA.GPIO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/HAL/Include)
 list(APPEND iSMA.GPIO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/PAL/Include)
 list(APPEND iSMA.GPIO_INCLUDE_DIRS ${BASE_PATH_FOR_THIS_MODULE})
-list(APPEND iSMA.GPIO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/iSMA.GPIO)
 
 
 # source files
@@ -35,9 +34,6 @@ foreach(SRC_FILE ${iSMA.GPIO_SRCS})
 
             # class library source files
             ${BASE_PATH_FOR_THIS_MODULE}
-
-            # core source files
-            ${PROJECT_SOURCE_DIR}/src/iSMA.GPIO
 
         CMAKE_FIND_ROOT_PATH_BOTH
     )

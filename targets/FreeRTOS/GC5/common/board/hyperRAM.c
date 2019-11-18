@@ -66,6 +66,8 @@ static void delay(void) {
     __asm("NOP");
   }
 }
+#pragma GCC push_options
+#pragma GCC optimize ("O2")
 
 void BOARD_InitHyperRAM(void) {
   flexspi_config_t flexspi_config;
@@ -136,3 +138,5 @@ void BOARD_InitHyperRAM(void) {
   FLEXSPI_SoftwareReset(FLEXSPI2);
   delay();
 }
+
+#pragma GCC pop_options

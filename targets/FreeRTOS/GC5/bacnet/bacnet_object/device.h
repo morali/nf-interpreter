@@ -233,7 +233,6 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
 bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name);
 /* Copy a child object name, given its ID. */
 bool Device_Object_Name_Copy(BACNET_OBJECT_TYPE object_type, uint32_t object_instance, BACNET_CHARACTER_STRING *object_name);
-bool Device_Object_Name_ANSI_Init(const char *object_name);
 char *Device_Object_Name_ANSI(void);
 
 BACNET_DEVICE_STATUS Device_System_Status(void);
