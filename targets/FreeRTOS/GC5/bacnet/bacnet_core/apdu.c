@@ -43,14 +43,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "isma_bacnet_bacdcode.h"
+#include "isma_bacnet_objects_helper.h"
+
 /** @file apdu.c  Handles APDU services */
 
 extern int Routed_Device_Service_Approval(BACNET_CONFIRMED_SERVICE service, int service_argument, uint8_t *apdu_buff, uint8_t invoke_id);
-
-/* APDU Timeout in Milliseconds */
-static uint16_t Timeout_Milliseconds = 3000;
-/* Number of APDU Retries */
-static uint8_t Number_Of_Retries = 3;
 
 /* a simple table for crossing the services supported */
 static BACNET_SERVICES_SUPPORTED confirmed_service_supported[MAX_BACNET_CONFIRMED_SERVICE] = {SERVICE_SUPPORTED_ACKNOWLEDGE_ALARM,
@@ -295,13 +293,21 @@ uint16_t apdu_decode_confirmed_service_request(uint8_t *apdu, /* APDU data */
   return len;
 }
 
-uint16_t apdu_timeout(void) { return Timeout_Milliseconds; }
+uint16_t apdu_timeout(void) {
+  uint32_t __apduTimeout = 0;
+  getDeviceValue(_apduTimeout, (void *)&__apduTimeout);
+  return __apduTimeout;
+}
 
-void apdu_timeout_set(uint16_t milliseconds) { Timeout_Milliseconds = milliseconds; }
+void apdu_timeout_set(uint16_t milliseconds) { setDeviceValue(_apduTimeout, (void *)&milliseconds); }
 
-uint8_t apdu_retries(void) { return Number_Of_Retries; }
+uint8_t apdu_retries(void) {
+  uint32_t __apduRetries = 0;
+  getDeviceValue(_apduRetries, (void *)&__apduRetries);
+  return __apduRetries;
+}
 
-void apdu_retries_set(uint8_t value) { Number_Of_Retries = value; }
+void apdu_retries_set(uint8_t value) { setDeviceValue(_apduTimeout, (void *)&value); }
 
 /* When network communications are completely disabled,
    only DeviceCommunicationControl and ReinitializeDevice APDUs

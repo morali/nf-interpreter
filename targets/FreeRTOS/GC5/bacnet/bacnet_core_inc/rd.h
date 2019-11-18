@@ -26,6 +26,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "bacstr.h"
 
 typedef struct BACnet_Reinitialize_Device_Data {
   BACNET_REINITIALIZED_STATE state;

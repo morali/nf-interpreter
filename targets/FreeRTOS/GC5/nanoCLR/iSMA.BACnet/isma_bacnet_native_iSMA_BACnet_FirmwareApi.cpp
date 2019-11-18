@@ -1,7 +1,9 @@
 
 
+#include "device.h"
 #include "isma_bacnet_native.h"
 #include "isma_bacnet_objects.h"
+#include "isma_bacnet_objects_helper.h"
 
 bacObj_Device_t *device_object;
 
@@ -24,6 +26,18 @@ bool addDevice_Object(CLR_RT_HeapBlock *objBlock) {
     free(device_object);
     return false;
   }
+
+  uint32_t set_value = 826;
+
+  /* Set firmware defined variables */
+  setDeviceValue(_vendorName, (void*)"GC5");
+  setDeviceValue(_vendorId, (void*)&set_value);
+  setDeviceValue(_modelName, (void *)"RC18");
+  setDeviceValue(_firmwareRevision, (void*)"WIP");
+  set_value = 14;
+  setDeviceValue(_protocolVersion, (void*)&set_value);
+  set_value = 1;
+  setDeviceValue(_protocolRevision, (void*)&set_value);
 
   return success;
 }
@@ -85,11 +99,10 @@ HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::BacnetObjectRemoved_
   NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::UpdateDatabaseRevision___STATIC__VOID( CLR_RT_StackFrame& stack )
-{
-    NANOCLR_HEADER();
+HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::UpdateDatabaseRevision___STATIC__VOID(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
 
-    NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
-
-    NANOCLR_NOCLEANUP();
+  Device_Inc_Database_Revision();
+  (void)stack;
+  NANOCLR_NOCLEANUP_NOLABEL();
 }

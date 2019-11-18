@@ -137,6 +137,24 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
     return 1;
     break;
   }
+  case _vendorId: {
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _apduRetries: {
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___apduRetries].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _apduTimeout: {
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___apduTimeout].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
   default: {
     return 0;
     break;
@@ -191,9 +209,24 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
     id.NumericByRef().u4 = *(uint32_t *)value;
     break;
   }
+  case _vendorId: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _apduRetries: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___apduRetries];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _apduTimeout: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___apduTimeout];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
   default:
     break;
-}
+  }
 }
 
 #pragma GCC pop_options
