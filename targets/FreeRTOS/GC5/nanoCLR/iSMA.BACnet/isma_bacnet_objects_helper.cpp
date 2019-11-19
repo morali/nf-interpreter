@@ -12,6 +12,21 @@ extern "C" {
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 
+/**
+ * @brief  It needs to be run every time something changes variables
+ *         which are avaliable by high level application.
+ * @note
+ * @retval None
+ */
+void setUpdatePending(void) {
+  bacObj_Device_t *object_device = getDeviceObject();
+  CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
+
+  uint32_t value = 1;
+  CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
+  id.NumericByRef().u1 = *(uint32_t *)value;
+}
+
 uint32_t getBaseValue(object_baseValues_t var, void *address) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
@@ -53,6 +68,7 @@ void setBaseValue(object_baseValues_t var, void *value) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
+  setUpdatePending();
   switch (var) {
   case _updatePending: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
@@ -167,6 +183,7 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
+  setUpdatePending();
   switch (var) {
   case _systemStatus: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___systemStatus];
