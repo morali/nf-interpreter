@@ -23,11 +23,7 @@ typedef struct bacObj_AV {
   void *objBlock;
   void *gc;
 
-  char *name;
-  char *descr;
-  uint32_t units;
   uint32_t outOfService;
-  uint32_t id;
   float relinquishDefault;
 
   unsigned Event_State;
@@ -63,6 +59,9 @@ typedef struct bacObj_AV {
 } bacObj_AV_t;
 
 bacObj_Device_t* getDeviceObject();
+bacObj_AV_t *getAnalogListHead();
+
+bacObj_AV_t *getAnalogByIndex(uint32_t index);
 
 #ifdef __cplusplus
 }

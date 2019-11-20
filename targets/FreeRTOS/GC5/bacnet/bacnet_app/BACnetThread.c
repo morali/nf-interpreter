@@ -87,23 +87,23 @@ uint32_t bacnet_test() {
 
   const char *ret_string_value = __name;
 
-  retSize = getBaseValue(_updatePending, (void *)&value);
-  retSize = getBaseValue(_identifier, (void *)&value);
-  retSize = getBaseValue(_type, (void *)&value);
-  retSize = getBaseValue(_name, (void *)&ret_string_value);
+  retSize = getDeviceValue(_updatePending, (void *)&value);
+  retSize = getDeviceValue(_identifier, (void *)&value);
+  retSize = getDeviceValue(_type, (void *)&value);
+  retSize = getDeviceValue(_name, (void *)&ret_string_value);
 
-  setBaseValue(_name, (void *)__name);
+  setDeviceValue(_name, (void *)__name);
   value = 10;
-  setBaseValue(_identifier, (void *)&value);
+  setDeviceValue(_identifier, (void *)&value);
   value = 3;
-  setBaseValue(_type, (void *)&value);
+  setDeviceValue(_type, (void *)&value);
   value = 1;
-  setBaseValue(_updatePending, (void *)&value);
+  setDeviceValue(_updatePending, (void *)&value);
 
-  retSize = getBaseValue(_name, (void *)&ret_string_value);
-  retSize = getBaseValue(_identifier, (void *)&value);
-  retSize = getBaseValue(_type, (void *)&value);
-  retSize = getBaseValue(_updatePending, (void *)&value);
+  retSize = getDeviceValue(_name, (void *)&ret_string_value);
+  retSize = getDeviceValue(_identifier, (void *)&value);
+  retSize = getDeviceValue(_type, (void *)&value);
+  retSize = getDeviceValue(_updatePending, (void *)&value);
 
   retSize = getDeviceValue(_systemStatus, (void *)&value);
   retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
@@ -201,6 +201,23 @@ void vBACnetThread(void *parameters) {
     deviceObject = getDeviceObject();
   }
 
+  
+  uint32_t set_value = 826;
+
+  /* Set firmware defined variables */
+  setDeviceValue(_vendorName, (void *)"GC5");
+  setDeviceValue(_vendorId, (void *)&set_value);
+  setDeviceValue(_modelName, (void *)"RC18");
+  setDeviceValue(_firmwareRevision, (void *)"WIP");
+  set_value = 14;
+  setDeviceValue(_protocolVersion, (void *)&set_value);
+  set_value = 1;
+  setDeviceValue(_protocolRevision, (void *)&set_value);
+
+  uint32_t id = 1;
+  bacObj_AV_t *newObj = getAnalogListHead();
+  setAnalogValue(_av_identifier, (void*)&id, newObj);
+
   /* load any static address bindings to show up in our device bindings list */
   address_init();
   Init_Service_Handlers();
@@ -229,10 +246,6 @@ void vBACnetThread(void *parameters) {
   /* loop forever */
   while (1) {    
     pdu_len = datalink_receive(&src, Rx_Buf, MAX_MPDU, timeout);
-    // if (deviceObject != NULL) {
-    //   bacnet_test();
-    // }
-    /* process */
     if (pdu_len) {
       npdu_handler(&src, Rx_Buf, pdu_len);
     }

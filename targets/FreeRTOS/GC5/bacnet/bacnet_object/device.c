@@ -317,7 +317,7 @@ uint32_t Device_Index_To_Instance(unsigned index) {
   // int dev_count = Device_Count();
   // for (int i = 0; i < dev_count; i++) {
   //   uint32_t __id = 0;
-  //   getBaseValue(_identifier, (void *)&__id);
+  //   getDeviceValue(_identifier, (void *)&__id);
   //   if (__id == index)
   //     return __id;
   // }
@@ -335,7 +335,7 @@ uint32_t Device_Object_Instance_Number(void) {
   return Routed_Device_Object_Instance_Number();
 #else
   uint32_t __id = 0;
-  getBaseValue(_identifier, (void *)&__id);
+  getDeviceValue(_identifier, (void *)&__id);
   return __id;
 #endif
 }
@@ -347,7 +347,7 @@ bool Device_Set_Object_Instance_Number(uint32_t object_id) {
   if (object_id <= BACNET_MAX_INSTANCE) {
     /* Make the change and update the database revision */
     __id = object_id;
-    setBaseValue(_identifier, (void *)&__id);
+    setDeviceValue(_identifier, (void *)&__id);
     Device_Inc_Database_Revision();
   } else
     status = false;
@@ -358,7 +358,7 @@ bool Device_Set_Object_Instance_Number(uint32_t object_id) {
 bool Device_Valid_Object_Instance_Number(uint32_t object_id) {
 
   uint32_t __id = 0;
-  getBaseValue(_identifier, (void *)&__id);
+  getDeviceValue(_identifier, (void *)&__id);
   return (__id == object_id);
 }
 
@@ -366,10 +366,10 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
   bool status = false;
 
   uint32_t __id = 0;
-  getBaseValue(_identifier, (void *)&__id);
+  getDeviceValue(_identifier, (void *)&__id);
   if (object_instance == __id) {
     const char *__name = NULL;
-    getBaseValue(_name, (void *)&__name);
+    getDeviceValue(_name, (void *)&__name);
     status = characterstring_ansi_same(object_name, __name);
   }
 
@@ -378,7 +378,7 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
 
 bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name) {
 
-  setBaseValue(_name, (void *)object_name->value);
+  setDeviceValue(_name, (void *)object_name->value);
   Device_Inc_Database_Revision();
 
   return true;
@@ -804,7 +804,7 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata) {
     apdu_len = encode_application_object_id(&apdu[0], OBJECT_DEVICE, value);
     break;
   case PROP_OBJECT_NAME:
-    getBaseValue(_name, (void *)&ret_string_value);
+    getDeviceValue(_name, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_OBJECT_TYPE:

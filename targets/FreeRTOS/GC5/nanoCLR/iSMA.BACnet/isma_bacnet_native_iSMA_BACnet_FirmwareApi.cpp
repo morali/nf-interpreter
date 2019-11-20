@@ -10,6 +10,19 @@ bacObj_Device_t *device_object;
 bacObj_AV_t *analog_listHead;
 
 bacObj_Device_t *getDeviceObject() { return device_object; }
+bacObj_AV_t *getAnalogListHead() { return analog_listHead; }
+
+bacObj_AV_t *getAnalogByIndex(uint32_t index) {
+  bacObj_AV_t *head = getAnalogListHead();
+  uint32_t id = 0;
+  while (head != NULL) {
+    getAnalogValue(_av_identifier, (void *)&id, analog_listHead);
+    if (id == index)
+      return head;
+    head = head->next;
+  }
+  return NULL;
+}
 
 bool addDevice_Object(CLR_RT_HeapBlock *objBlock) {
   uint8_t success = false;
@@ -27,18 +40,6 @@ bool addDevice_Object(CLR_RT_HeapBlock *objBlock) {
     return false;
   }
 
-  uint32_t set_value = 826;
-
-  /* Set firmware defined variables */
-  setDeviceValue(_vendorName, (void*)"GC5");
-  setDeviceValue(_vendorId, (void*)&set_value);
-  setDeviceValue(_modelName, (void *)"RC18");
-  setDeviceValue(_firmwareRevision, (void*)"WIP");
-  set_value = 14;
-  setDeviceValue(_protocolVersion, (void*)&set_value);
-  set_value = 1;
-  setDeviceValue(_protocolRevision, (void*)&set_value);
-
   return success;
 }
 
@@ -50,6 +51,8 @@ bool addAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
   if (newObj == NULL)
     return false;
 
+  memset(newObj, 0, sizeof(bacObj_AV_t));
+  memset(newObj->in, 0xFFFFFFFF, sizeof(newObj->in));
   newObj->objBlock = (void *)bacObj;
   newObj->gc = (void *)new CLR_RT_ProtectFromGC(*bacObj);
   newObj->next = NULL;

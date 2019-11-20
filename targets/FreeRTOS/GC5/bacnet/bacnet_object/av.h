@@ -39,6 +39,9 @@
 #include "nc.h"
 #endif
 
+#include "isma_bacnet_objects_helper.h"
+#include "isma_bacnet_objects.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -78,7 +81,7 @@ unsigned Analog_Value_Instance_To_Index(uint32_t object_instance);
 bool Analog_Value_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name);
 bool Analog_Value_Name_Set(uint32_t object_instance, char *new_name);
 
-int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata);
+int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data);
 
 bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data);
 

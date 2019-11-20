@@ -18,16 +18,16 @@ extern "C" {
  * @note
  * @retval None
  */
-void setUpdatePending(void) {
-  bacObj_Device_t *object_device = getDeviceObject();
-  CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
+// void setUpdatePending(void) {
+//   bacObj_Device_t *object_device = getDeviceObject();
+//   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
-  uint32_t value = 1;
-  CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
-  id.NumericByRef().u1 = *(uint32_t *)value;
-}
+//   uint32_t value = 1;
+//   CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
+//   id.NumericByRef().u1 = *(uint32_t *)value;
+// }
 
-uint32_t getBaseValue(object_baseValues_t var, void *address) {
+uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
@@ -56,53 +56,6 @@ uint32_t getBaseValue(object_baseValues_t var, void *address) {
     return 1;
     break;
   }
-  default: {
-    return 0;
-    break;
-  }
-  }
-  return 0;
-}
-
-void setBaseValue(object_baseValues_t var, void *value) {
-  bacObj_Device_t *object_device = getDeviceObject();
-  CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
-
-  setUpdatePending();
-  switch (var) {
-  case _updatePending: {
-    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
-    id.NumericByRef().u1 = *(uint32_t *)value;
-    break;
-  }
-  case _identifier: {
-    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier];
-    id.NumericByRef().u4 = *(uint32_t *)value;
-    break;
-  }
-  case _name: {
-    CLR_RT_HeapBlock_String::CreateInstance(device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectName], (const char *)value);
-    break;
-  }
-  case _type: {
-    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType];
-    id.NumericByRef().u4 = *(uint32_t *)value;
-
-    break;
-  }
-  default: {
-
-    break;
-  }
-  }
-}
-
-uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
-  bacObj_Device_t *object_device = getDeviceObject();
-  CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
-
-  uint32_t value = 0;
-  switch (var) {
   case _systemStatus: {
     value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___systemStatus].NumericByRefConst().u1;
     memcpy(address, (void *)&value, 1);
@@ -155,7 +108,7 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
   }
   case _vendorId: {
     value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId].NumericByRefConst().u4;
-    memcpy(address, (void *)&value, 4);
+    memcpy(address, (void *)&value, 2);
     return 1;
     break;
   }
@@ -183,8 +136,28 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
-  setUpdatePending();
+  // setUpdatePending();
   switch (var) {
+  case _updatePending: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
+    id.NumericByRef().u1 = *(uint8_t *)value;
+    break;
+  }
+  case _identifier: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _name: {
+    CLR_RT_HeapBlock_String::CreateInstance(device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectName], (const char *)value);
+    break;
+  }
+  case _type: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+
+    break;
+  }
   case _systemStatus: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___systemStatus];
     id.NumericByRef().u4 = *(uint32_t *)value;
@@ -228,7 +201,7 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   }
   case _vendorId: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId];
-    id.NumericByRef().u4 = *(uint32_t *)value;
+    id.NumericByRef().u2 = *(uint16_t *)value;
     break;
   }
   case _apduRetries: {
@@ -243,6 +216,149 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   }
   default:
     break;
+  }
+}
+
+uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog) {
+  CLR_RT_HeapBlock *analog_block = (CLR_RT_HeapBlock *)object_analog->objBlock;
+
+  uint32_t value = 0;
+  float float_value = 0xFFFFFFFF;
+  switch (var) {
+  case _av_updatePending: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending].NumericByRefConst().u1;
+    memcpy(address, (void *)&value, 1);
+    return 1;
+    break;
+  }
+  case _av_identifier: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _av_name: {
+    *(char **)address = (char *)analog_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectName].DereferenceString()->StringText();
+    return hal_strlen_s((const char *)address);
+    break;
+  }
+  case _av_type: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _presentValue: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentValue].NumericByRefConst().r4;
+    memcpy(address, (void *)&float_value, 4);
+    return 1;
+  }
+  case _av_description: {
+    *(char **)address =
+        (char *)analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___description].DereferenceString()->StringText();
+    return hal_strlen_s((const char *)address);
+    break;
+  }
+  case _statusFlags: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___statusFlags].NumericByRefConst().u1;
+    memcpy(address, (void *)&value, 1);
+    return 1;
+    break;
+  }
+  case _reliability: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___reliability].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _units: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___units].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
+    return 1;
+    break;
+  }
+  case _covIncrement: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___covIncrement].NumericByRefConst().r4;
+    memcpy(address, (void *)&float_value, 4);
+    return 1;
+    break;
+  }
+  case _presentPriority: {
+    value = analog_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentPriority].NumericByRefConst().u1;
+    memcpy(address, (void *)&value, 1);
+    return 1;
+    break;
+  }
+  default: {
+    return 0;
+    break;
+  }
+  }
+  return 0;
+}
+
+void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_analog) {
+  CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_analog->objBlock;
+
+  // setUpdatePending();
+  switch (var) {
+  case _av_updatePending: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
+    id.NumericByRef().u1 = *(uint8_t *)value;
+    break;
+  }
+  case _av_identifier: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _av_name: {
+    CLR_RT_HeapBlock_String::CreateInstance(device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectName], (const char *)value);
+    break;
+  }
+  case _av_type: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _presentValue: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentValue];
+    id.NumericByRef().r4 = *(uint8_t *)value;
+    break;
+  }
+  case _av_description: {
+    CLR_RT_HeapBlock_String::CreateInstance(device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___description],
+                                            (const char *)value);
+    break;
+  }
+  case _statusFlags: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___statusFlags];
+    id.NumericByRef().u1 = *(uint32_t *)value;
+    break;
+  }
+  case _reliability: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___reliability];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _units: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___units];
+    id.NumericByRef().u4 = *(uint32_t *)value;
+    break;
+  }
+  case _covIncrement: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___covIncrement];
+    id.NumericByRef().r4 = *(uint32_t *)value;
+    break;
+  }
+  case _presentPriority: {
+    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentPriority];
+    id.NumericByRef().r4 = *(uint32_t *)value;
+    break;
+  }
+  default: {
+    break;
+  }
   }
 }
 
