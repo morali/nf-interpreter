@@ -4,7 +4,7 @@
 #
 
 # native code directory
-set(BASE_PATH_FOR_THIS_MODULE "c:/nanoFramework/nf-interpreter/targets/FreeRTOS/GC5/nanoCLR/iSMA.BACnet")
+set(BASE_PATH_FOR_THIS_MODULE "${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/iSMA.BACnet")
 
 # set include directories
 list(APPEND iSMA.BACnet_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/bacnet/bacnet_app)
