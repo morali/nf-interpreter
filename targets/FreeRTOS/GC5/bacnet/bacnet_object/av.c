@@ -117,6 +117,25 @@ unsigned Analog_Value_Count(void) {
   return ret;
 }
 
+float Analog_Value_Present_Value(uint32_t object_instance) {
+
+  float value = 0.0;
+  bacObj_AV_t *list_index = getAnalogByIndex(object_instance);
+  if (list_index == NULL)
+    return false;
+
+  value = list_index->relinquishDefault;
+  for (uint32_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+    if (!isnan(list_index->in[i])) {
+      value = list_index->in[i];
+      setAnalogValue(_presentValue, (void *)&value, list_index);
+      setAnalogValue(_presentPriority, (void *)&i, list_index);
+      break;
+    }
+  }
+  return value;
+}
+
 /**
  * For a given object instance-number, sets the present-value at a given
  * priority 1..16.
@@ -134,25 +153,8 @@ bool Analog_Value_Present_Value_Set(uint32_t object_instance, float value, uint8
     return false;
 
   list_index->in[priority - 1] = value;
+  Analog_Value_Present_Value(object_instance);
   return true;
-}
-
-float Analog_Value_Present_Value(uint32_t object_instance) {
-
-  float value = 0.0;
-  bacObj_AV_t *list_index = getAnalogByIndex(object_instance);
-  if (list_index == NULL)
-    return false;
-
-  value = list_index->relinquishDefault;
-  for (uint32_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
-    if (!isnan(list_index->in[i])) {
-      value = list_index->in[i];
-      // getAnalogValue(_presentValue, (void *)&value, list_index);
-      break;
-    }
-  }
-  return value;
 }
 
 /* note: the object name must be unique within this device */
@@ -606,6 +608,9 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   case PROP_EVENT_STATE:
   case PROP_PROPERTY_LIST:
   case PROP_DESCRIPTION:
+    status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_CHARACTER_STRING, &wp_data->error_class, &wp_data->error_code);
+    setAnalogValue(_av_description, (void*)value.type.Character_String.value, list_index);
+    break;
   case PROP_PRIORITY_ARRAY:
 #if defined(INTRINSIC_REPORTING)
   case PROP_ACKED_TRANSITIONS:
