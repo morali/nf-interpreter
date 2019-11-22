@@ -27,15 +27,12 @@ HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::SetCoreVersio
   NANOCLR_HEADER();
 
   /* dereference string buffer from the argument */
-  CLR_RT_HeapBlock_Array *stringBuffer = stack.Arg0().DereferenceArray();
+  const char *data = stack.Arg0().DereferenceString()->StringText();
 
-  if (stringBuffer != NULL) {
-    const char *data = stringBuffer->StringText();
+  if (data != NULL) {
 
-    if (data != NULL) {
-      uint8_t length = stringBuffer->m_numOfElements;
-      hal_strncpy_s(core_version, 40, data, length);
-    }
+    uint8_t length = hal_strlen_s(data);
+    hal_strncpy_s(core_version, sizeof(core_version), data, length);
   }
 
   NANOCLR_NOCLEANUP_NOLABEL();

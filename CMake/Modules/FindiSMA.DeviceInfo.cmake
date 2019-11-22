@@ -29,7 +29,7 @@ foreach(SRC_FILE ${iSMA.DeviceInfo_SRCS})
 
         CMAKE_FIND_ROOT_PATH_BOTH
     )
-    message("${SRC_FILE} >> ${iSMA.DeviceInfo_SRC_FILE}") # debug helper
+    #message("${SRC_FILE} >> ${iSMA.DeviceInfo_SRC_FILE}") # debug helper
     list(APPEND iSMA.DeviceInfo_SOURCES ${iSMA.DeviceInfo_SRC_FILE})
 endforeach()
 
