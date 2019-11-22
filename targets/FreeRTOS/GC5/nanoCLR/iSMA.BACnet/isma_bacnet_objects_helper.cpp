@@ -18,14 +18,11 @@ extern "C" {
  * @note
  * @retval None
  */
-// void setUpdatePending(void) {
-//   bacObj_Device_t *object_device = getDeviceObject();
-//   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
-
-//   uint32_t value = 1;
-//   CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
-//   id.NumericByRef().u1 = *(uint32_t *)value;
-// }
+void UpdatePending(CLR_RT_HeapBlock *heap_block) {
+  CLR_RT_HeapBlock &update_pending = heap_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
+  uint32_t value = 1;
+  update_pending.NumericByRef().u4 = *(uint32_t *)value;
+}
 
 uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
   bacObj_Device_t *object_device = getDeviceObject();
@@ -136,7 +133,7 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   bacObj_Device_t *object_device = getDeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
-  // setUpdatePending();
+  UpdatePending(device_block);
   switch (var) {
   case _updatePending: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
@@ -300,7 +297,7 @@ uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *o
 void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_analog) {
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_analog->objBlock;
 
-  // setUpdatePending();
+  UpdatePending(device_block);
   switch (var) {
   case _av_updatePending: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];

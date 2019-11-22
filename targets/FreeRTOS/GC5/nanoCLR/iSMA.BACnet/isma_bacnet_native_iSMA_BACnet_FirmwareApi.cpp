@@ -8,15 +8,16 @@
 bacObj_Device_t *device_object;
 
 bacObj_AV_t *analog_listHead;
+bacObj_AV_t *analog_listTail;
 
 bacObj_Device_t *getDeviceObject() { return device_object; }
-bacObj_AV_t *getAnalogListHead() { return analog_listHead; }
+bacObj_AV_t *getAnalogListHead() { return analog_listTail; }
 
 bacObj_AV_t *getAnalogByIndex(uint32_t index) {
   bacObj_AV_t *head = getAnalogListHead();
   uint32_t id = 0;
   while (head != NULL) {
-    getAnalogValue(_av_identifier, (void *)&id, analog_listHead);
+    getAnalogValue(_av_identifier, (void *)&id, analog_listTail);
     if (id == index)
       return head;
     head = head->next;
@@ -64,6 +65,7 @@ bool addAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
 
   if (analog_listHead == NULL) {
     analog_listHead = newObj;
+    analog_listTail = newObj;
   }
 
   analog_listHead->next = newObj;

@@ -602,18 +602,35 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     break;
 #endif
   case PROP_OBJECT_IDENTIFIER:
+    status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_OBJECT_ID, &wp_data->error_class, &wp_data->error_code);
+    setAnalogValue(_av_identifier, (void *)&value.type.Object_Id.instance, list_index);
+    break;
   case PROP_OBJECT_NAME:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_OBJECT_TYPE:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_STATUS_FLAGS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_EVENT_STATE:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROPERTY_LIST:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_DESCRIPTION:
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_CHARACTER_STRING, &wp_data->error_class, &wp_data->error_code);
-    setAnalogValue(_av_description, (void*)value.type.Character_String.value, list_index);
+    setAnalogValue(_av_description, (void *)value.type.Character_String.value, list_index);
     break;
   case PROP_PRIORITY_ARRAY:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
 #if defined(INTRINSIC_REPORTING)
   case PROP_ACKED_TRANSITIONS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_EVENT_TIME_STAMPS:
 #endif
     wp_data->error_class = ERROR_CLASS_PROPERTY;

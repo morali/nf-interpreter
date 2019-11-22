@@ -192,7 +192,7 @@ void vBACnetThread(void *parameters) {
   uint16_t pdu_len = 0;
   unsigned timeout = 100; /* milliseconds */
 
-  bip_set_port(htons(47809));
+  bip_set_port(htons(47808));
 
   bacObj_Device_t *deviceObject = getDeviceObject();
 

@@ -84,18 +84,17 @@ static char Device_Password[32] = "admin";
 static object_functions_t *Object_Table;
 static const object_functions_t Device_Object_Table[] = {
     /* Device object */
-    {OBJECT_DEVICE, NULL /* Init - don't init Device or it will recourse! */, Device_Count, Device_Index_To_Instance, Device_Valid_Object_Instance_Number,
-     Device_Object_Name, Device_Read_Property_Local, Device_Write_Property_Local, Device_Property_Lists, DeviceGetRRInfo, NULL /* Iterator */,
-     NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */},
+    {OBJECT_DEVICE, NULL /* Init - don't init Device or it will recourse! */, Device_Count, Device_Index_To_Instance, Device_Valid_Object_Instance_Number, Device_Object_Name,
+     Device_Read_Property_Local, Device_Write_Property_Local, Device_Property_Lists, DeviceGetRRInfo, NULL /* Iterator */, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */,
+     NULL /* Intrinsic Reporting */},
 
     /* Analog value object */
-    {OBJECT_ANALOG_VALUE, Analog_Value_Init, Analog_Value_Count, Analog_Value_Index_To_Instance, Analog_Value_Valid_Instance, Analog_Value_Object_Name,
-     Analog_Value_Read_Property, Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, NULL /* Iterator */,
-     NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, Analog_Value_Intrinsic_Reporting},
+    {OBJECT_ANALOG_VALUE, Analog_Value_Init, Analog_Value_Count, Analog_Value_Index_To_Instance, Analog_Value_Valid_Instance, Analog_Value_Object_Name, Analog_Value_Read_Property,
+     Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, NULL /* Iterator */, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */,
+     Analog_Value_Intrinsic_Reporting},
 
-    {MAX_BACNET_OBJECT_TYPE, NULL /* Init */, NULL /* Count */, NULL /* Index_To_Instance */, NULL /* Valid_Instance */, NULL /* Object_Name */,
-     NULL /* Read_Property */, NULL /* Write_Property */, NULL /* Property_Lists */, NULL /* ReadRangeInfo */, NULL /* Iterator */, NULL /* Value_Lists */,
-     NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */}};
+    {MAX_BACNET_OBJECT_TYPE, NULL /* Init */, NULL /* Count */, NULL /* Index_To_Instance */, NULL /* Valid_Instance */, NULL /* Object_Name */, NULL /* Read_Property */, NULL /* Write_Property */,
+     NULL /* Property_Lists */, NULL /* ReadRangeInfo */, NULL /* Iterator */, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */}};
 
 /** Sets (non-volatile hold) the password to be used for DCC requests.
  * @param new_password [in] The new DCC password, of up to 31 characters.
@@ -640,8 +639,7 @@ bool Device_Valid_Object_Name(BACNET_CHARACTER_STRING *object_name1, int *object
     check_id = Device_Object_List_Identifier(i, &type, &instance);
     if (check_id) {
       pObject = Device_Objects_Find_Functions((BACNET_OBJECT_TYPE)type);
-      if ((pObject != NULL) && (pObject->Object_Name != NULL) &&
-          (pObject->Object_Name(instance, &object_name2) && characterstring_same(object_name1, &object_name2))) {
+      if ((pObject != NULL) && (pObject->Object_Name != NULL) && (pObject->Object_Name(instance, &object_name2) && characterstring_same(object_name1, &object_name2))) {
         found = true;
         if (object_type) {
           *object_type = type;
@@ -991,8 +989,7 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata) {
     break;
   }
   /*  only array properties can have array options */
-  if ((apdu_len >= 0) && (rpdata->object_property != PROP_OBJECT_LIST) && (rpdata->object_property != PROP_PROPERTY_LIST) &&
-      (rpdata->array_index != BACNET_ARRAY_ALL)) {
+  if ((apdu_len >= 0) && (rpdata->object_property != PROP_OBJECT_LIST) && (rpdata->object_property != PROP_PROPERTY_LIST) && (rpdata->array_index != BACNET_ARRAY_ALL)) {
     rpdata->error_class = ERROR_CLASS_PROPERTY;
     rpdata->error_code = ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY;
     apdu_len = BACNET_STATUS_ERROR;
@@ -1192,7 +1189,11 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     break;
 #else
   case PROP_TIME_SYNCHRONIZATION_INTERVAL:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_ALIGN_INTERVALS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_INTERVAL_OFFSET:
     wp_data->error_class = ERROR_CLASS_PROPERTY;
     wp_data->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
@@ -1239,31 +1240,68 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     break;
 #else
   case PROP_MAX_INFO_FRAMES:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_MAX_MASTER:
     wp_data->error_class = ERROR_CLASS_PROPERTY;
     wp_data->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
     break;
 #endif
   case PROP_OBJECT_TYPE:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_VENDOR_NAME:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_FIRMWARE_REVISION:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_APPLICATION_SOFTWARE_VERSION:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_LOCAL_TIME:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_LOCAL_DATE:
-  // case PROP_DAYLIGHT_SAVING_STATUS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROTOCOL_VERSION:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROTOCOL_REVISION:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROTOCOL_SERVICES_SUPPORTED:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROTOCOL_OBJECT_TYPES_SUPPORTED:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_OBJECT_LIST:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_MAX_APDU_LENGTH_ACCEPTED:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_SEGMENTATION_SUPPORTED:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_DEVICE_ADDRESS_BINDING:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_DATABASE_REVISION:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_ACTIVE_COV_SUBSCRIPTIONS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
   case PROP_PROPERTY_LIST:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
 #if defined(BACNET_TIME_MASTER)
   case PROP_TIME_SYNCHRONIZATION_RECIPIENTS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
 #endif
     wp_data->error_class = ERROR_CLASS_PROPERTY;
     wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
