@@ -18,7 +18,7 @@
 struct Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo
 {
     NANOCLR_NATIVE_DECLARE(GetCoreVersionNative___STATIC__STRING);
-    NANOCLR_NATIVE_DECLARE(SetCoreVersionNative___STATIC__STRING__STRING);
+    NANOCLR_NATIVE_DECLARE(SetCoreVersionNative___STATIC__VOID__STRING);
     NANOCLR_NATIVE_DECLARE(GetStorageType___STATIC__iSMADeviceInfoDeviceInfoStorageType);
 
     //--//

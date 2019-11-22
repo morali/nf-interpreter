@@ -23,17 +23,21 @@ HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::GetCoreVersio
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::SetCoreVersionNative___STATIC__STRING__STRING(CLR_RT_StackFrame &stack) {
+HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::SetCoreVersionNative___STATIC__VOID__STRING(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
   /* get a pointer to the managed object instance and check that it's not NULL */
-//   CLR_RT_HeapBlock *pThis = stack.This();
-//   FAULT_ON_NULL(pThis);
+  //   CLR_RT_HeapBlock *pThis = stack.This();
+  //   FAULT_ON_NULL(pThis);
 
   /* dereference string buffer from the argument */
-  CLR_RT_HeapBlock_Array *stringBuffer = stack.Arg1().DereferenceArray();
+  CLR_RT_HeapBlock_Array *stringBuffer = stack.Arg0().DereferenceArray();
+  FAULT_ON_NULL(stringBuffer);
 
   const char *data = stringBuffer->StringText();
+
+  FAULT_ON_NULL(data);
+
   uint8_t length = stringBuffer->m_numOfElements;
 
   hal_strncpy_s(core_version, 40, data, length);
