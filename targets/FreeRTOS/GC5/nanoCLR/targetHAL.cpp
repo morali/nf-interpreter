@@ -8,6 +8,7 @@
 #include <nanoHAL_Types.h>
 #include <nanoPAL_BlockStorage.h>
 #include <nanoHAL_ConfigurationManager.h>
+#include <nanoCLR_Runtime.h>
 
 //
 //  Reboot handlers clean up on reboot
@@ -75,6 +76,9 @@ void nanoHAL_Initialize()
     
 	// Start Network Debugger
    // SOCKETS_DbgInitialize( 0 );
+
+    // Disable Heap Compaction for GC5 boards
+    CLR_EE_DBG_SET( NoCompaction );
 }
 
 void nanoHAL_Uninitialize()

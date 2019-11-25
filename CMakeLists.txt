@@ -58,7 +58,6 @@ endif()
 # ... also on the compare block below
 set(RTOS_SUPPORTED "CHIBIOS" "FREERTOS" "FREERTOS_ESP32" "TI_SIMPLELINK" CACHE INTERNAL "supported RTOS options")
 
-
 list(FIND RTOS_SUPPORTED ${RTOS} RTOS_INDEX)
 if(RTOS_INDEX EQUAL -1)
     message(FATAL_ERROR "\n\n'${RTOS}' is an invalid option for RTOS. Please choose a valid RTOS.\n\n")
@@ -76,6 +75,7 @@ string(COMPARE EQUAL "TI_SIMPLELINK" "${RTOS}" RTOS_TI_SIMPLELINK_CHECK)
 if(RTOS_FREERTOS_CHECK)
     set(RTOS_FREERTOS_CHECK TRUE)
     set(RTOS_FREERTOS_ESP32_CHECK FALSE)
+    set(RTOS_TI_SIMPLELINK_CHECK FALSE)
     set(RTOS_CHIBIOS_CHECK FALSE)
 endif()
 
@@ -95,6 +95,7 @@ endif()
 
 if(RTOS_TI_SIMPLELINK_CHECK)
     set(RTOS_TI_SIMPLELINK_CHECK TRUE)
+    set(RTOS_FREERTOS_CHECK FALSE)
     set(RTOS_FREERTOS_ESP32_CHECK FALSE)
     set(RTOS_CHIBIOS_CHECK FALSE)
 endif()
@@ -122,6 +123,14 @@ if(RTOS_CHIBIOS_CHECK)
     message(STATUS "\nSetting Toolchain file for ChibiOS \n")
     # set toolchain file
     set(CMAKE_TOOLCHAIN_FILE CMake/toolchain.ChibiOS.${TOOLCHAIN}.cmake)
+
+    # Set up short path substitution on Windows
+	if(WIN32)
+		if(EXISTS ${CMAKE_SOURCE_DIR}/SetNFRoot.bat)
+    		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/SetNFRoot.bat OUTPUT_VARIABLE NFROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
+			set(ENV{nfRoot} ${NFROOT})
+    	endif()
+    endif()
 
 elseif(RTOS_FREERTOS_CHECK)
     message(STATUS "\nSetting Toolchain file for FreeRTOS \n")
@@ -214,6 +223,19 @@ if(DP_FLOATINGPOINT)
 else()
     set(TARGET_DP_FLOATINGPOINT FALSE CACHE INTERNAL "DP FP support")
     message(STATUS "Single-precision floating point is effective")
+endif()
+
+#################################################################################
+# chooses if build without complex math functions
+# (default is OFF which means that all floating point math functions are available)
+option(NF_FEATURE_LIGHT_MATH "option to build without complex math functions")
+
+if(NF_FEATURE_LIGHT_MATH)
+    set(TARGET_LIGHT_MATH TRUE CACHE INTERNAL "Complex Math functions disabled")
+    message(STATUS "Complex math functions not available")
+else()
+    set(TARGET_LIGHT_MATH FALSE CACHE INTERNAL "Complex Math functions enabled")
+    message(STATUS "Complex math functions available")
 endif()
 
 ###################################################################################
@@ -432,6 +454,36 @@ if(NF_FEATURE_SUPPORT_REFLECTION)
 else()
     set(TARGET_NANOCLR_REFLECTION FALSE CACHE INTERNAL "DISABLE support for System.Reflection API")
     message(STATUS "Support for System.Reflection API **IS NOT** enabled")
+endif()
+
+#################################################################
+
+#################################################################
+
+#############################################
+# handles inclusion of System.Collections API
+#############################################
+
+if(API_nanoFramework.System.Collections)
+    set(TARGET_SYSTEM_COLLECTIONS TRUE CACHE INTERNAL "enable support for System.Collections API")
+    message(STATUS "Support for System.Collections API enabled")
+else()
+    set(TARGET_SYSTEM_COLLECTIONS FALSE CACHE INTERNAL "DISABLE support for System.Collections API")
+    message(STATUS "Support for System.Collections API **IS NOT** enabled")
+endif()
+
+#################################################################
+
+#############################################
+# handles inclusion of System.Text API
+#############################################
+
+if(API_nanoFramework.System.Text)
+    set(TARGET_SYSTEM_TEXT TRUE CACHE INTERNAL "enable support for System.Text API")
+    message(STATUS "Support for System.Text API enabled")
+else()
+    set(TARGET_SYSTEM_TEXT FALSE CACHE INTERNAL "DISABLE support for System.Text API")
+    message(STATUS "Support for System.Text API **IS NOT** enabled")
 endif()
 
 #################################################################
@@ -672,6 +724,11 @@ if(RTOS_CHIBIOS_CHECK)
         endif()
 
     endif()
+#######################
+# FreeRTOS
+elseif(RTOS_FREERTOS_CHECK)
+
+    add_subdirectory(targets/FreeRTOS)
 
 #######################
 # FreeRTOS
@@ -681,22 +738,22 @@ elseif(RTOS_FREERTOS_CHECK)
    
     # now add the subdirectory for the board
     # try to find board in the targets folder
-    if(EXISTS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/GC5/${FREERTOS_BOARD})
+    if(EXISTS ${PROJECT_SOURCE_DIR}/targets/FreeRTOS/NXP/${FREERTOS_BOARD})
         # board found
         message(STATUS "Support for target board '${FREERTOS_BOARD}' found")
 
         # add TARGET board directory
-        add_subdirectory("targets/FreeRTOS/GC5/${FREERTOS_BOARD}")
+        add_subdirectory("targets/FreeRTOS/NXP/${FREERTOS_BOARD}")
 
     else()
 
         # try to find board in the Community targets folder
-        if(EXISTS ${PROJECT_SOURCE_DIR}/targets-community/FreeRTOS/GC5/${FREERTOS_BOARD})
+        if(EXISTS ${PROJECT_SOURCE_DIR}/targets-community/FreeRTOS/NXP/${FREERTOS_BOARD})
             # board found
             message(STATUS "Support for target board '${FREERTOS_BOARD}' found in Community targets")
 
             # add TARGET board directory from Community
-            add_subdirectory("targets-community/FreeRTOS/GC5/${FREERTOS_BOARD}")
+            add_subdirectory("targets-community/FreeRTOS/NXP/${FREERTOS_BOARD}")
 
         else()
         # board NOT found in targets folder

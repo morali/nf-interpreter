@@ -124,7 +124,7 @@ int main(void) {
   xTaskCreate(vMacAddressThread, "MacAddressThread", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
   xTaskCreate(vInitializeConfigurationManager, "InitCMTask", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 13, NULL);
   xTaskCreate(vBlinkTask, "BlinkTask", configMINIMAL_STACK_SIZE + 10, NULL, configMAX_PRIORITIES - 15, NULL);
-  xTaskCreate(vReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 15, NULL);
+  xTaskCreate(ReceiverThread, "ReceiverThread", 2048, NULL, configMAX_PRIORITIES - 15, NULL);
 
   vTaskStartScheduler();
 

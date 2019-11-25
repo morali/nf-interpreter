@@ -16,16 +16,7 @@ extern "C" {
 
 // this platform doesn't have any declared capabilities
 
-// the targets of this platform can declate these capabilities
-typedef enum TargetCapabilities
-{
-    // JTAG update
-    TargetCapabilities_JtagUpdate   = 0x00000000,
-
-    // DFU update
-    TargetCapabilities_DfuUpdate    = 0x00040000,
-
-}TargetCapabilities;
+// the targets of this platform don't have any declared capabilities
 
 #ifdef __cplusplus
 }

@@ -264,47 +264,6 @@ struct Library_corlib_native_System_Collections_ArrayList
 
 };
 
-struct Library_corlib_native_System_Collections_DictionaryEntry
-{
-    static const int FIELD__Key = 1;
-    static const int FIELD__Value = 2;
-
-
-    //--//
-
-};
-
-struct Library_corlib_native_System_Collections_Queue
-{
-    static const int FIELD___array = 1;
-    static const int FIELD___head = 2;
-    static const int FIELD___tail = 3;
-    static const int FIELD___size = 4;
-
-    NANOCLR_NATIVE_DECLARE(Clear___VOID);
-    NANOCLR_NATIVE_DECLARE(CopyTo___VOID__SystemArray__I4);
-    NANOCLR_NATIVE_DECLARE(Enqueue___VOID__OBJECT);
-    NANOCLR_NATIVE_DECLARE(Dequeue___OBJECT);
-    NANOCLR_NATIVE_DECLARE(Peek___OBJECT);
-
-    //--//
-
-};
-
-struct Library_corlib_native_System_Collections_Stack
-{
-    static const int FIELD___array = 1;
-    static const int FIELD___size = 2;
-
-    NANOCLR_NATIVE_DECLARE(Clear___VOID);
-    NANOCLR_NATIVE_DECLARE(Peek___OBJECT);
-    NANOCLR_NATIVE_DECLARE(Pop___OBJECT);
-    NANOCLR_NATIVE_DECLARE(Push___VOID__OBJECT);
-
-    //--//
-
-};
-
 struct Library_corlib_native_System_Console
 {
     NANOCLR_NATIVE_DECLARE(OutNative___STATIC__VOID__STRING__BOOLEAN);
@@ -850,39 +809,6 @@ struct Library_corlib_native_System_String
 
     static HRESULT ConvertToCharArray( CLR_RT_StackFrame& stack, CLR_RT_HeapBlock& ref, CLR_RT_HeapBlock_Array*& array, int startIndex, int length );
     static HRESULT ConvertToCharArray( const char* szText           , CLR_RT_HeapBlock& ref, CLR_RT_HeapBlock_Array*& array, int startIndex, int length );
-};
-
-struct Library_corlib_native_System_Text_StringBuilder
-{
-    static const int FIELD___maxCapacity = 1;
-    static const int FIELD___chunkChars = 2;
-    static const int FIELD___chunkLength = 3;
-    static const int FIELD___chunkPrevious = 4;
-    static const int FIELD___chunkOffset = 5;
-
-
-    //--//
-
-};
-
-struct Library_corlib_native_System_Text_UTF8Decoder
-{
-    NANOCLR_NATIVE_DECLARE(Convert___VOID__SZARRAY_U1__I4__I4__SZARRAY_CHAR__I4__I4__BOOLEAN__BYREF_I4__BYREF_I4__BYREF_BOOLEAN);
-
-    //--//
-
-};
-
-struct Library_corlib_native_System_Text_UTF8Encoding
-{
-    NANOCLR_NATIVE_DECLARE(GetBytes___SZARRAY_U1__STRING);
-    NANOCLR_NATIVE_DECLARE(GetBytes___I4__STRING__I4__I4__SZARRAY_U1__I4);
-    NANOCLR_NATIVE_DECLARE(GetChars___SZARRAY_CHAR__SZARRAY_U1);
-    NANOCLR_NATIVE_DECLARE(GetChars___SZARRAY_CHAR__SZARRAY_U1__I4__I4);
-
-    //--//
-
-    static HRESULT Helper__GetChars(CLR_RT_StackFrame& stack, bool fIndexed);
 };
 
 struct Library_corlib_native_System_Threading_WaitHandle
