@@ -7,6 +7,6 @@
 #define _TARGET_WINDOWS_STORAGE_H_ 1
 
 // declaration of storage working threads
-void vSdCardThread(void *argument);
+void SdCardThread(void *argument);
 
 #endif //_TARGET_WINDOWS_STORAGE_H_

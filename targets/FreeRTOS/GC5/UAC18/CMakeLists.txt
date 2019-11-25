@@ -65,6 +65,7 @@ add_executable(
     # need to add configuration manager to allow get/store configuration blocks
     "${PROJECT_SOURCE_DIR}/src/HAL/nanoHAL_ConfigurationManager.c"
 
+    ${TARGET_FREERTOS_COMMON_SOURCES}
     ${TARGET_NXP_COMMON_SOURCES}
     ${TARGET_NXP_NANOBOOTER_SOURCES}
     ${NANOBOOTER_PROJECT_SOURCES}
@@ -83,6 +84,8 @@ add_executable(
 
     "${CMAKE_CURRENT_SOURCE_DIR}/target_common.c"
     
+    ${TARGET_FREERTOS_COMMON_SOURCES}
+    ${TARGET_FREERTOS_NANOCLR_SOURCES}
     ${TARGET_NXP_COMMON_SOURCES}
     ${TARGET_NXP_NANOCLR_SOURCES}
     ${NANOCLR_PROJECT_SOURCES}
@@ -118,6 +121,7 @@ include_directories(
     "${CMAKE_CURRENT_BINARY_DIR}"
 
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${TARGET_FREERTOS_COMMON_INCLUDE_DIRS}
     ${TARGET_NXP_COMMON_INCLUDE_DIRS}
     ${TARGET_NXP_NANOCLR_INCLUDE_DIRS}
 
@@ -151,6 +155,8 @@ target_include_directories(${NANOCLR_PROJECT_NAME}.elf PUBLIC
     "${NF_Debugger_INCLUDE_DIRS}"
     "${NF_Diagnostics_INCLUDE_DIRS}"
 
+    ${TARGET_FREERTOS_NANOCLR_INCLUDE_DIRS}
+    
     # includes for nanoFramework APIs
     "${TARGET_NANO_APIS_INCLUDES}"
 

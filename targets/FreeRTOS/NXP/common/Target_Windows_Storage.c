@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "task.h"
+#include "FreeRTOSCommonHooks.h"
 
 #include "ff.h"
 #include <nanoHAL_Windows_Storage.h>
@@ -80,7 +81,7 @@ static void CardDetectTask(void *pvParameters)
 
         /* take card detect semaphore */
         xSemaphoreTake(s_CardDetectSemaphore, portMAX_DELAY);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        FreeRTOSDelay(100);
         if (s_cardInserted)
         {
             //Card inserted.
@@ -95,7 +96,7 @@ static void CardDetectTask(void *pvParameters)
 
             FRESULT err = f_mount(&sdCard_FS, "0", 1U);
             if (err != FR_OK) {
-                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                FreeRTOSDelay(1000);
                 SD_CardDeinit(&g_sd);
                 continue;
             }

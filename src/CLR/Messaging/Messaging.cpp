@@ -173,7 +173,7 @@ bool CLR_Messaging::App_ProcessHeader( void* state, WP_Message*  msg )
 
     if( !pThis->ProcessHeader( msg ) )
     {
-        TRACE0(TRACE_STATE, "ProcessHeader() indicated invalid header!\n");
+        TRACE0("ProcessHeader() indicated invalid header!\n");
         return false;
     }
 
@@ -183,7 +183,7 @@ bool CLR_Messaging::App_ProcessHeader( void* state, WP_Message*  msg )
 
         if(ptr == NULL)
         {
-            TRACE0(TRACE_STATE, "Failed to allocate 0x%08X bytes for message payload!\n");
+            TRACE0("Failed to allocate 0x%08X bytes for message payload!\n");
             return false;
         }
 
@@ -287,7 +287,7 @@ void CLR_Messaging::Initialize(
     m_fDebuggerInitialized = (DebuggerPort_Initialize( HalSystemConfig.DebuggerPort ) != false);
 
     m_fInitialized = true;
-    
+
 }
 
 HRESULT CLR_Messaging::DeleteInstance()
@@ -334,7 +334,7 @@ bool CLR_Messaging::ProcessHeader( WP_Message* msg )
     (void)msg;
 
     NATIVE_PROFILE_CLR_MESSAGING();
-    TRACE(TRACE_STATE, "MSG: 0x%08X\n", msg->m_header.m_cmd );
+    TRACE("MSG: 0x%08X\n", msg->m_header.m_cmd );
     return true;
 }
 

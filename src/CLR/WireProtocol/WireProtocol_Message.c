@@ -239,7 +239,7 @@ int WP_Message_Process(WP_Message* message)
                     }
 
                     memmove(&buf[0], &buf[1], len-1);
-                    
+
                     message->m_pos--;
                     message->m_size++;
                 }

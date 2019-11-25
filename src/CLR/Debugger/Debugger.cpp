@@ -14,13 +14,18 @@
 
 #define __min(a,b) (((a) < (b)) ? (a) : (b))
 
-#if TRACE_MASK != 0
+#if 0
+#define TRACE0( msg, ...) debug_printf( msg ) 
+#define TRACE( msg, ...) debug_printf( msg, __VA_ARGS__ ) 
 char const* const AccessMemoryModeNames[] = {
 "AccessMemory_Check",
 "AccessMemory_Read", 
 "AccessMemory_Write",
 "AccessMemory_Erase"
 };
+#else
+#define TRACE0(msg,...)
+#define TRACE(msg,...)
 #endif
 
 //--//
@@ -329,7 +334,7 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg)
 
 bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg)
 {
-    NATIVE_PROFILE_CLR_DEBUGGER();
+	NATIVE_PROFILE_CLR_DEBUGGER();
 
     if((msg->m_header.m_flags & WP_Flags_c_Reply) == 0)
     {
@@ -345,19 +350,32 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg)
         unsigned int rangeCount = 0;
         unsigned int rangeIndex = 0;
 
-        // get pointer to the 1st storage device
-        BlockStorageDevice* device = BlockStorageList_GetFirstDevice();
+        // get the number of available block storage devices
+        unsigned int numDevices = BlockStorageList_GetNumDevices();
 
-        // sanity check
-        if(device == NULL)
+        // get an array of pointer to all the storage devices in the list and then request the device info
+        BlockStorageDevice** devices = (BlockStorageDevice**) platform_malloc(numDevices * sizeof(BlockStorageDevice*));
+        DeviceBlockInfo** deviceInfos = (DeviceBlockInfo**) platform_malloc(numDevices * sizeof(DeviceBlockInfo*));
+
+        for(unsigned int i = 0; i < numDevices; i++)
         {
-            WP_ReplyToCommand( msg, true, false, NULL, 0 );
-            return false;
+            if(i == 0)
+            {
+                devices[i] = BlockStorageList_GetFirstDevice();
+            } 
+            else
+            {
+                devices[i] = BlockStorageList_GetNextDevice(devices[i-1]);
+            }
+            // sanity check
+            if(devices[i] == NULL)
+            {
+                WP_ReplyToCommand( msg, true, false, NULL, 0 );
+                return false;
+            }
+            deviceInfos[i] = BlockStorageDevice_GetDeviceInfo(devices[i]);
         }
-
-        // now get info of storage device
-        DeviceBlockInfo* deviceInfo = BlockStorageDevice_GetDeviceInfo(device);
-
+	    
         for(int cnt = 0; cnt < 2; cnt++)
         {
             if(cnt == 1)
@@ -370,25 +388,27 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg)
                     return false;
                 }
             }
-
-            for(unsigned int i = 0; i < deviceInfo->NumRegions;  i++)
+            for(unsigned int i = 0; i < numDevices; i++)
             {
-                const BlockRegionInfo* pRegion = &deviceInfo->Regions[ i ];
-
-                for(unsigned int j = 0; j < pRegion->NumBlockRanges; j++)
+                for(unsigned int j = 0; j < deviceInfos[i]->NumRegions;  j++)
                 {
+                    const BlockRegionInfo* pRegion = &deviceInfos[i]->Regions[ j ];
 
-                    if(cnt == 0)
+                    for(unsigned int k = 0; k < pRegion->NumBlockRanges; k++)
                     {
-                        rangeCount++;
-                    }
-                    else
-                    {
-                        pData[ rangeIndex ].StartAddress  = BlockRegionInfo_BlockAddress(pRegion, pRegion->BlockRanges[ j ].StartBlock);
-                        pData[ rangeIndex ].NumBlocks = BlockRange_GetBlockCount(pRegion->BlockRanges[j]);
-                        pData[ rangeIndex ].BytesPerBlock = pRegion->BytesPerBlock;
-                        pData[ rangeIndex ].Usage  = pRegion->BlockRanges[ j ].RangeType & BlockRange_USAGE_MASK;
-                        rangeIndex++;
+
+                        if(cnt == 0)
+                        {
+                            rangeCount++;
+                        }
+                        else
+                        {
+                            pData[ rangeIndex ].StartAddress  = BlockRegionInfo_BlockAddress(pRegion, pRegion->BlockRanges[ k ].StartBlock);
+                            pData[ rangeIndex ].NumBlocks = BlockRange_GetBlockCount(pRegion->BlockRanges[k]);
+                            pData[ rangeIndex ].BytesPerBlock = pRegion->BytesPerBlock;
+                            pData[ rangeIndex ].Usage  = pRegion->BlockRanges[ k ].RangeType & BlockRange_USAGE_MASK;
+                            rangeIndex++;
+                        }
                     }
                 }
             }
@@ -398,6 +418,8 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg)
         WP_ReplyToCommand( msg, true, false, (void*)pData, rangeCount * sizeof (struct Flash_BlockRegionInfo) );
 
         platform_free(pData);
+        platform_free(devices);
+        platform_free(deviceInfos);
     }
 
     return true;
@@ -494,7 +516,7 @@ bool CLR_DBG_Debugger::CheckPermission( ByteAddress address, int mode )
 bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInBytes, unsigned char* buf, int mode, unsigned int* errorCode )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
-    TRACE(TRACE_STATE,"AccessMemory( 0x%08X, 0x%08x, 0x%08X, %s)\n", location, lengthInBytes, buf, AccessMemoryModeNames[mode] );
+    TRACE("AccessMemory( 0x%08X, 0x%08x, 0x%08X, %s)\n", location, lengthInBytes, buf, AccessMemoryModeNames[mode] );
 
     bool success = false;
 
@@ -545,7 +567,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
                 // since AccessMemory_Check is always true and will not break from here, no need to check AccessMemory_Check to free memory.
                 if(!CheckPermission( accessAddress, mode ))
                 {
-                    TRACE0(TRACE_STATE, "=> Permission check failed!\n");
+                    TRACE0("=> Permission check failed!\n");
                     
                     // set error code
                     *errorCode = AccessMemoryErrorCode_PermissionDenied;
@@ -571,7 +593,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
 
                                 if(!bufPtr)
                                 {
-                                    TRACE0(TRACE_STATE, "=> Failed to allocate data buffer\n");
+                                    TRACE0( "=> Failed to allocate data buffer\n");
                                                         
                                     // set error code
                                     *errorCode = AccessMemoryErrorCode_PermissionDenied;
@@ -675,7 +697,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
 
         if((sectAddr <ramStartAddress) || (sectAddr >=ramEndAddress) || (sectAddrEnd >ramEndAddress) )
         {
-            TRACE(TRACE_STATE," Invalid address %x and range %x Ram Start %x, Ram end %x\r\n", sectAddr, lengthInBytes, ramStartAddress, ramEndAddress);
+            TRACE(" Invalid address %x and range %x Ram Start %x, Ram end %x\r\n", sectAddr, lengthInBytes, ramStartAddress, ramEndAddress);
             return success;
         }
         else
@@ -708,7 +730,7 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, unsigned int lengthInB
         }
     }
 
-    TRACE0(TRACE_STATE, "=> SUCCESS\n");
+    TRACE0( "=> SUCCESS\n");
 
     return success;
 }

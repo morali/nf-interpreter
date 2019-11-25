@@ -5,87 +5,44 @@
 //
 #include "CorLib.h"
 
-#if !defined(NANOCLR_EMULATED_FLOATINGPOINT)
-    #include "nanoPAL_NativeDouble.h"
+HRESULT Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_CORE();
+    NANOCLR_HEADER();
 
-    HRESULT Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4( CLR_RT_StackFrame& stack )
-    {
+    CLR_INT32 d = stack.Arg0().NumericByRefConst().s4;
+    CLR_INT32 res = abs( d );
 
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
+    stack.SetResult_I4( res );
 
-        float d = stack.Arg0().NumericByRefConst().s4;
-        float res = fabs( d );
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
 
-        stack.SetResult_I4( res );
+HRESULT Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_CORE();
+    NANOCLR_HEADER();
 
-        NANOCLR_NOCLEANUP_NOLABEL();        
+    CLR_INT32 x = stack.Arg0().NumericByRefConst().s4;
+    CLR_INT32 y = stack.Arg1().NumericByRefConst().s4;
+    CLR_INT32 res = x >= y ? x : y;
 
-    }
+    stack.SetResult_I4( res );
 
-    HRESULT Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
-    {
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
 
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
+HRESULT Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_CORE();
+    NANOCLR_HEADER();
 
-        float x = stack.Arg0().NumericByRefConst().s4;
-        float y = stack.Arg1().NumericByRefConst().s4;
-        float res = x >= y ? x : y;
+    CLR_INT32 x = stack.Arg0().NumericByRefConst().s4;
+    CLR_INT32 y = stack.Arg1().NumericByRefConst().s4;
+    CLR_INT32 res = x <= y ? x : y;
 
-        stack.SetResult_I4( res );
+    stack.SetResult_I4( res );
 
-        NANOCLR_NOCLEANUP_NOLABEL();
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
 
-    }
-
-    HRESULT Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
-    {
-
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
-
-        float x = stack.Arg0().NumericByRefConst().s4;
-        float y = stack.Arg1().NumericByRefConst().s4;
-        float res = x <= y ? x : y;
-
-        stack.SetResult_I4( res );
-
-        NANOCLR_NOCLEANUP_NOLABEL();
-
-    }
-
-#else
-
-    /// No floating point
-    HRESULT Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4( CLR_RT_StackFrame& stack )
-    {
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
-
-        NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
-
-        NANOCLR_NOCLEANUP();
-    }
-
-    HRESULT Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
-    {
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
-
-        NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
-
-        NANOCLR_NOCLEANUP();
-    }
-
-    HRESULT Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4( CLR_RT_StackFrame& stack )
-    {
-        NATIVE_PROFILE_CLR_CORE();
-        NANOCLR_HEADER();
-
-        NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
-
-        NANOCLR_NOCLEANUP();
-    }
-
-#endif  // NANOCLR_EMULATED_FLOATINGPOINT
