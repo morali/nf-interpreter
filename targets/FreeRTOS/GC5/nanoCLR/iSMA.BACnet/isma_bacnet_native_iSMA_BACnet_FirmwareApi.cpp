@@ -4,6 +4,7 @@
 #include "isma_bacnet_native.h"
 #include "isma_bacnet_objects.h"
 #include "isma_bacnet_objects_helper.h"
+#include "GlobalEventsFlags.h"
 
 bacObj_Device_t *device_object;
 
@@ -40,6 +41,8 @@ bool addDevice_Object(CLR_RT_HeapBlock *objBlock) {
     free(device_object);
     return false;
   }
+
+  xEventGroupSetBits(xGlobalEventsFlags, EVENT_DEVICE_OK);
 
   return success;
 }

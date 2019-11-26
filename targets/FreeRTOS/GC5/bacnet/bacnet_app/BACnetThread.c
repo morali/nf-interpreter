@@ -68,80 +68,80 @@
 /** Buffer used for receiving */
 static uint8_t *Rx_Buf;
 
-/* Disable optimalizations for testing purposes */
-#pragma GCC push_options
-#pragma GCC optimize("O0")
+// /* Disable optimalizations for testing purposes */
+// #pragma GCC push_options
+// #pragma GCC optimize("O0")
 
-uint32_t bacnet_test() {
+// uint32_t bacnet_test() {
 
-  volatile uint32_t retSize = 0;
-  volatile uint32_t value = 0;
+//   volatile uint32_t retSize = 0;
+//   volatile uint32_t value = 0;
 
-  char __name[12] = "Test Name!!";
-  char __modelName[3] = "RC";
-  char __firmwareRevision[5] = "0.99";
-  char __applicationSoftwareRevision[5] = "1.22";
-  char __location[7] = "Poland";
-  char __device_description[16] = "Room Controller";
-  char __vendorName[4] = "GC5";
+//   char __name[12] = "Test Name!!";
+//   char __modelName[3] = "RC";
+//   char __firmwareRevision[5] = "0.99";
+//   char __applicationSoftwareRevision[5] = "1.22";
+//   char __location[7] = "Poland";
+//   char __device_description[16] = "Room Controller";
+//   char __vendorName[4] = "GC5";
 
-  const char *ret_string_value = __name;
+//   const char *ret_string_value = __name;
 
-  retSize = getDeviceValue(_updatePending, (void *)&value);
-  retSize = getDeviceValue(_identifier, (void *)&value);
-  retSize = getDeviceValue(_type, (void *)&value);
-  retSize = getDeviceValue(_name, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_updatePending, (void *)&value);
+//   retSize = getDeviceValue(_identifier, (void *)&value);
+//   retSize = getDeviceValue(_type, (void *)&value);
+//   retSize = getDeviceValue(_name, (void *)&ret_string_value);
 
-  setDeviceValue(_name, (void *)__name);
-  value = 10;
-  setDeviceValue(_identifier, (void *)&value);
-  value = 3;
-  setDeviceValue(_type, (void *)&value);
-  value = 1;
-  setDeviceValue(_updatePending, (void *)&value);
+//   setDeviceValue(_name, (void *)__name);
+//   value = 10;
+//   setDeviceValue(_identifier, (void *)&value);
+//   value = 3;
+//   setDeviceValue(_type, (void *)&value);
+//   value = 1;
+//   setDeviceValue(_updatePending, (void *)&value);
 
-  retSize = getDeviceValue(_name, (void *)&ret_string_value);
-  retSize = getDeviceValue(_identifier, (void *)&value);
-  retSize = getDeviceValue(_type, (void *)&value);
-  retSize = getDeviceValue(_updatePending, (void *)&value);
+//   retSize = getDeviceValue(_name, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_identifier, (void *)&value);
+//   retSize = getDeviceValue(_type, (void *)&value);
+//   retSize = getDeviceValue(_updatePending, (void *)&value);
 
-  retSize = getDeviceValue(_systemStatus, (void *)&value);
-  retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
-  retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
-  retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
-  retSize = getDeviceValue(_location, (void *)&ret_string_value);
-  retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
-  retSize = getDeviceValue(_protocolVersion, (void *)&value);
-  retSize = getDeviceValue(_protocolRevision, (void *)&value);
-  retSize = getDeviceValue(_vendorName, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_systemStatus, (void *)&value);
+//   retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_location, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_protocolVersion, (void *)&value);
+//   retSize = getDeviceValue(_protocolRevision, (void *)&value);
+//   retSize = getDeviceValue(_vendorName, (void *)&ret_string_value);
 
-  value = 6;
-  setDeviceValue(_systemStatus, (void *)&value);
-  setDeviceValue(_modelName, (void *)&__modelName);
-  setDeviceValue(_firmwareRevision, (void *)&__firmwareRevision);
-  setDeviceValue(_applicationSoftwareRevision, (void *)&__applicationSoftwareRevision);
-  setDeviceValue(_location, (void *)&__location);
-  setDeviceValue(_device_description, (void *)&__device_description);
-  value = 14;
-  setDeviceValue(_protocolVersion, (void *)&value);
-  value = 2;
-  setDeviceValue(_protocolRevision, (void *)&value);
-  setDeviceValue(_vendorName, (void*)&__vendorName);
+//   value = 6;
+//   setDeviceValue(_systemStatus, (void *)&value);
+//   setDeviceValue(_modelName, (void *)&__modelName);
+//   setDeviceValue(_firmwareRevision, (void *)&__firmwareRevision);
+//   setDeviceValue(_applicationSoftwareRevision, (void *)&__applicationSoftwareRevision);
+//   setDeviceValue(_location, (void *)&__location);
+//   setDeviceValue(_device_description, (void *)&__device_description);
+//   value = 14;
+//   setDeviceValue(_protocolVersion, (void *)&value);
+//   value = 2;
+//   setDeviceValue(_protocolRevision, (void *)&value);
+//   setDeviceValue(_vendorName, (void *)&__vendorName);
 
-  retSize = getDeviceValue(_systemStatus, (void *)&value);
-  retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
-  retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
-  retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
-  retSize = getDeviceValue(_location, (void *)&ret_string_value);
-  retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
-  retSize = getDeviceValue(_protocolVersion, (void *)&value);
-  retSize = getDeviceValue(_protocolRevision, (void *)&value);
-  retSize = getDeviceValue(_vendorName, (void*)&ret_string_value);
+//   retSize = getDeviceValue(_systemStatus, (void *)&value);
+//   retSize = getDeviceValue(_modelName, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_location, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_device_description, (void *)&ret_string_value);
+//   retSize = getDeviceValue(_protocolVersion, (void *)&value);
+//   retSize = getDeviceValue(_protocolRevision, (void *)&value);
+//   retSize = getDeviceValue(_vendorName, (void *)&ret_string_value);
 
-  return retSize;
-}
+//   return retSize;
+// }
 
-#pragma GCC pop_options
+// #pragma GCC pop_options
 
 static void TSM_Timeout(uint8_t invoke_id) { tsm_free_invoke_id(invoke_id); }
 
@@ -184,6 +184,7 @@ void vBACnetThread(void *parameters) {
   Allocate_Memory();
 
   xEventGroupWaitBits(xGlobalEventsFlags, EVENT_ETH_OK, pdFALSE, pdTRUE, portMAX_DELAY);
+  xEventGroupWaitBits(xGlobalEventsFlags, EVENT_DEVICE_OK, pdFALSE, pdTRUE, portMAX_DELAY);
 
   tsm_init();
   tsm_set_timeout_handler(TSM_Timeout);
@@ -201,7 +202,6 @@ void vBACnetThread(void *parameters) {
     deviceObject = getDeviceObject();
   }
 
-  
   uint32_t set_value = 826;
 
   /* Set firmware defined variables */
@@ -216,7 +216,8 @@ void vBACnetThread(void *parameters) {
 
   uint32_t id = 1;
   bacObj_AV_t *newObj = getAnalogListHead();
-  setAnalogValue(_av_identifier, (void*)&id, newObj);
+  if (newObj != NULL)
+    setAnalogValue(_av_identifier, (void *)&id, newObj);
 
   /* load any static address bindings to show up in our device bindings list */
   address_init();
@@ -244,7 +245,7 @@ void vBACnetThread(void *parameters) {
   Send_I_Am(Handler_Transmit_Buffer);
 
   /* loop forever */
-  while (1) {    
+  while (1) {
     pdu_len = datalink_receive(&src, Rx_Buf, MAX_MPDU, timeout);
     if (pdu_len) {
       npdu_handler(&src, Rx_Buf, pdu_len);

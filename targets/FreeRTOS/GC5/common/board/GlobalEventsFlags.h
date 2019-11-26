@@ -34,6 +34,7 @@ extern EventGroupHandle_t xGlobalEventsFlags;
 /* Bits position defines */
 #define MAC_ADDRESS_READ (1 << 0)
 #define EVENT_ETH_OK (1 << 1)
+#define EVENT_DEVICE_OK (1 << 2)
 
 void GlobalEventsFlags_Init(void);
 

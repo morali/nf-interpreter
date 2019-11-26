@@ -41,7 +41,6 @@
 #include "device.h"
 #include "handlers.h"
 
-#include "common.h"
 #include "isma_bacnet_objects.h"
 
 #include <math.h>
