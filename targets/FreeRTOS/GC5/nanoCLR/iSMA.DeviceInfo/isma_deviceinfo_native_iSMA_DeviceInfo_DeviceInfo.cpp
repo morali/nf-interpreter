@@ -11,14 +11,49 @@
 //-----------------------------------------------------------------------------
 
 #include "isma_deviceinfo_native.h"
+#include <corlib_native.h>
 
 char core_version[40] = "Core version not set!";
+char model_version[40] = "Model version not set!";
+char firmware_version[40] = "Firmware version not set!";
+
+void set_model_version(char * model) {
+  if (model != NULL) {
+
+    uint8_t length = hal_strlen_s(model);
+    hal_strncpy_s(model_version, sizeof(model_version), model, length);
+  }
+}
+
+void set_firmware_version(char * firmware) {
+  if (firmware != NULL) {
+
+    uint8_t length = hal_strlen_s(firmware);
+    hal_strncpy_s(firmware_version, sizeof(firmware_version), firmware, length);
+  }
+}
 
 HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::GetCoreVersionNative___STATIC__STRING(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
   /* because the caller is expecting a result to be returned */
   /* we need set a return result in the stack argument using the a ppropriate SetResult according to the variable type (a string here) */
   stack.SetResult_String(core_version);
+
+  NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::GetFirmwareVersionNative___STATIC__STRING(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
+
+  stack.SetResult_String(firmware_version);
+
+  NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo::GetModelVersionNative___STATIC__STRING(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
+
+  stack.SetResult_String(model_version);
 
   NANOCLR_NOCLEANUP_NOLABEL();
 }
