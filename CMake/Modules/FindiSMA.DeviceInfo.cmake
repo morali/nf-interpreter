@@ -14,7 +14,7 @@ set(iSMA.DeviceInfo_SRCS
 
     #bacnet_object
     isma_deviceinfo_native.cpp
-    isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo.cpp
+    isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi.cpp
 )
 
 foreach(SRC_FILE ${iSMA.DeviceInfo_SRCS})

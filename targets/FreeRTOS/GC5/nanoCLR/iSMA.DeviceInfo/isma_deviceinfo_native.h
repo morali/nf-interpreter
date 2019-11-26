@@ -15,16 +15,20 @@
 #include <nanoCLR_Interop.h>
 #include <nanoCLR_Runtime.h>
 
-void set_model_version(char *model);
-void set_firmware_version(char *firmware);
+// void set_model_version(char *model);
+// void set_firmware_version(char *firmware);
+struct Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo {
+  static const int FIELD_STATIC__implementation = 0;
 
-struct Library_isma_deviceinfo_native_iSMA_DeviceInfo_DeviceInfo 
-{
-  NANOCLR_NATIVE_DECLARE(GetCoreVersionNative___STATIC__STRING);
-  NANOCLR_NATIVE_DECLARE(GetFirmwareVersionNative___STATIC__STRING);
-  NANOCLR_NATIVE_DECLARE(GetModelVersionNative___STATIC__STRING);
-  NANOCLR_NATIVE_DECLARE(SetCoreVersionNative___STATIC__VOID__STRING);
-  NANOCLR_NATIVE_DECLARE(GetStorageType___STATIC__iSMADeviceInfoDeviceInfoStorageType);
+  //--//
+};
+
+struct Library_isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi {
+  NANOCLR_NATIVE_DECLARE(GetCoreVersion___STRING);
+  NANOCLR_NATIVE_DECLARE(SetCoreVersion___VOID__STRING);
+  NANOCLR_NATIVE_DECLARE(GetStorageType___iSMADeviceInfoDeviceInfoStorageType);
+  NANOCLR_NATIVE_DECLARE(GetFirmwareVersion___STRING);
+  NANOCLR_NATIVE_DECLARE(GetModelName___STRING);
 
   //--//
 };
