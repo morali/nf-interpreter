@@ -113,18 +113,14 @@ static const reset_ip_name_t s_flexspiResets[] = FLEXSPI_RSTS;
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
 __attribute__ ((section(".ramfunc.$RAM2")))
 uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
 {
     uint32_t instance;
-    for(int i = 0; i < 1000; i++);
+
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_flexspiBases); instance++)
     {
-        for(int i = 0; i < 1000; i++);
         if (s_flexspiBases[instance] == base)
         {
             break;
@@ -135,7 +131,6 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
 
     return instance;
 }
-#pragma GCC pop_options
 
 __attribute__ ((section(".ramfunc.$RAM2")))
 static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config)
