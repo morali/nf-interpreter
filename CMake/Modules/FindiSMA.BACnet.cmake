@@ -17,6 +17,7 @@ set(iSMA.BACnet_SRCS
 
     # class library source files
     isma_bacnet_native_iSMA_BACnet_FirmwareApi.cpp
+    isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO.cpp
     isma_bacnet_native.cpp
     isma_bacnet_objects_helper.cpp
     isma_bacnet_bacdcode.c

@@ -14,5 +14,4 @@
 
 int encode_application_character_string_isma(uint8_t *apdu, const char* string);
 
-
 #endif //_ISMA_BACNET_BACDCODE_H_
