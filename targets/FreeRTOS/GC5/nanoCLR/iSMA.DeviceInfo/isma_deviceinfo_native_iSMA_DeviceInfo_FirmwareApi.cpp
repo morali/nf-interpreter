@@ -14,8 +14,8 @@
 #include <corlib_native.h>
 
 char core_version[40] = "Core version not set!";
-// char model_version[40] = "Model version not set!";
-// char firmware_version[40] = "Firmware version not set!";
+char model_version[40] = "Model version not set!";
+char firmware_version[40] = "Firmware version not set!";
 
 HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi::GetCoreVersion___STRING(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
@@ -31,7 +31,7 @@ HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi::SetCoreVersi
   NANOCLR_HEADER();
 
   /* dereference string buffer from the argument */
-  const char *data = stack.Arg0().DereferenceString()->StringText();
+  const char *data = stack.Arg1().DereferenceString()->StringText();
 
   if (data != NULL) {
 
@@ -54,7 +54,7 @@ HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi::GetFirmwareV
   NANOCLR_HEADER();
   (void) stack;
 
-  // stack.SetResult_String(firmware_version);
+  stack.SetResult_String(firmware_version);
 
   NANOCLR_NOCLEANUP_NOLABEL();
 }
@@ -63,23 +63,23 @@ HRESULT Library_isma_deviceinfo_native_iSMA_DeviceInfo_FirmwareApi::GetModelName
   NANOCLR_HEADER();
   (void) stack;
 
-  // stack.SetResult_String(model_version);
+  stack.SetResult_String(model_version);
 
   NANOCLR_NOCLEANUP_NOLABEL();
 }
 
-// void set_model_version(char *model) {
-//   if (model != NULL) {
+void set_model_version(char *model) {
+  if (model != NULL) {
 
-//     uint8_t length = hal_strlen_s(model);
-//     hal_strncpy_s(model_version, sizeof(model_version), model, length);
-//   }
-// }
+    uint8_t length = hal_strlen_s(model);
+    hal_strncpy_s(model_version, sizeof(model_version), model, length);
+  }
+}
 
-// void set_firmware_version(char *firmware) {
-//   if (firmware != NULL) {
+void set_firmware_version(char *firmware) {
+  if (firmware != NULL) {
 
-//     uint8_t length = hal_strlen_s(firmware);
-//     hal_strncpy_s(firmware_version, sizeof(firmware_version), firmware, length);
-//   }
-// }
+    uint8_t length = hal_strlen_s(firmware);
+    hal_strncpy_s(firmware_version, sizeof(firmware_version), firmware, length);
+  }
+}

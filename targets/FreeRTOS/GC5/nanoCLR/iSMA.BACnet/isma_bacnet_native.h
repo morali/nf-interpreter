@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-//                   ** WARNING! **
+//                   ** WARNING! ** 
 //    This file was generated automatically by a tool.
 //    Re-running the tool will overwrite this file.
 //    You should copy this file to a custom location
@@ -9,7 +9,6 @@
 //    re-run.
 //
 //-----------------------------------------------------------------------------
-
 #ifndef _ISMA_BACNET_NATIVE_H_
 #define _ISMA_BACNET_NATIVE_H_
 
@@ -60,15 +59,18 @@ struct Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi
 
 struct Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO
 {
-    static const int FIELD___presentValue = 5;
-    static const int FIELD___description = 6;
-    static const int FIELD___statusFlags = 7;
-    static const int FIELD___eventState = 8;
-    static const int FIELD___reliability = 9;
-    static const int FIELD___units = 10;
-    static const int FIELD___covIncrement = 11;
+    static const int FIELD___description = 5;
+    static const int FIELD___statusFlags = 6;
+    static const int FIELD___eventState = 7;
+    static const int FIELD___reliability = 8;
+    static const int FIELD___units = 9;
+    static const int FIELD___covIncrement = 10;
+    static const int FIELD___presentValue = 11;
     static const int FIELD___presentPriority = 12;
+    static const int FIELD___values = 13;
+    static const int FIELD___valuesReality = 14;
 
+    NANOCLR_NATIVE_DECLARE(SetValueWithPriority___VOID__R4__BOOLEAN__I4);
 
     //--//
 

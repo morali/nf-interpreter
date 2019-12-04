@@ -32,6 +32,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::UpdateDatabaseRevision___STATIC__VOID,
     NULL,
     NULL,
+    Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::SetValueWithPriority___VOID__R4__BOOLEAN__I4,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -49,7 +51,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_BACnet =
 {
     "iSMA.BACnet", 
-    0x817E1566,
+    0x1531A88E,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

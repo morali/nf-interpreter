@@ -49,6 +49,7 @@
 /* include the device object */
 #include "av.h"
 #include "device.h"
+#include "isma_bacnet_bacdcode.h"
 #include "isma_bacnet_objects_helper.h"
 
 #if defined(INTRINSIC_REPORTING)
@@ -66,9 +67,6 @@
 /* Difference from UTC and local standard time */
 long int timezone;
 #endif
-
-#include "isma_bacnet_bacdcode.h"
-#include "isma_bacnet_objects_helper.h"
 
 /* local forward (semi-private) and external prototypes */
 int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata);
@@ -90,7 +88,7 @@ static const object_functions_t Device_Object_Table[] = {
 
     /* Analog value object */
     {OBJECT_ANALOG_VALUE, Analog_Value_Init, Analog_Value_Count, Analog_Value_Index_To_Instance, Analog_Value_Valid_Instance, Analog_Value_Object_Name, Analog_Value_Read_Property,
-     Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, NULL /* Iterator */, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */,
+     Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, Analog_Value_Object_Iterator, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */,
      Analog_Value_Intrinsic_Reporting},
 
     {MAX_BACNET_OBJECT_TYPE, NULL /* Init */, NULL /* Count */, NULL /* Index_To_Instance */, NULL /* Valid_Instance */, NULL /* Object_Name */, NULL /* Read_Property */, NULL /* Write_Property */,
@@ -309,18 +307,19 @@ static uint32_t Interval_Minutes;
 static uint32_t Interval_Offset_Minutes;
 #endif
 
-unsigned Device_Count(void) { return 1; }
+uint32_t Device_Count(void) { return 1; }
 
 // TODO: Check if this works properly
-uint32_t Device_Index_To_Instance(unsigned index) {
-  // int dev_count = Device_Count();
-  // for (int i = 0; i < dev_count; i++) {
-  //   uint32_t __id = 0;
-  //   getDeviceValue(_identifier, (void *)&__id);
-  //   if (__id == index)
-  //     return __id;
-  // }
-  return index;
+uint32_t Device_Index_To_Instance(uint32_t index) {
+  uint32_t __id = 0;
+  int dev_count = Device_Count();
+  for (int i = 0; i < dev_count; i++) {
+
+    getDeviceValue(_identifier, (void *)&__id);
+    if ((uint32_t)i == index)
+      break;
+  }
+  return __id;
 }
 
 /** Return the Object Instance number for our (single) Device Object.
@@ -404,7 +403,7 @@ const char *Device_Model_Name(void) {
 }
 
 bool Device_Set_Model_Name(const char *name, size_t length) {
-  setDeviceValue(_applicationSoftwareRevision, (void *)name);
+  setDeviceValue(_modelName, (void *)name);
   // TODO: Utilize length
   (void)length;
   return true;
@@ -982,6 +981,8 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata) {
   case PROP_ACTIVE_COV_SUBSCRIPTIONS:
     apdu_len = handler_cov_encode_subscriptions(&apdu[0], apdu_max);
     break;
+  case PROP_STRUCTURED_OBJECT_LIST:
+    break;
   default:
     rpdata->error_class = ERROR_CLASS_PROPERTY;
     rpdata->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
@@ -1063,6 +1064,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   /* FIXME: len < application_data_len: more data? */
   switch (wp_data->object_property) {
   case PROP_OBJECT_IDENTIFIER:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_OBJECT_ID, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       if ((value.type.Object_Id.type == OBJECT_DEVICE) && (Device_Set_Object_Instance_Number(value.type.Object_Id.instance))) {
@@ -1075,6 +1079,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_NUMBER_OF_APDU_RETRIES:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_UNSIGNED_INT, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       /* FIXME: bounds check? */
@@ -1082,6 +1089,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_APDU_TIMEOUT:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_UNSIGNED_INT, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       /* FIXME: bounds check? */
@@ -1089,6 +1099,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_VENDOR_IDENTIFIER:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_UNSIGNED_INT, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       /* FIXME: bounds check? */
@@ -1096,6 +1109,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_SYSTEM_STATUS:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_ENUMERATED, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       temp = Device_Set_System_Status((BACNET_DEVICE_STATUS)value.type.Enumerated, false);
@@ -1111,6 +1127,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_OBJECT_NAME:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateString(&value, MAX_OBJECT_NAME, false, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       /* All the object names in a device must be unique */
@@ -1142,6 +1161,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     }
     break;
   case PROP_MODEL_NAME:
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
+    /* Disabled option for writing present value */
     status = WPValidateString(&value, MAX_DEV_MOD_LEN, true, &wp_data->error_class, &wp_data->error_code);
     if (status) {
       Device_Set_Model_Name(characterstring_value(&value.type.Character_String), characterstring_length(&value.type.Character_String));

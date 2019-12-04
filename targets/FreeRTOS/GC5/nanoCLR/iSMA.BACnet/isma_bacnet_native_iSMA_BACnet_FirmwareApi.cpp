@@ -1,10 +1,10 @@
 
 
+#include "GlobalEventsFlags.h"
 #include "device.h"
 #include "isma_bacnet_native.h"
 #include "isma_bacnet_objects.h"
 #include "isma_bacnet_objects_helper.h"
-#include "GlobalEventsFlags.h"
 
 bacObj_Device_t *device_object;
 
@@ -12,13 +12,13 @@ bacObj_AV_t *analog_listHead;
 bacObj_AV_t *analog_listTail;
 
 bacObj_Device_t *getDeviceObject() { return device_object; }
-bacObj_AV_t *getAnalogListHead() { return analog_listTail; }
+bacObj_AV_t *getAnalogListHead() { return analog_listHead; }
 
 bacObj_AV_t *getAnalogByIndex(uint32_t index) {
   bacObj_AV_t *head = getAnalogListHead();
   uint32_t id = 0;
   while (head != NULL) {
-    getAnalogValue(_av_identifier, (void *)&id, analog_listTail);
+    getAnalogValue(_av_identifier, (void *)&id, head);
     if (id == index)
       return head;
     head = head->next;
@@ -53,26 +53,73 @@ bool addAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
   bacObj_AV_t *newObj = (bacObj_AV_t *)malloc(sizeof(bacObj_AV_t));
 
   if (newObj == NULL)
-    return false;
+    return success;
 
   memset(newObj, 0, sizeof(bacObj_AV_t));
-  memset(newObj->in, 0xFFFFFFFF, sizeof(newObj->in));
+
   newObj->objBlock = (void *)bacObj;
-  newObj->gc = (void *)new CLR_RT_ProtectFromGC(*bacObj);
+  newObj->gc = new CLR_RT_ProtectFromGC(*bacObj);
   newObj->next = NULL;
 
   if (newObj->gc == NULL) {
     free(newObj);
-    return false;
+    return success;
+  }
+
+  /* Find first free index */
+  uint32_t i = 0;
+  while (true) {
+    if (getAnalogByIndex(i) == NULL) {
+      setAnalogValue(_av_identifier, (void *)&i, newObj);
+      break;
+    };
+    i++;
   }
 
   if (analog_listHead == NULL) {
     analog_listHead = newObj;
     analog_listTail = newObj;
+    return success;
   }
 
-  analog_listHead->next = newObj;
-  analog_listHead = newObj;
+  analog_listTail->next = newObj;
+  newObj->prev = analog_listTail;
+  analog_listTail = newObj;
+
+  success = true;
+  return success;
+}
+
+bool removeAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
+  uint8_t success = false;
+
+  uint32_t value = 0;
+  value = bacObj[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
+
+  bacObj_AV_t *av_obj = getAnalogByIndex(value);
+  if (av_obj == NULL)
+    return success;
+
+  /* first object on list */
+  if (av_obj->prev == NULL) {
+    av_obj->next->prev = NULL;
+    analog_listHead = av_obj->next;
+  }
+
+  /* last object on list */
+  else if (av_obj->next == NULL) {
+    av_obj->prev->next = NULL;
+    analog_listTail = av_obj->prev;
+  }
+
+  else {
+    av_obj->prev->next = av_obj->next;
+    av_obj->next->prev = av_obj->prev;
+  }
+  delete (CLR_RT_ProtectFromGC *)av_obj->gc;
+  free(av_obj);
+
+  success = true;
 
   return success;
 }
@@ -86,15 +133,17 @@ HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::BacnetObjectAdded___
 
   uint32_t type = objBlock[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType].NumericByRefConst().u4;
 
-  (void)type;
   switch (type) {
   case 8:
     addDevice_Object(objBlock);
     break;
-  default:
+  case 2:
     addAnalogValue_Object(objBlock);
+  default:
     break;
   }
+
+  Device_Inc_Database_Revision();
 
   NANOCLR_NOCLEANUP_NOLABEL();
 }
@@ -102,9 +151,24 @@ HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::BacnetObjectAdded___
 HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::BacnetObjectRemoved___STATIC__VOID__iSMABACnetPartialBacnetObject(CLR_RT_StackFrame &stack) {
   NANOCLR_HEADER();
 
-  NANOCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+  // get bacnet object to remove
 
-  NANOCLR_NOCLEANUP();
+  CLR_RT_HeapBlock *objBlock = stack.Arg0().Dereference();
+
+  uint32_t type = objBlock[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectType].NumericByRefConst().u4;
+
+  switch (type) {
+  case 8:
+    break;
+  case 2:
+    removeAnalogValue_Object(objBlock);
+  default:
+    break;
+  }
+
+  Device_Inc_Database_Revision();
+
+  NANOCLR_NOCLEANUP_NOLABEL();
 }
 
 HRESULT Library_isma_bacnet_native_iSMA_BACnet_FirmwareApi::UpdateDatabaseRevision___STATIC__VOID(CLR_RT_StackFrame &stack) {

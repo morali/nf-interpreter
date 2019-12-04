@@ -19,7 +19,6 @@ typedef struct bacObj_Device {
 } bacObj_Device_t;
 
 typedef struct bacObj_AV {
-  uint32_t objId;
   void *objBlock;
   void *gc;
 
@@ -52,7 +51,6 @@ typedef struct bacObj_AV {
   BACNET_DATE_TIME *pEvent_Time_Stamps[MAX_BACNET_EVENT_TRANSITION];
   BACNET_DATE_TIME Event_Time_Stamps[MAX_BACNET_EVENT_TRANSITION];
 #endif
-  float in[16];
 
   struct bacObj_AV *next;
   struct bacObj_AV *prev;

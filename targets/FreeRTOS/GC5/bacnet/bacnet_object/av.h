@@ -74,19 +74,17 @@ typedef struct analog_value_descr {
 
 void Analog_Value_Property_Lists(const int **pRequired, const int **pOptional, const int **pProprietary);
 bool Analog_Value_Valid_Instance(uint32_t object_instance);
-unsigned Analog_Value_Count(void);
-uint32_t Analog_Value_Index_To_Instance(unsigned index);
-unsigned Analog_Value_Instance_To_Index(uint32_t object_instance);
+uint32_t Analog_Value_Count(void);
+uint32_t Analog_Value_Index_To_Instance(uint32_t index);
+uint32_t Analog_Value_Instance_To_Index(uint32_t object_instance);
+uint32_t Analog_Value_Object_Iterator(uint32_t index);
 
 bool Analog_Value_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name);
-bool Analog_Value_Name_Set(uint32_t object_instance, char *new_name);
+bool Analog_Value_Name_Set(char *object_name, uint32_t length, uint32_t object_instance);
 
 int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data);
 
 bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data);
-
-bool Analog_Value_Present_Value_Set(uint32_t object_instance, float value, uint8_t priority);
-float Analog_Value_Present_Value(uint32_t object_instance);
 
 bool Analog_Value_Change_Of_Value(uint32_t instance);
 void Analog_Value_Change_Of_Value_Clear(uint32_t instance);

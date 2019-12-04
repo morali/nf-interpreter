@@ -8,10 +8,6 @@
 extern "C" {
 #endif
 
-/* Disable optimalizations for testing purposes */
-#pragma GCC push_options
-#pragma GCC optimize("O0")
-
 /**
  * @brief  It needs to be run every time something changes variables
  *         which are avaliable by high level application.
@@ -21,7 +17,7 @@ extern "C" {
 void UpdatePending(CLR_RT_HeapBlock *heap_block) {
   CLR_RT_HeapBlock &update_pending = heap_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
   uint32_t value = 1;
-  update_pending.NumericByRef().u4 = *(uint32_t *)value;
+  update_pending.NumericByRef().u4 = value;
 }
 
 uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
@@ -54,8 +50,8 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
     break;
   }
   case _systemStatus: {
-    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___systemStatus].NumericByRefConst().u1;
-    memcpy(address, (void *)&value, 1);
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___systemStatus].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
     return 1;
     break;
   }
@@ -92,19 +88,19 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
     break;
   }
   case _protocolVersion: {
-    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___protocolVersion].NumericByRefConst().u1;
-    memcpy(address, (void *)&value, 1);
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___protocolVersion].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
     return 1;
     break;
   }
   case _protocolRevision: {
-    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___protocolRevision].NumericByRefConst().u1;
-    memcpy(address, (void *)&value, 1);
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___protocolRevision].NumericByRefConst().u4;
+    memcpy(address, (void *)&value, 4);
     return 1;
     break;
   }
   case _vendorId: {
-    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId].NumericByRefConst().u4;
+    value = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_DevicePBO::FIELD___vendorId].NumericByRefConst().u2;
     memcpy(address, (void *)&value, 2);
     return 1;
     break;
@@ -138,11 +134,6 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   case _updatePending: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
     id.NumericByRef().u1 = *(uint8_t *)value;
-    break;
-  }
-  case _identifier: {
-    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier];
-    id.NumericByRef().u4 = *(uint32_t *)value;
     break;
   }
   case _name: {
@@ -214,6 +205,87 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   default:
     break;
   }
+}
+
+float *Extract_Float(uint32_t object_instance) {
+
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  if (av_instance == NULL)
+    return NULL;
+  CLR_RT_HeapBlock_Array *av_block =
+      ((CLR_RT_HeapBlock *)av_instance->objBlock)[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___values].DereferenceArray();
+  if (av_block == NULL)
+    return NULL;
+  float *value = (float *)av_block->GetFirstElement();
+  if (value == NULL)
+    return NULL;
+  return value;
+}
+
+bool *Extract_Bool(uint32_t object_instance) {
+
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  if (av_instance == NULL)
+    return NULL;
+  CLR_RT_HeapBlock_Array *av_block =
+      ((CLR_RT_HeapBlock *)av_instance->objBlock)[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___valuesReality].DereferenceArray();
+  if (av_block == NULL)
+    return NULL;
+  bool *value = (bool *)av_block->GetFirstElement();
+  if (value == NULL)
+    return NULL;
+  return value;
+}
+
+float Get_PresentValue(uint32_t object_instance) {
+
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  float return_value = 0;
+  float *value = Extract_Float(object_instance);
+  bool *value_not_null = Extract_Bool(object_instance);
+
+  if (value == NULL || value_not_null == NULL)
+    return return_value;
+
+  return_value = value[16]; /* relinquish defaults (17th priority) */
+  for (uint16_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+    if (value_not_null[i] == true) {
+      return_value = value[i];
+      setAnalogValue(_presentValue, (void *)&return_value, av_instance);
+      setAnalogValue(_presentPriority, (void *)&i, av_instance);
+      break;
+    }
+  }
+  return return_value;
+}
+
+/**
+ * For a given object instance-number, sets the present-value at a given
+ * priority 1..16.
+ *
+ * @param  object_instance - object-instance number of the object
+ * @param  value - floating point analog value
+ * @param  priority - priority 1..16
+ *
+ * @return  true if values are within range and present-value is set.
+ */
+bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incoming_bool, uint8_t priority) {
+
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  float *value = Extract_Float(object_instance);
+  bool *value_not_null = Extract_Bool(object_instance);
+
+  if (value == NULL || value_not_null == NULL)
+    return NULL;
+
+  value[priority - 1] = incoming_float;
+  value_not_null[priority - 1] = incoming_bool;
+
+  /* We call this function to update present value */
+  Get_PresentValue(object_instance);
+  uint8_t set_bit = 1;
+  setAnalogValue(_av_updatePending, (void *)&set_bit, av_instance);
+  return true;
 }
 
 uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog) {
@@ -299,11 +371,6 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
 
   UpdatePending(device_block);
   switch (var) {
-  case _av_updatePending: {
-    CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending];
-    id.NumericByRef().u1 = *(uint8_t *)value;
-    break;
-  }
   case _av_identifier: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier];
     id.NumericByRef().u4 = *(uint32_t *)value;
@@ -350,7 +417,7 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
   }
   case _presentPriority: {
     CLR_RT_HeapBlock &id = device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentPriority];
-    id.NumericByRef().r4 = *(uint32_t *)value;
+    id.NumericByRef().u1 = *(uint32_t *)value;
     break;
   }
   default: {
@@ -358,8 +425,6 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
   }
   }
 }
-
-#pragma GCC pop_options
 
 #ifdef __cplusplus
 }

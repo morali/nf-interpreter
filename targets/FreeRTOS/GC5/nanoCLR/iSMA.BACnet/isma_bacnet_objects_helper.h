@@ -49,6 +49,12 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *value);
 void setDeviceValue(object_deviceValues_t var, void *value);
 uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
 void setAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
+float Get_PresentValue(uint32_t object_instance);
+bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incoming_bool, uint8_t priority);
+
+float *Extract_Float(uint32_t object_instance);
+bool *Extract_Bool(uint32_t object_instance);
+
 #ifdef __cplusplus
 }
 #endif

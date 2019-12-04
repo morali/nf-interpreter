@@ -48,14 +48,14 @@ typedef void (*object_init_function)(void);
  * @ingroup ObjHelpers
  * @return Count of implemented objects of this type.
  */
-typedef unsigned (*object_count_function)(void);
+typedef uint32_t (*object_count_function)(void);
 
 /** Maps an object index position to its corresponding BACnet object instance number.
  * @ingroup ObjHelpers
  * @param index [in] The index of the object, in the array of objects of its type.
  * @return The BACnet object instance number to be used in a BACNET_OBJECT_ID.
  */
-typedef uint32_t (*object_index_to_instance_function)(unsigned index);
+typedef uint32_t (*object_index_to_instance_function)(uint32_t index);
 
 /** Provides the BACnet Object_Name for a given object instance of this type.
  * @ingroup ObjHelpers
@@ -85,7 +85,7 @@ typedef bool (*object_valid_instance_function)(uint32_t object_instance);
  * @return The index of the next object of the required type or ~0 (all bits
  * == 1) to indicate no more objects found.
  */
-typedef unsigned (*object_iterate_function)(unsigned current_index);
+typedef uint32_t (*object_iterate_function)(uint32_t current_index);
 
 /** Look in the table of objects of this type, and get the COV Value List.
  * @ingroup ObjHelpers
@@ -226,8 +226,8 @@ bool Device_Valid_Object_Instance_Number(uint32_t object_id);
 unsigned Device_Object_List_Count(void);
 bool Device_Object_List_Identifier(uint32_t array_index, int *object_type, uint32_t *instance);
 
-unsigned Device_Count(void);
-uint32_t Device_Index_To_Instance(unsigned index);
+uint32_t Device_Count(void);
+uint32_t Device_Index_To_Instance(uint32_t index);
 
 bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name);
 bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name);
