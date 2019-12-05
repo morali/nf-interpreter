@@ -9,7 +9,7 @@
 #define MAX_OBJECT_NAME 128
 
 typedef enum object_deviceValues {
-  _updatePending = 1,           /* int */
+  // NOT USED INT HERE _updatePending = 1,           /* int */
   _identifier,                  /* int */
   _name,                        /* string */
   _type,                        /* int (bacnet enum) */
@@ -28,9 +28,9 @@ typedef enum object_deviceValues {
 } object_deviceValues_t;
 
 typedef enum object_analogValues {
-  _av_updatePending = 1, /* int */
-  _av_identifier,        /* int */
-  _av_name,              /* string */
+  // NOT USED INT HERE _av_updatePending = 1, /* int */
+  _av_identifier, /* int */
+  _av_name,       /* string */
   _av_type,
   _presentValue,
   _av_description,

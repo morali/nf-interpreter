@@ -111,6 +111,8 @@ uint32_t Analog_Value_Object_Iterator(uint32_t index) {
   if (index == 0xFFFFFFFF) {
     bacObj_AV_t *av_instance = getAnalogListHead();
     getAnalogValue(_av_identifier, (void *)&__id, av_instance);
+    if (av_instance == NULL)
+      return 0;
   } else {
     bacObj_AV_t *av_instance = getAnalogByIndex(index);
     if (av_instance == NULL)
@@ -421,8 +423,8 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
 
   switch (wp_data->object_property) {
   case PROP_PRESENT_VALUE:
-    // wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    // break;
+    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    break;
     /* Disabled option for writing present value */
     if (value.tag == BACNET_APPLICATION_TAG_REAL) {
       /* Command priority 6 is reserved for use by Minimum On/Off
