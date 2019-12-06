@@ -277,7 +277,7 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
     break;
   }
   case _presentValue: {
-    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentValue].NumericByRef().r4 = *(uint8_t *)value;
+    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentValue].NumericByRef().r4 = *(float *)value;
     break;
   }
   case _av_description: {
@@ -286,7 +286,7 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
     break;
   }
   case _statusFlags: {
-    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___statusFlags].NumericByRef().u1 = *(uint32_t *)value;
+    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___statusFlags].NumericByRef().u1 = *(uint8_t *)value;
     break;
   }
   case _reliability: {
@@ -298,11 +298,11 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
     break;
   }
   case _covIncrement: {
-    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___covIncrement].NumericByRef().r4 = *(uint32_t *)value;
+    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___covIncrement].NumericByRef().r4 = *(float *)value;
     break;
   }
   case _presentPriority: {
-    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentPriority].NumericByRef().u1 = *(uint32_t *)value;
+    device_block[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___presentPriority].NumericByRef().u1 = *(uint8_t *)value;
     break;
   }
   default: {
@@ -370,7 +370,7 @@ float Get_PresentValue(uint32_t object_instance) {
     return return_value;
 
   return_value = value[16]; /* relinquish defaults (17th priority) */
-  for (uint16_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+  for (uint8_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
     if (value_not_null[i] == true) {
       return_value = value[i];
       setAnalogValue(_presentValue, (void *)&return_value, av_instance);

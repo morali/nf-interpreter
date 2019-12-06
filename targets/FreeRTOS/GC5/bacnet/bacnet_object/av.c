@@ -423,8 +423,8 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
 
   switch (wp_data->object_property) {
   case PROP_PRESENT_VALUE:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
+    // wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+    // break;
     /* Disabled option for writing present value */
     if (value.tag == BACNET_APPLICATION_TAG_REAL) {
       /* Command priority 6 is reserved for use by Minimum On/Off
