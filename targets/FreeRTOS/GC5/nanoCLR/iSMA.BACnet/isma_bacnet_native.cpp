@@ -1,8 +1,8 @@
 #include "isma_bacnet_native.h"
 
-
 static const CLR_RT_MethodHandler method_lookup[] =
 {
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -51,7 +51,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_iSMA_BACnet =
 {
     "iSMA.BACnet", 
-    0x1531A88E,
+    0xD72B50EF,
     method_lookup,
     ////////////////////////////////////////////////////////////////////////////////////
     // check if the version bellow matches the one in AssemblyNativeVersion attribute //

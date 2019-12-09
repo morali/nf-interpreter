@@ -24,7 +24,7 @@ HRESULT Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::SetValueW
 
     uint32_t id = pThis[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
 
-    Set_AnalogValue(id, float_value, bool_value, priority - 1);
+    Set_AnalogValue(id, float_value, bool_value, priority);
 
     NANOCLR_NOCLEANUP_NOLABEL();
 }

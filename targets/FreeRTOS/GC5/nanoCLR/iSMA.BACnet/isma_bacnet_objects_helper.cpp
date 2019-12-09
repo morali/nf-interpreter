@@ -342,32 +342,29 @@ bool *Extract_Bool(uint32_t object_instance) {
 }
 
 bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incoming_bool, uint8_t priority) {
-  (void) object_instance;
-  (void) incoming_float;
-  (void) incoming_bool;
-  (void) priority;
+  priority = priority - 1;
 
-  // bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
-  // float *value = Extract_Float(object_instance);
-  // bool *value_not_null = Extract_Bool(object_instance);
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  float *value = Extract_Float(object_instance);
+  bool *value_not_null = Extract_Bool(object_instance);
 
-  // if (value == NULL || value_not_null == NULL)
-  //   return NULL;
+  if (value == NULL || value_not_null == NULL)
+    return NULL;
 
-  // value[priority - 1] = incoming_float;
-  // value_not_null[priority - 1] = incoming_bool;
-  // float return_value = 0;
-  // /* We call this function to update present value */
-  // return_value = value[16]; /* relinquish defaults (17th priority) */
-  // for (uint8_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
-  //   if (value_not_null[i] == true) {
-  //     return_value = value[i];
-  //     setAnalogValue(_presentValue, (void *)&return_value, av_instance);
-  //     setAnalogValue(_presentPriority, (void *)&i, av_instance);
-  //     break;
-  //   }
-  // }
-  // UpdatePending((CLR_RT_HeapBlock *)av_instance->objBlock);
+  value[priority] = incoming_float;
+  value_not_null[priority] = incoming_bool;
+  float return_value = 0;
+  /* We call this function to update present value */
+  return_value = value[16]; /* relinquish defaults (17th priority) */
+  for (uint8_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+    if (value_not_null[i] == true) {
+      return_value = value[i];
+      setAnalogValue(_presentValue, (void *)&return_value, av_instance);
+      setAnalogValue(_presentPriority, (void *)&i, av_instance);
+      break;
+    }
+  }
+  UpdatePending((CLR_RT_HeapBlock *)av_instance->objBlock);
   return true;
 }
 
