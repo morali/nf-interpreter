@@ -263,10 +263,10 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
       bool *is_not_null = Extract_Bool(rp_data->object_instance);
       for (i = 0; i < BACNET_MAX_PRIORITY; i++) {
         /* FIXME: check if we have room before adding it to APDU */
-        if (!is_not_null)
+        if (!is_not_null[i])
           len = encode_application_null(&apdu[apdu_len]);
         else {
-          len = encode_application_real(&apdu[apdu_len], value[i - 1]);
+          len = encode_application_real(&apdu[apdu_len], value[i]);
         }
         /* add it if we have room */
         if ((apdu_len + len) < MAX_APDU)
@@ -282,10 +282,10 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
       float *value = Extract_Float(rp_data->object_instance);
       bool *is_not_null = Extract_Bool(rp_data->object_instance);
       if (rp_data->array_index <= BACNET_MAX_PRIORITY) {
-        if (!is_not_null)
+        if (!is_not_null[i])
           apdu_len = encode_application_null(&apdu[apdu_len]);
         else {
-          apdu_len = encode_application_real(&apdu[apdu_len], value[i - 1]);
+          apdu_len = encode_application_real(&apdu[apdu_len], value[i]);
         }
       } else {
         rp_data->error_class = ERROR_CLASS_PROPERTY;
