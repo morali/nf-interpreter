@@ -2,7 +2,6 @@
 #include "isma_bacnet_objects_helper.h"
 #include "isma_bacnet_native.h"
 #include "isma_bacnet_objects.h"
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,8 +18,8 @@ static void UpdatePending(CLR_RT_HeapBlock *heap_block) {
   heap_block[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___isUpdatePending].NumericByRef().u1 = value;
 }
 
-uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
-  bacObj_Device_t *object_device = getDeviceObject();
+uint32_t Get_DeviceValue(object_deviceValues_t var, void *address) {
+  bacObj_Device_t *object_device = Get_DeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
   uint32_t value = 0;
@@ -118,8 +117,8 @@ uint32_t getDeviceValue(object_deviceValues_t var, void *address) {
   return 0;
 }
 
-void setDeviceValue(object_deviceValues_t var, void *value) {
-  bacObj_Device_t *object_device = getDeviceObject();
+void Set_DeviceValue(object_deviceValues_t var, void *value) {
+  bacObj_Device_t *object_device = Get_DeviceObject();
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_device->objBlock;
 
   UpdatePending(device_block);
@@ -187,7 +186,7 @@ void setDeviceValue(object_deviceValues_t var, void *value) {
   }
 }
 
-uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog) {
+uint32_t Get_AnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog) {
   CLR_RT_HeapBlock *analog_block = (CLR_RT_HeapBlock *)object_analog->objBlock;
 
   uint32_t value = 0;
@@ -259,7 +258,7 @@ uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *o
   return 0;
 }
 
-void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_analog) {
+void Set_AnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_analog) {
   CLR_RT_HeapBlock *device_block = (CLR_RT_HeapBlock *)object_analog->objBlock;
 
   UpdatePending(device_block);
@@ -311,11 +310,8 @@ void setAnalogValue(object_analogValues_t var, void *value, bacObj_AV_t *object_
   }
 }
 
-float *Extract_Float(uint32_t object_instance) {
+float *Extract_Float(bacObj_AV_t *av_instance) {
 
-  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
-  if (av_instance == NULL)
-    return NULL;
   CLR_RT_HeapBlock_Array *av_block =
       ((CLR_RT_HeapBlock *)av_instance->objBlock)[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___values].DereferenceArray();
   if (av_block == NULL)
@@ -326,11 +322,8 @@ float *Extract_Float(uint32_t object_instance) {
   return value;
 }
 
-bool *Extract_Bool(uint32_t object_instance) {
+bool *Extract_Bool(bacObj_AV_t *av_instance) {
 
-  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
-  if (av_instance == NULL)
-    return NULL;
   CLR_RT_HeapBlock_Array *av_block =
       ((CLR_RT_HeapBlock *)av_instance->objBlock)[Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::FIELD___valuesReality].DereferenceArray();
   if (av_block == NULL)
@@ -341,12 +334,11 @@ bool *Extract_Bool(uint32_t object_instance) {
   return value;
 }
 
-bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incoming_bool, uint8_t priority) {
+bool Set_AnalogValue_WithPriority(bacObj_AV_t *av_instance, float incoming_float, bool incoming_bool, uint8_t priority) {
+  
   priority = priority - 1;
-
-  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
-  float *value = Extract_Float(object_instance);
-  bool *value_not_null = Extract_Bool(object_instance);
+  float *value = Extract_Float(av_instance);
+  bool *value_not_null = Extract_Bool(av_instance);
 
   if (value == NULL || value_not_null == NULL)
     return NULL;
@@ -356,11 +348,11 @@ bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incomi
   float return_value = 0;
   /* We call this function to update present value */
   return_value = value[16]; /* relinquish defaults (17th priority) */
-  for (uint8_t i = 0; i < BACNET_MAX_PRIORITY; i++) {
+  for (uint8_t i = 0; i < BACNET_MAX_PRIORITY + 1; i++) {
     if (value_not_null[i] == true) {
       return_value = value[i];
-      setAnalogValue(_presentValue, (void *)&return_value, av_instance);
-      setAnalogValue(_presentPriority, (void *)&i, av_instance);
+      Set_AnalogValue(_presentValue, (void *)&return_value, av_instance);
+      Set_AnalogValue(_presentPriority, (void *)&i, av_instance);
       break;
     }
   }
@@ -371,12 +363,11 @@ bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incomi
 float Get_PresentValue(uint32_t object_instance) {
 
   float return_value = 0;
-  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
-  getAnalogValue(_presentValue, (void*)&return_value, av_instance);
-  
+  bacObj_AV_t *av_instance = Get_AnalogValue_ByIndex(object_instance);
+  Get_AnalogValue(_presentValue, (void *)&return_value, av_instance);
+
   return return_value;
 }
-
 
 #ifdef __cplusplus
 }

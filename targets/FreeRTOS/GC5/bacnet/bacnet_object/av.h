@@ -26,12 +26,12 @@
 #ifndef AV_H
 #define AV_H
 
-#include "bacdef.h"
-#include "bacerror.h"
 #include "rp.h"
 #include "wp.h"
-#include <stdbool.h>
-#include <stdint.h>
+
+#include "isma_bacnet_objects_helper.h"
+#include "isma_bacnet_objects.h"
+
 #if defined(INTRINSIC_REPORTING)
 #include "alarm_ack.h"
 #include "get_alarm_sum.h"
@@ -39,70 +39,20 @@
 #include "nc.h"
 #endif
 
-#include "isma_bacnet_objects_helper.h"
-#include "isma_bacnet_objects.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-typedef struct analog_value_descr {
-  unsigned Event_State : 3;
-  bool Out_Of_Service;
-  uint16_t Units;
-  float Present_Value;
-  float Prior_Value;
-  float COV_Increment;
-  bool Changed;
-#if defined(INTRINSIC_REPORTING)
-  uint32_t Time_Delay;
-  uint32_t Notification_Class;
-  float High_Limit;
-  float Low_Limit;
-  float Deadband;
-  unsigned Limit_Enable : 2;
-  unsigned Event_Enable : 3;
-  unsigned Notify_Type : 1;
-  ACKED_INFO Acked_Transitions[MAX_BACNET_EVENT_TRANSITION];
-  BACNET_DATE_TIME Event_Time_Stamps[MAX_BACNET_EVENT_TRANSITION];
-  /* time to generate event notification */
-  uint32_t Remaining_Time_Delay;
-  /* AckNotification informations */
-  ACK_NOTIFICATION Ack_notify_data;
-#endif
-} ANALOG_VALUE_DESCR;
+void Analog_Value_Init(void);
 
 void Analog_Value_Property_Lists(const int **pRequired, const int **pOptional, const int **pProprietary);
 bool Analog_Value_Valid_Instance(uint32_t object_instance);
+
 uint32_t Analog_Value_Count(void);
 uint32_t Analog_Value_Index_To_Instance(uint32_t index);
-uint32_t Analog_Value_Instance_To_Index(uint32_t object_instance);
 uint32_t Analog_Value_Object_Iterator(uint32_t index);
 
 bool Analog_Value_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name);
 bool Analog_Value_Name_Set(char *object_name, uint32_t length, uint32_t object_instance);
 
 int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data);
-
 bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data);
-
-bool Analog_Value_Change_Of_Value(uint32_t instance);
-void Analog_Value_Change_Of_Value_Clear(uint32_t instance);
-bool Analog_Value_Encode_Value_List(uint32_t object_instance, BACNET_PROPERTY_VALUE *value_list);
-float Analog_Value_COV_Increment(uint32_t instance);
-void Analog_Value_COV_Increment_Set(uint32_t instance, float value);
-
-char *Analog_Value_Description(uint32_t instance);
-bool Analog_Value_Description_Set(uint32_t instance, char *new_name);
-
-BACNET_RELIABILITY Analog_Value_Reliability(uint32_t object_instance);
-bool Analog_Value_Reliability_Set(uint32_t object_instance, BACNET_RELIABILITY value);
-
-uint16_t Analog_Value_Units(uint32_t instance);
-bool Analog_Value_Units_Set(uint32_t instance, uint16_t unit);
-
-bool Analog_Value_Out_Of_Service(uint32_t instance);
-void Analog_Value_Out_Of_Service_Set(uint32_t instance, bool oos_flag);
 
 /* note: header of Intrinsic_Reporting function is required
    even when INTRINSIC_REPORTING is not defined */
@@ -110,23 +60,8 @@ void Analog_Value_Intrinsic_Reporting(uint32_t object_instance);
 
 #if defined(INTRINSIC_REPORTING)
 int Analog_Value_Event_Information(unsigned index, BACNET_GET_EVENT_INFORMATION_DATA *getevent_data);
-
 int Analog_Value_Alarm_Ack(BACNET_ALARM_ACK_DATA *alarmack_data, BACNET_ERROR_CODE *error_code);
-
 int Analog_Value_Alarm_Summary(unsigned index, BACNET_GET_ALARM_SUMMARY_DATA *getalarm_data);
 #endif
 
-bool Analog_Value_Create(uint32_t object_instance);
-bool Analog_Value_Delete(uint32_t object_instance);
-void Analog_Value_Cleanup(void);
-void Analog_Value_Init(void);
-
-#ifdef TEST
-#include "ctest.h"
-void testAnalog_Value(Test *pTest);
-#endif
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-#endif
+#endif //_AV_H

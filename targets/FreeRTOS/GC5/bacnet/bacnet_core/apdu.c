@@ -295,19 +295,19 @@ uint16_t apdu_decode_confirmed_service_request(uint8_t *apdu, /* APDU data */
 
 uint16_t apdu_timeout(void) {
   uint32_t __apduTimeout = 0;
-  getDeviceValue(_apduTimeout, (void *)&__apduTimeout);
+  Get_DeviceValue(_apduTimeout, (void *)&__apduTimeout);
   return __apduTimeout;
 }
 
-void apdu_timeout_set(uint16_t milliseconds) { setDeviceValue(_apduTimeout, (void *)&milliseconds); }
+void apdu_timeout_set(uint16_t milliseconds) { Set_DeviceValue(_apduTimeout, (void *)&milliseconds); }
 
 uint8_t apdu_retries(void) {
   uint32_t __apduRetries = 0;
-  getDeviceValue(_apduRetries, (void *)&__apduRetries);
+  Get_DeviceValue(_apduRetries, (void *)&__apduRetries);
   return __apduRetries;
 }
 
-void apdu_retries_set(uint8_t value) { setDeviceValue(_apduTimeout, (void *)&value); }
+void apdu_retries_set(uint8_t value) { Set_DeviceValue(_apduTimeout, (void *)&value); }
 
 /* When network communications are completely disabled,
    only DeviceCommunicationControl and ReinitializeDevice APDUs

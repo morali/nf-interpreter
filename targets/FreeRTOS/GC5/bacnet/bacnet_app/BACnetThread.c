@@ -119,24 +119,24 @@ void vBACnetThread(void *parameters) {
 
   bip_set_port(htons(47808));
 
-  bacObj_Device_t *deviceObject = getDeviceObject();
+  bacObj_Device_t *deviceObject = Get_DeviceObject();
 
   while (deviceObject == NULL) {
     vTaskDelay(1000);
-    deviceObject = getDeviceObject();
+    deviceObject = Get_DeviceObject();
   }
 
   uint32_t set_value = 826;
 
   /* Set firmware defined variables */
-  setDeviceValue(_vendorName, (void *)"Global Control 5 S.A.");
-  setDeviceValue(_vendorId, (void *)&set_value);
-  setDeviceValue(_modelName, (void *)"RC18");
-  setDeviceValue(_firmwareRevision, (void *)"WIP");
+  Set_DeviceValue(_vendorName, (void *)"Global Control 5 S.A.");
+  Set_DeviceValue(_vendorId, (void *)&set_value);
+  Set_DeviceValue(_modelName, (void *)"RC18");
+  Set_DeviceValue(_firmwareRevision, (void *)"WIP");
   set_value = 14;
-  setDeviceValue(_protocolVersion, (void *)&set_value);
+  Set_DeviceValue(_protocolVersion, (void *)&set_value);
   set_value = 1;
-  setDeviceValue(_protocolRevision, (void *)&set_value);
+  Set_DeviceValue(_protocolRevision, (void *)&set_value);
 
   /* load any static address bindings to show up in our device bindings list */
   address_init();

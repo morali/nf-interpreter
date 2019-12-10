@@ -11,14 +11,14 @@ bacObj_Device_t *device_object;
 bacObj_AV_t *analog_listHead;
 bacObj_AV_t *analog_listTail;
 
-bacObj_Device_t *getDeviceObject() { return device_object; }
-bacObj_AV_t *getAnalogListHead() { return analog_listHead; }
+bacObj_Device_t *Get_DeviceObject() { return device_object; }
+bacObj_AV_t *Get_AnalogValue_Head() { return analog_listHead; }
 
-bacObj_AV_t *getAnalogByIndex(uint32_t index) {
-  bacObj_AV_t *head = getAnalogListHead();
+bacObj_AV_t *Get_AnalogValue_ByIndex(uint32_t index) {
+  bacObj_AV_t *head = Get_AnalogValue_Head();
   uint32_t id = 0;
   while (head != NULL) {
-    getAnalogValue(_av_identifier, (void *)&id, head);
+    Get_AnalogValue(_av_identifier, (void *)&id, head);
     if (id == index)
       return head;
     head = head->next;
@@ -69,8 +69,8 @@ bool addAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
   /* Find first free index */
   uint32_t i = 0;
   while (true) {
-    if (getAnalogByIndex(i) == NULL) {
-      setAnalogValue(_av_identifier, (void *)&i, newObj);
+    if (Get_AnalogValue_ByIndex(i) == NULL) {
+      Set_AnalogValue(_av_identifier, (void *)&i, newObj);
       break;
     };
     i++;
@@ -96,7 +96,7 @@ bool removeAnalogValue_Object(CLR_RT_HeapBlock *bacObj) {
   uint32_t value = 0;
   value = bacObj[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
 
-  bacObj_AV_t *av_obj = getAnalogByIndex(value);
+  bacObj_AV_t *av_obj = Get_AnalogValue_ByIndex(value);
   if (av_obj == NULL)
     return success;
 

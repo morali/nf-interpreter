@@ -21,10 +21,10 @@ HRESULT Library_isma_bacnet_native_iSMA_BACnet_Objects_AnalogValuePBO::SetValueW
     uint8_t priority = stack.Arg3().NumericByRef().u1;
 
     CLR_RT_HeapBlock *pThis = stack.This();
+    uint32_t index = pThis[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
+    bacObj_AV_t *av_instance = Get_AnalogValue_ByIndex(index);
 
-    uint32_t id = pThis[Library_isma_bacnet_native_iSMA_BACnet_PartialBacnetObject::FIELD___objectIdentifier].NumericByRefConst().u4;
-
-    Set_AnalogValue(id, float_value, bool_value, priority);
+    Set_AnalogValue_WithPriority(av_instance, float_value, bool_value, priority);
 
     NANOCLR_NOCLEANUP_NOLABEL();
 }

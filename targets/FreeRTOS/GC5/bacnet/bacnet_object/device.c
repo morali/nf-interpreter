@@ -89,7 +89,7 @@ static const object_functions_t Device_Object_Table[] = {
     /* Analog value object */
     {OBJECT_ANALOG_VALUE, Analog_Value_Init, Analog_Value_Count, Analog_Value_Index_To_Instance, Analog_Value_Valid_Instance, Analog_Value_Object_Name, Analog_Value_Read_Property,
      Analog_Value_Write_Property, Analog_Value_Property_Lists, NULL /* ReadRangeInfo */, Analog_Value_Object_Iterator, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */,
-     Analog_Value_Intrinsic_Reporting},
+     NULL /* Intrinsic Reporting */},
 
     {MAX_BACNET_OBJECT_TYPE, NULL /* Init */, NULL /* Count */, NULL /* Index_To_Instance */, NULL /* Valid_Instance */, NULL /* Object_Name */, NULL /* Read_Property */, NULL /* Write_Property */,
      NULL /* Property_Lists */, NULL /* ReadRangeInfo */, NULL /* Iterator */, NULL /* Value_Lists */, NULL /* COV */, NULL /* COV Clear */, NULL /* Intrinsic Reporting */}};
@@ -135,7 +135,6 @@ static struct object_functions *Device_Objects_Find_Functions(BACNET_OBJECT_TYPE
     }
     pObject++;
   }
-
   return (NULL);
 }
 
@@ -315,7 +314,7 @@ uint32_t Device_Index_To_Instance(uint32_t index) {
   int dev_count = Device_Count();
   for (int i = 0; i < dev_count; i++) {
 
-    getDeviceValue(_identifier, (void *)&__id);
+    Get_DeviceValue(_identifier, (void *)&__id);
     if ((uint32_t)i == index)
       break;
   }
@@ -333,7 +332,7 @@ uint32_t Device_Object_Instance_Number(void) {
   return Routed_Device_Object_Instance_Number();
 #else
   uint32_t __id = 0;
-  getDeviceValue(_identifier, (void *)&__id);
+  Get_DeviceValue(_identifier, (void *)&__id);
   return __id;
 #endif
 }
@@ -345,7 +344,7 @@ bool Device_Set_Object_Instance_Number(uint32_t object_id) {
   if (object_id <= BACNET_MAX_INSTANCE) {
     /* Make the change and update the database revision */
     __id = object_id;
-    setDeviceValue(_identifier, (void *)&__id);
+    Set_DeviceValue(_identifier, (void *)&__id);
     Device_Inc_Database_Revision();
   } else
     status = false;
@@ -356,7 +355,7 @@ bool Device_Set_Object_Instance_Number(uint32_t object_id) {
 bool Device_Valid_Object_Instance_Number(uint32_t object_id) {
 
   uint32_t __id = 0;
-  getDeviceValue(_identifier, (void *)&__id);
+  Get_DeviceValue(_identifier, (void *)&__id);
   return (__id == object_id);
 }
 
@@ -364,10 +363,10 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
   bool status = false;
 
   uint32_t __id = 0;
-  getDeviceValue(_identifier, (void *)&__id);
+  Get_DeviceValue(_identifier, (void *)&__id);
   if (object_instance == __id) {
     const char *__name = NULL;
-    getDeviceValue(_name, (void *)&__name);
+    Get_DeviceValue(_name, (void *)&__name);
     status = characterstring_ansi_same(object_name, __name);
   }
 
@@ -376,7 +375,7 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
 
 bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name) {
 
-  setDeviceValue(_name, (void *)object_name->value);
+  Set_DeviceValue(_name, (void *)object_name->value);
   Device_Inc_Database_Revision();
 
   return true;
@@ -384,26 +383,26 @@ bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name) {
 
 const char *Device_Vendor_Name(void) {
   const char *__vendorName = NULL;
-  getDeviceValue(_vendorName, (void *)&__vendorName);
+  Get_DeviceValue(_vendorName, (void *)&__vendorName);
   return __vendorName;
 }
 
 uint16_t Device_Vendor_Identifier(void) {
   uint32_t __vendorIdentifier;
-  getDeviceValue(_vendorId, (void *)&__vendorIdentifier);
+  Get_DeviceValue(_vendorId, (void *)&__vendorIdentifier);
   return (uint16_t)__vendorIdentifier;
 }
 
-void Device_Set_Vendor_Identifier(uint16_t vendor_id) { setDeviceValue(_vendorId, (void *)&vendor_id); }
+void Device_Set_Vendor_Identifier(uint16_t vendor_id) { Set_DeviceValue(_vendorId, (void *)&vendor_id); }
 
 const char *Device_Model_Name(void) {
   const char *__modelName = NULL;
-  getDeviceValue(_modelName, (void *)&__modelName);
+  Get_DeviceValue(_modelName, (void *)&__modelName);
   return __modelName;
 }
 
 bool Device_Set_Model_Name(const char *name, size_t length) {
-  setDeviceValue(_modelName, (void *)name);
+  Set_DeviceValue(_modelName, (void *)name);
   // TODO: Utilize length
   (void)length;
   return true;
@@ -411,25 +410,25 @@ bool Device_Set_Model_Name(const char *name, size_t length) {
 
 const char *Device_Firmware_Revision(void) {
   const char *__firmwareRevision = NULL;
-  getDeviceValue(_firmwareRevision, (void *)&__firmwareRevision);
+  Get_DeviceValue(_firmwareRevision, (void *)&__firmwareRevision);
   return __firmwareRevision;
 }
 
 const char *Device_Application_Software_Version(void) {
   const char *__softwarelVersion = NULL;
-  getDeviceValue(_applicationSoftwareRevision, (void *)&__softwarelVersion);
+  Get_DeviceValue(_applicationSoftwareRevision, (void *)&__softwarelVersion);
   return __softwarelVersion;
 }
 
 bool Device_Set_Application_Software_Version(const char *name, size_t length) {
-  setDeviceValue(_applicationSoftwareRevision, (void *)name);
+  Set_DeviceValue(_applicationSoftwareRevision, (void *)name);
   // TODO: Utilize length
   (void)length;
   return true;
 }
 
 bool Device_Set_Description(const char *name, size_t length) {
-  setDeviceValue(_device_description, (void *)name);
+  Set_DeviceValue(_device_description, (void *)name);
   // TODO: Utilize length
   (void)length;
   return true;
@@ -437,12 +436,12 @@ bool Device_Set_Description(const char *name, size_t length) {
 
 const char *Device_Location(void) {
   const char *__location = NULL;
-  getDeviceValue(_location, (void *)&__location);
+  Get_DeviceValue(_location, (void *)&__location);
   return __location;
 }
 
 bool Device_Set_Location(const char *name, size_t length) {
-  setDeviceValue(_location, (void *)name);
+  Set_DeviceValue(_location, (void *)name);
   // TODO: Utilize length
   (void)length;
   return true;
@@ -450,13 +449,13 @@ bool Device_Set_Location(const char *name, size_t length) {
 
 uint8_t Device_Protocol_Version(void) {
   uint32_t __protocolVersion = 0;
-  getDeviceValue(_protocolVersion, (void *)&__protocolVersion);
+  Get_DeviceValue(_protocolVersion, (void *)&__protocolVersion);
   return (uint8_t)__protocolVersion;
 }
 
 uint8_t Device_Protocol_Revision(void) {
   uint32_t __protocolRevision = 0;
-  getDeviceValue(_protocolRevision, (void *)&__protocolRevision);
+  Get_DeviceValue(_protocolRevision, (void *)&__protocolRevision);
   return (uint8_t)__protocolRevision;
 }
 
@@ -475,7 +474,7 @@ void Device_Inc_Database_Revision(void) { _databaseRevision++; }
 
 BACNET_DEVICE_STATUS Device_System_Status(void) {
   uint32_t __systemStatus = 0;
-  getDeviceValue(_systemStatus, (void *)&__systemStatus);
+  Get_DeviceValue(_systemStatus, (void *)&__systemStatus);
   return (BACNET_DEVICE_STATUS)__systemStatus;
 }
 
@@ -491,7 +490,7 @@ int Device_Set_System_Status(BACNET_DEVICE_STATUS status, bool local) {
     case STATUS_DOWNLOAD_REQUIRED:
     case STATUS_DOWNLOAD_IN_PROGRESS:
     case STATUS_NON_OPERATIONAL:
-      setDeviceValue(_systemStatus, (void *)status);
+      Set_DeviceValue(_systemStatus, (void *)status);
       break;
       /* Don't support backup at present so don't allow setting */
     case STATUS_BACKUP_IN_PROGRESS:
@@ -512,7 +511,7 @@ int Device_Set_System_Status(BACNET_DEVICE_STATUS status, bool local) {
     case STATUS_OPERATIONAL:
     case STATUS_OPERATIONAL_READ_ONLY:
     case STATUS_NON_OPERATIONAL:
-      setDeviceValue(_systemStatus, (void *)status);
+      Set_DeviceValue(_systemStatus, (void *)status);
       break;
       /* Don't allow outsider set this - it should probably
        * be set if the device config is incomplete or
@@ -797,46 +796,46 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata) {
   apdu_max = rpdata->application_data_len;
   switch (rpdata->object_property) {
   case PROP_OBJECT_IDENTIFIER:
-    getDeviceValue(_identifier, (void *)&value);
+    Get_DeviceValue(_identifier, (void *)&value);
     apdu_len = encode_application_object_id(&apdu[0], OBJECT_DEVICE, value);
     break;
   case PROP_OBJECT_NAME:
-    getDeviceValue(_name, (void *)&ret_string_value);
+    Get_DeviceValue(_name, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_OBJECT_TYPE:
     apdu_len = encode_application_enumerated(&apdu[0], OBJECT_DEVICE);
     break;
   case PROP_DESCRIPTION:
-    getDeviceValue(_device_description, (void *)&ret_string_value);
+    Get_DeviceValue(_device_description, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_SYSTEM_STATUS:
-    getDeviceValue(_systemStatus, (void *)&value);
+    Get_DeviceValue(_systemStatus, (void *)&value);
     apdu_len = encode_application_enumerated(&apdu[0], value);
     break;
   case PROP_VENDOR_NAME:
-    getDeviceValue(_vendorName, (void *)&ret_string_value);
+    Get_DeviceValue(_vendorName, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_VENDOR_IDENTIFIER:
-    getDeviceValue(_vendorId, (void *)&value);
+    Get_DeviceValue(_vendorId, (void *)&value);
     apdu_len = encode_application_unsigned(&apdu[0], value);
     break;
   case PROP_MODEL_NAME:
-    getDeviceValue(_modelName, (void *)&ret_string_value);
+    Get_DeviceValue(_modelName, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_FIRMWARE_REVISION:
-    getDeviceValue(_firmwareRevision, (void *)&ret_string_value);
+    Get_DeviceValue(_firmwareRevision, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_APPLICATION_SOFTWARE_VERSION:
-    getDeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
+    Get_DeviceValue(_applicationSoftwareRevision, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_LOCATION:
-    getDeviceValue(_location, (void *)&ret_string_value);
+    Get_DeviceValue(_location, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
   case PROP_LOCAL_TIME:

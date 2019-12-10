@@ -29,11 +29,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* defines specific to MS/TP */
-/* preamble+type+dest+src+len+crc8+crc16 */
-// #define MAX_HEADER (2+1+1+1+2+1+2)
-// #define MAX_MPDU (MAX_HEADER+MAX_PDU)
-
 #if defined(_MSC_VER)
 /* Silence the warnings about unsafe versions of library functions */
 /* as we need to keep the code portable */

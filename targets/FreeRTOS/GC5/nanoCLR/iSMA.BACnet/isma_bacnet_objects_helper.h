@@ -45,15 +45,15 @@ typedef enum object_analogValues {
 extern "C" {
 #endif
 
-uint32_t getDeviceValue(object_deviceValues_t var, void *value);
-void setDeviceValue(object_deviceValues_t var, void *value);
-uint32_t getAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
-void setAnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
+uint32_t Get_DeviceValue(object_deviceValues_t var, void *value);
+void Set_DeviceValue(object_deviceValues_t var, void *value);
+uint32_t Get_AnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
+void Set_AnalogValue(object_analogValues_t var, void *address, bacObj_AV_t *object_analog);
+bool Set_AnalogValue_WithPriority(bacObj_AV_t * av_instance, float incoming_float, bool incoming_bool, uint8_t priority);
 float Get_PresentValue(uint32_t object_instance);
-bool Set_AnalogValue(uint32_t object_instance, float incoming_float, bool incoming_bool, uint8_t priority);
 
-float *Extract_Float(uint32_t object_instance);
-bool *Extract_Bool(uint32_t object_instance);
+float *Extract_Float(bacObj_AV_t *av_instance);
+bool *Extract_Bool(bacObj_AV_t *av_instance);
 
 #ifdef __cplusplus
 }
