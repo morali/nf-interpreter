@@ -177,19 +177,14 @@ void Device_Objects_Property_List(BACNET_OBJECT_TYPE object_type, uint32_t objec
    * and there is an Object_List_RPM fn ptr then call it
    * to populate the pointers to the individual list counters.
    */
-
   pObject = Device_Objects_Find_Functions(object_type);
   if ((pObject != NULL) && (pObject->Object_RPM_List != NULL)) {
     pObject->Object_RPM_List(&pPropertyList->Required.pList, &pPropertyList->Optional.pList, &pPropertyList->Proprietary.pList);
   }
-
   /* Fetch the counts if available otherwise zero them */
   pPropertyList->Required.count = pPropertyList->Required.pList == NULL ? 0 : property_list_count(pPropertyList->Required.pList);
-
   pPropertyList->Optional.count = pPropertyList->Optional.pList == NULL ? 0 : property_list_count(pPropertyList->Optional.pList);
-
   pPropertyList->Proprietary.count = pPropertyList->Proprietary.pList == NULL ? 0 : property_list_count(pPropertyList->Proprietary.pList);
-
   return;
 }
 
@@ -238,7 +233,6 @@ bool Device_Reinitialize(BACNET_REINITIALIZE_DEVICE_DATA *rd_data) {
     rd_data->error_class = ERROR_CLASS_SECURITY;
     rd_data->error_code = ERROR_CODE_PASSWORD_FAILURE;
   }
-
   return status;
 }
 
@@ -293,7 +287,6 @@ void Device_Property_Lists(const int **pRequired, const int **pOptional, const i
     *pOptional = Device_Properties_Optional;
   if (pProprietary)
     *pProprietary = Device_Properties_Proprietary;
-
   return;
 }
 
@@ -308,7 +301,6 @@ static uint32_t Interval_Offset_Minutes;
 
 uint32_t Device_Count(void) { return 1; }
 
-// TODO: Check if this works properly
 uint32_t Device_Index_To_Instance(uint32_t index) {
   uint32_t __id = 0;
   int dev_count = Device_Count();
@@ -321,12 +313,6 @@ uint32_t Device_Index_To_Instance(uint32_t index) {
   return __id;
 }
 
-/** Return the Object Instance number for our (single) Device Object.
- * This is a key function, widely invoked by the handler code, since
- * it provides "our" (ie, local) address.
- * @ingroup ObjIntf
- * @return The Instance number used in the BACNET_OBJECT_ID for the Device.
- */
 uint32_t Device_Object_Instance_Number(void) {
 #ifdef BAC_ROUTING
   return Routed_Device_Object_Instance_Number();
@@ -339,8 +325,8 @@ uint32_t Device_Object_Instance_Number(void) {
 
 bool Device_Set_Object_Instance_Number(uint32_t object_id) {
   bool status = true; /* return value */
-
   uint32_t __id = 0;
+
   if (object_id <= BACNET_MAX_INSTANCE) {
     /* Make the change and update the database revision */
     __id = object_id;
@@ -353,7 +339,6 @@ bool Device_Set_Object_Instance_Number(uint32_t object_id) {
 }
 
 bool Device_Valid_Object_Instance_Number(uint32_t object_id) {
-
   uint32_t __id = 0;
   Get_DeviceValue(_identifier, (void *)&__id);
   return (__id == object_id);
@@ -369,26 +354,25 @@ bool Device_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *objec
     Get_DeviceValue(_name, (void *)&__name);
     status = characterstring_ansi_same(object_name, __name);
   }
-
   return status;
 }
 
 bool Device_Set_Object_Name(BACNET_CHARACTER_STRING *object_name) {
-
   Set_DeviceValue(_name, (void *)object_name->value);
   Device_Inc_Database_Revision();
-
   return true;
 }
 
 const char *Device_Vendor_Name(void) {
   const char *__vendorName = NULL;
+
   Get_DeviceValue(_vendorName, (void *)&__vendorName);
   return __vendorName;
 }
 
 uint16_t Device_Vendor_Identifier(void) {
   uint32_t __vendorIdentifier;
+
   Get_DeviceValue(_vendorId, (void *)&__vendorIdentifier);
   return (uint16_t)__vendorIdentifier;
 }
@@ -649,7 +633,6 @@ bool Device_Valid_Object_Name(BACNET_CHARACTER_STRING *object_name1, int *object
       }
     }
   }
-
   return found;
 }
 
@@ -666,7 +649,6 @@ bool Device_Valid_Object_Id(int object_type, uint32_t object_instance) {
   if ((pObject != NULL) && (pObject->Object_Valid_Instance != NULL)) {
     status = pObject->Object_Valid_Instance(object_instance);
   }
-
   return status;
 }
 
@@ -684,30 +666,13 @@ bool Device_Object_Name_Copy(BACNET_OBJECT_TYPE object_type, uint32_t object_ins
   if ((pObject != NULL) && (pObject->Object_Name != NULL)) {
     found = pObject->Object_Name(object_instance, object_name);
   }
-
   return found;
 }
 
-// static void Update_Current_Time(void) {
-//   datetime_set_date(&Local_Date, getYear(), getMonth(), getDay());
-//   datetime_set_time(&Local_Time, getHour(), getMin(), getSec(), 0);
-// }
-
 void Device_getCurrentDateTime(BACNET_DATE_TIME *DateTime) {
-  // Update_Current_Time();
-
   DateTime->date = Local_Date;
   DateTime->time = Local_Time;
 }
-
-// int32_t Device_UTC_Offset(void) {
-//   Update_Current_Time();
-//   return devRegisters.TIME_UTC_OFFSET;
-// }
-
-// void Device_UTC_Offset_Set(int32_t offset) { devRegisters.TIME_UTC_OFFSET = offset; }
-
-// bool Device_Daylight_Savings_Status(void) { return getDSTStatus(); }
 
 #if defined(BACNET_TIME_MASTER)
 /**
@@ -724,7 +689,6 @@ void Device_getCurrentDateTime(BACNET_DATE_TIME *DateTime) {
  */
 bool Device_Align_Intervals_Set(bool flag) {
   Align_Intervals = flag;
-
   return true;
 }
 
@@ -742,7 +706,6 @@ bool Device_Align_Intervals(void) { return Align_Intervals; }
  */
 bool Device_Time_Sync_Interval_Set(uint32_t minutes) {
   Interval_Minutes = minutes;
-
   return true;
 }
 
@@ -764,7 +727,6 @@ uint32_t Device_Time_Sync_Interval(void) { return Interval_Minutes; }
  */
 bool Device_Interval_Offset_Set(uint32_t minutes) {
   Interval_Offset_Minutes = minutes;
-
   return true;
 }
 
@@ -838,21 +800,8 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata) {
     Get_DeviceValue(_location, (void *)&ret_string_value);
     apdu_len = encode_application_character_string_isma(&apdu[0], ret_string_value);
     break;
-  case PROP_LOCAL_TIME:
-    // Update_Current_Time();
-    // apdu_len = encode_application_time(&apdu[0], &Local_Time);
-    break;
-  case PROP_UTC_OFFSET:
-    // Update_Current_Time();
-    // apdu_len = encode_application_signed(&apdu[0], -Device_UTC_Offset());
-    break;
   case PROP_LOCAL_DATE:
-    // Update_Current_Time();
     apdu_len = encode_application_date(&apdu[0], &Local_Date);
-    break;
-    // case PROP_DAYLIGHT_SAVING_STATUS:
-    // Update_Current_Time();
-    // apdu_len = encode_application_boolean(&apdu[0], getDSTStatus());
     break;
   case PROP_PROTOCOL_VERSION:
     apdu_len = encode_application_unsigned(&apdu[0], Device_Protocol_Version());
@@ -1032,7 +981,6 @@ int Device_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata) {
       }
     }
   }
-
   return apdu_len;
 }
 
@@ -1223,7 +1171,6 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   case PROP_UTC_OFFSET:
     if (value.tag == BACNET_APPLICATION_TAG_SIGNED_INT) {
       if ((value.type.Signed_Int < (12 * 60)) && (value.type.Signed_Int > (-12 * 60))) {
-        // Device_UTC_Offset_Set(-value.type.Signed_Int);
         status = true;
       } else {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -1503,17 +1450,11 @@ void Device_Init(object_functions_t *object_table) {
 #if defined(BAC_UCI)
   const char *uciname;
   struct uci_context *ctx;
-  debugPrint("Device_Init\n");
   ctx = ucix_init("bacnet_dev");
-  if (!ctx)
-    debugPrint("Failed to load config file bacnet_dev\n");
   uciname = ucix_get_option(ctx, "bacnet_dev", "0", "Name");
   if (uciname != 0) {
     characterstring_init_ansi(&My_Object_Name, uciname);
   } else {
-#endif /* defined(BAC_UCI) */
-       // characterstring_init_ansi(&My_Object_Name, "SimpleServer");
-#if defined(BAC_UCI)
   }
   ucix_cleanup(ctx);
 #endif /* defined(BAC_UCI) */
@@ -1532,9 +1473,8 @@ void Device_Init(object_functions_t *object_table) {
   }
 }
 
-bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, /* Info on the request */
-                     RR_PROP_INFO *pInfo) {            /* Where to put the response */
-  bool status = false;                                 /* return value */
+bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, RR_PROP_INFO *pInfo) {
+  bool status = false;
 
   switch (pRequest->object_property) {
   case PROP_VT_CLASSES_SUPPORTED:
@@ -1549,13 +1489,11 @@ bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, /* Info on the request */
     pRequest->error_class = ERROR_CLASS_PROPERTY;
     pRequest->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
     break;
-
   case PROP_DEVICE_ADDRESS_BINDING:
     pInfo->RequestTypes = RR_BY_POSITION;
     pInfo->Handler = rr_address_list_encode;
     status = true;
     break;
-
   case PROP_ACTIVE_COV_SUBSCRIPTIONS:
     pInfo->RequestTypes = RR_BY_POSITION;
     pRequest->error_class = ERROR_CLASS_PROPERTY;
@@ -1566,7 +1504,6 @@ bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, /* Info on the request */
     pRequest->error_code = ERROR_CODE_PROPERTY_IS_NOT_A_LIST;
     break;
   }
-
   return status;
 }
 
@@ -1601,82 +1538,3 @@ void Routing_Device_Init(uint32_t first_object_instance) {
 }
 
 #endif /* BAC_ROUTING */
-
-#ifdef TEST
-#include "ctest.h"
-#include <assert.h>
-#include <string.h>
-
-bool WPValidateArgType(BACNET_APPLICATION_DATA_VALUE *pValue, uint8_t ucExpectedTag, BACNET_ERROR_CLASS *pErrorClass, BACNET_ERROR_CODE *pErrorCode) {
-  pValue = pValue;
-  ucExpectedTag = ucExpectedTag;
-  pErrorClass = pErrorClass;
-  pErrorCode = pErrorCode;
-
-  return false;
-}
-
-bool WPValidateString(BACNET_APPLICATION_DATA_VALUE *pValue, int iMaxLen, bool bEmptyAllowed, BACNET_ERROR_CLASS *pErrorClass, BACNET_ERROR_CODE *pErrorCode) {
-  pValue = pValue;
-  iMaxLen = iMaxLen;
-  bEmptyAllowed = bEmptyAllowed;
-  pErrorClass = pErrorClass;
-  pErrorCode = pErrorCode;
-
-  return false;
-}
-
-int handler_cov_encode_subscriptions(uint8_t *apdu, int max_apdu) {
-  apdu = apdu;
-  max_apdu = max_apdu;
-
-  return 0;
-}
-
-void testDevice(Test *pTest) {
-  bool status = false;
-  const char *name = "Patricia";
-
-  status = Device_Set_Object_Instance_Number(0);
-  ct_test(pTest, Device_Object_Instance_Number() == 0);
-  ct_test(pTest, status == true);
-  status = Device_Set_Object_Instance_Number(BACNET_MAX_INSTANCE);
-  ct_test(pTest, Device_Object_Instance_Number() == BACNET_MAX_INSTANCE);
-  ct_test(pTest, status == true);
-  status = Device_Set_Object_Instance_Number(BACNET_MAX_INSTANCE / 2);
-  ct_test(pTest, Device_Object_Instance_Number() == (BACNET_MAX_INSTANCE / 2));
-  ct_test(pTest, status == true);
-  status = Device_Set_Object_Instance_Number(BACNET_MAX_INSTANCE + 1);
-  ct_test(pTest, Device_Object_Instance_Number() != (BACNET_MAX_INSTANCE + 1));
-  ct_test(pTest, status == false);
-
-  Device_Set_System_Status(STATUS_NON_OPERATIONAL, true);
-  ct_test(pTest, Device_System_Status() == STATUS_NON_OPERATIONAL);
-
-  ct_test(pTest, Device_Vendor_Identifier() == BACNET_VENDOR_ID);
-
-  Device_Set_Model_Name(name, strlen(name));
-  ct_test(pTest, strcmp(Device_Model_Name(), name) == 0);
-
-  return;
-}
-
-#ifdef TEST_DEVICE
-int main(void) {
-  Test *pTest;
-  bool rc;
-
-  pTest = ct_create("BACnet Device", NULL);
-  /* individual tests */
-  rc = ct_addTestFunction(pTest, testDevice);
-  assert(rc);
-
-  ct_setStream(pTest, stdout);
-  ct_run(pTest);
-  (void)ct_report(pTest);
-  ct_destroy(pTest);
-
-  return 0;
-}
-#endif /* TEST_DEVICE */
-#endif /* TEST */
