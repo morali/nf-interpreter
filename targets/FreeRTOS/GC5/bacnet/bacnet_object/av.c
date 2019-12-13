@@ -168,6 +168,27 @@ bool Analog_Value_Object_Descr(uint32_t object_instance, BACNET_CHARACTER_STRING
   return status;
 }
 
+static bool Analog_Value_StatusFlags(uint32_t object_instance, BACNET_BIT_STRING *status_flags) {
+  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  if (av_instance == NULL)
+    return false;
+
+  uint8_t *__status = NULL;
+  getAnalogValue(_statusFlags, (void *)&__status, av_instance);
+  if (__status == NULL)
+    return false;
+
+#if defined(INTRINSIC_REPORTING)
+  bitstring_set_bit(status_flags, STATUS_FLAG_IN_ALARM, av_instance->Event_State ? true : false);
+#else
+  bitstring_set_bit(status_flags, STATUS_FLAG_IN_ALARM, ((*__status >> STATUS_FLAG_IN_ALARM) & 1U) ? true : false);
+#endif
+  bitstring_set_bit(status_flags, STATUS_FLAG_FAULT, ((*__status >> STATUS_FLAG_FAULT) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_OVERRIDDEN, ((*__status >> STATUS_FLAG_OVERRIDDEN) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_OUT_OF_SERVICE, ((*__status >> STATUS_FLAG_OUT_OF_SERVICE) & 1U) ? true : false);
+  return true;
+}
+
 /* return apdu len, or BACNET_STATUS_ERROR on error */
 int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
   int apdu_len = 0; /* return value */
@@ -217,14 +238,7 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
   }
   case PROP_STATUS_FLAGS:
     bitstring_init(&bit_string);
-#if defined(INTRINSIC_REPORTING)
-    bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, av_instance->Event_State ? true : false);
-#else
-    bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, false);
-#endif
-    bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
-    bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-    bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE, av_instance->outOfService);
+    Analog_Value_StatusFlags(rp_data->object_instance, &bit_string);
     apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
     break;
   case PROP_EVENT_STATE:

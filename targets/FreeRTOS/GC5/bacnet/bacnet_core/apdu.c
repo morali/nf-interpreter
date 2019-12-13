@@ -199,6 +199,7 @@ bool apdu_service_supported_to_index(BACNET_SERVICES_SUPPORTED service_supported
 static confirmed_ack_function Confirmed_ACK_Function[MAX_BACNET_CONFIRMED_SERVICE];
 
 void apdu_set_confirmed_simple_ack_handler(BACNET_CONFIRMED_SERVICE service_choice, confirmed_simple_ack_function pFunction) {
+  (void) pFunction;
   switch (service_choice) {
   case SERVICE_CONFIRMED_ACKNOWLEDGE_ALARM:
   case SERVICE_CONFIRMED_COV_NOTIFICATION:
@@ -220,7 +221,6 @@ void apdu_set_confirmed_simple_ack_handler(BACNET_CONFIRMED_SERVICE service_choi
   case SERVICE_CONFIRMED_VT_CLOSE:
     /* Security Services */
   case SERVICE_CONFIRMED_REQUEST_KEY:
-    Confirmed_ACK_Function[service_choice] = (confirmed_ack_function)pFunction;
     break;
   default:
     break;
@@ -442,9 +442,6 @@ void apdu_handler(BACNET_ADDRESS *src, uint8_t *apdu, /* APDU data */
       case SERVICE_CONFIRMED_VT_CLOSE:
         /* Security Services */
       case SERVICE_CONFIRMED_REQUEST_KEY:
-        if (Confirmed_ACK_Function[service_choice] != NULL) {
-          ((confirmed_simple_ack_function)Confirmed_ACK_Function[service_choice])(src, invoke_id);
-        }
         tsm_free_invoke_id(invoke_id);
         break;
       default:
