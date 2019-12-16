@@ -173,20 +173,48 @@ static bool Analog_Value_StatusFlags(uint32_t object_instance, BACNET_BIT_STRING
   if (av_instance == NULL)
     return false;
 
-  uint8_t *__status = NULL;
+  uint8_t __status = 0;
   Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-  if (__status == NULL)
-    return false;
 
 #if defined(INTRINSIC_REPORTING)
   bitstring_set_bit(status_flags, STATUS_FLAG_IN_ALARM, av_instance->Event_State ? true : false);
 #else
-  bitstring_set_bit(status_flags, STATUS_FLAG_IN_ALARM, ((*__status >> STATUS_FLAG_IN_ALARM) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_IN_ALARM, ((__status >> STATUS_FLAG_IN_ALARM) & 1U) ? true : false);
 #endif
-  bitstring_set_bit(status_flags, STATUS_FLAG_FAULT, ((*__status >> STATUS_FLAG_FAULT) & 1U) ? true : false);
-  bitstring_set_bit(status_flags, STATUS_FLAG_OVERRIDDEN, ((*__status >> STATUS_FLAG_OVERRIDDEN) & 1U) ? true : false);
-  bitstring_set_bit(status_flags, STATUS_FLAG_OUT_OF_SERVICE, ((*__status >> STATUS_FLAG_OUT_OF_SERVICE) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_FAULT, ((__status >> STATUS_FLAG_FAULT) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_OVERRIDDEN, ((__status >> STATUS_FLAG_OVERRIDDEN) & 1U) ? true : false);
+  bitstring_set_bit(status_flags, STATUS_FLAG_OUT_OF_SERVICE, ((__status >> STATUS_FLAG_OUT_OF_SERVICE) & 1U) ? true : false);
   return true;
+}
+
+static bool Analog_Value_OutOfService(uint32_t object_instance) {
+  bacObj_AV_t *av_instance = Get_AnalogValue_ByIndex(object_instance);
+  if (av_instance == NULL)
+    return false;
+
+  uint8_t __status = 0;
+  Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+  if ((__status >> STATUS_FLAG_OUT_OF_SERVICE) & 1U)
+    return true;
+  return false;
+}
+
+static bool Set_Analog_Value_OutOfService(uint32_t object_instance, bool set) {
+  bacObj_AV_t *av_instance = Get_AnalogValue_ByIndex(object_instance);
+  if (av_instance == NULL)
+    return false;
+
+  uint8_t __status = 0;
+  if (set) {
+    __status |= 1U << (STATUS_FLAG_OUT_OF_SERVICE);
+    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+    return true;
+  } else {
+    __status &= ~(1U << STATUS_FLAG_OUT_OF_SERVICE);
+    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+    return true;
+  }
+  return false;
 }
 
 /* return apdu len, or BACNET_STATUS_ERROR on error */
@@ -249,7 +277,7 @@ int Analog_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rp_data) {
 #endif
     break;
   case PROP_OUT_OF_SERVICE:
-    state = av_instance->outOfService;
+    state = Analog_Value_OutOfService(rp_data->object_instance);
     apdu_len = encode_application_boolean(&apdu[0], state);
     break;
   case PROP_UNITS:
@@ -481,7 +509,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
   case PROP_OUT_OF_SERVICE:
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_BOOLEAN, &wp_data->error_class, &wp_data->error_code);
     if (status) {
-      av_instance->outOfService = value.type.Boolean;
+      Set_Analog_Value_OutOfService(wp_data->object_instance, value.type.Boolean);
     }
     break;
   case PROP_UNITS:

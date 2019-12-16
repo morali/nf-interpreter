@@ -29,7 +29,6 @@ typedef struct bacObj_AV {
   struct bacObj_AV *next;
   struct bacObj_AV *prev;
 
-  uint32_t outOfService;
   unsigned Event_State;
 #if defined(INTRINSIC_REPORTING)
   uint32_t Time_Delay;
