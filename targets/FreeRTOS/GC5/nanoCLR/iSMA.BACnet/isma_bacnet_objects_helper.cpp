@@ -335,13 +335,32 @@ bool *Extract_Bool(bacObj_AV_t *av_instance) {
 }
 
 bool Set_AnalogValue_WithPriority(bacObj_AV_t *av_instance, float incoming_float, bool incoming_bool, uint8_t priority) {
-  
+
   priority = priority - 1;
   float *value = Extract_Float(av_instance);
   bool *value_not_null = Extract_Bool(av_instance);
 
   if (value == NULL || value_not_null == NULL)
     return NULL;
+
+  /* Set status flag override if there's a number on priority 10 or 1 */
+  if (value_not_null[9] == true || value_not_null[0] == true) {
+    uint8_t *__status = NULL;
+    Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+    if (__status == NULL)
+      return false;
+
+    *__status |= 1U << (STATUS_FLAG_OVERRIDDEN);
+    Set_AnalogValue(_statusFlags, (void*)&__status, av_instance);
+  } else {
+    uint8_t *__status = NULL;
+    Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+    if (__status == NULL)
+      return false;
+
+    *__status &= ~(1U << STATUS_FLAG_OVERRIDDEN);
+    Set_AnalogValue(_statusFlags, (void*)&__status, av_instance);
+  }
 
   value[priority] = incoming_float;
   value_not_null[priority] = incoming_bool;

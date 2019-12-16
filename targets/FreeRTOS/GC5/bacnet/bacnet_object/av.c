@@ -169,12 +169,12 @@ bool Analog_Value_Object_Descr(uint32_t object_instance, BACNET_CHARACTER_STRING
 }
 
 static bool Analog_Value_StatusFlags(uint32_t object_instance, BACNET_BIT_STRING *status_flags) {
-  bacObj_AV_t *av_instance = getAnalogByIndex(object_instance);
+  bacObj_AV_t *av_instance = Get_AnalogValue_ByIndex(object_instance);
   if (av_instance == NULL)
     return false;
 
   uint8_t *__status = NULL;
-  getAnalogValue(_statusFlags, (void *)&__status, av_instance);
+  Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
   if (__status == NULL)
     return false;
 
