@@ -623,21 +623,11 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     status = WPValidateArgType(&value, BACNET_APPLICATION_TAG_CHARACTER_STRING, &wp_data->error_class, &wp_data->error_code);
     Set_AnalogValue(_av_description, (void *)value.type.Character_String.value, av_instance);
     break;
-  case PROP_OBJECT_TYPE:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
+  case PROP_OBJECT_TYPE:   
   case PROP_STATUS_FLAGS:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_EVENT_STATE:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROPERTY_LIST:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PRIORITY_ARRAY:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   default:
     wp_data->error_class = ERROR_CLASS_PROPERTY;
     wp_data->error_code = ERROR_CODE_UNKNOWN_PROPERTY;

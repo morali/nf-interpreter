@@ -1158,8 +1158,6 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     break;
 #else
   case PROP_TIME_SYNCHRONIZATION_INTERVAL:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_ALIGN_INTERVALS:
     wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
     break;
@@ -1216,64 +1214,25 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data) {
     break;
 #endif
   case PROP_OBJECT_TYPE:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_VENDOR_NAME:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_FIRMWARE_REVISION:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_APPLICATION_SOFTWARE_VERSION:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_LOCAL_TIME:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_LOCAL_DATE:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROTOCOL_VERSION:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROTOCOL_REVISION:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROTOCOL_SERVICES_SUPPORTED:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROTOCOL_OBJECT_TYPES_SUPPORTED:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_OBJECT_LIST:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_MAX_APDU_LENGTH_ACCEPTED:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_SEGMENTATION_SUPPORTED:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_DEVICE_ADDRESS_BINDING:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_DATABASE_REVISION:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_ACTIVE_COV_SUBSCRIPTIONS:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   case PROP_PROPERTY_LIST:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
 #if defined(BACNET_TIME_MASTER)
   case PROP_TIME_SYNCHRONIZATION_RECIPIENTS:
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
 #endif
-    wp_data->error_class = ERROR_CLASS_PROPERTY;
-    wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-    break;
   default:
     wp_data->error_class = ERROR_CLASS_PROPERTY;
     wp_data->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
@@ -1485,6 +1444,7 @@ bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, RR_PROP_INFO *pInfo) {
   case PROP_SLAVE_ADDRESS_BINDING:
   case PROP_RESTART_NOTIFICATION_RECIPIENTS:
   case PROP_UTC_TIME_SYNCHRONIZATION_RECIPIENTS:
+  case PROP_ACTIVE_COV_SUBSCRIPTIONS:
     pInfo->RequestTypes = RR_BY_POSITION;
     pRequest->error_class = ERROR_CLASS_PROPERTY;
     pRequest->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
@@ -1493,11 +1453,6 @@ bool DeviceGetRRInfo(BACNET_READ_RANGE_DATA *pRequest, RR_PROP_INFO *pInfo) {
     pInfo->RequestTypes = RR_BY_POSITION;
     pInfo->Handler = rr_address_list_encode;
     status = true;
-    break;
-  case PROP_ACTIVE_COV_SUBSCRIPTIONS:
-    pInfo->RequestTypes = RR_BY_POSITION;
-    pRequest->error_class = ERROR_CLASS_PROPERTY;
-    pRequest->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
     break;
   default:
     pRequest->error_class = ERROR_CLASS_SERVICES;
