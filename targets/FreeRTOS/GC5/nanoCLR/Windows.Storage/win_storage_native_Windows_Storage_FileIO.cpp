@@ -19,7 +19,6 @@ typedef Library_win_storage_native_Windows_Storage_StorageFile StorageFile;
 
 struct FileOperation
 {
-    FIL*        File;
     const char* FileName;
     char*       Content;
     uint32_t    ContentLength;
@@ -31,23 +30,35 @@ static volatile FRESULT threadOperationResult;
 // ReadText working thread
 static void ReadTextWorkingThread(void *arg) {
 
-  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
+  FileOperation *fileIoOperation =  reinterpret_cast<FileOperation *>(arg);
+
+  FIL file;
 
   // need an extra one for the terminator
   uint32_t readLength = fileIoOperation->ContentLength + 1;
 
+  // open file (which is supposed to already exist)
+  // need to use FA_OPEN_EXISTING because we are reading an existing file content from start
+  threadOperationResult = f_open(&file, fileIoOperation->FileName, FA_OPEN_EXISTING | FA_READ);
+
+  if (threadOperationResult != FR_OK) {
+    // free memory
+    free(fileIoOperation);
+    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+    vTaskDelete(NULL);
+  }
+
   // read string
-  if (f_gets((TCHAR *)fileIoOperation->Content, readLength, fileIoOperation->File)) {
+  if (f_gets((TCHAR *)fileIoOperation->Content, readLength, &file)) {
     threadOperationResult = FR_OK;
   } else {
-    threadOperationResult = (FRESULT)f_error(fileIoOperation->File);
+    threadOperationResult = (FRESULT)f_error(&file);
   }
 
   // close file
-  f_close(fileIoOperation->File);
+  f_close(&file);
 
   // free memory
-  free(fileIoOperation->File);
   free(fileIoOperation);
 
   // fire event for FileIO operation complete
@@ -59,17 +70,30 @@ static void ReadTextWorkingThread(void *arg) {
 // WriteText working thread
 static void WriteTextWorkingThread(void *arg) {
 
-  FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
-  if (f_puts(fileIoOperation->Content, fileIoOperation->File) == (int)fileIoOperation->ContentLength) {
+  FileOperation *fileIoOperation =  reinterpret_cast<FileOperation *>(arg);
+
+  FIL file;
+
+  // open file (which is supposed to already exist)
+  // need to use FA_OPEN_ALWAYS because we are writting the file content from start
+  threadOperationResult = f_open(&file, fileIoOperation->FileName, FA_OPEN_ALWAYS | FA_WRITE);
+
+  if (threadOperationResult != FR_OK) {
+    // free memory
+    free(fileIoOperation);
+    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+    vTaskDelete(NULL);
+  }
+
+  if (f_puts(fileIoOperation->Content, &file) == (int)fileIoOperation->ContentLength) {
     // expected number of bytes written
     threadOperationResult = FR_OK;
   }
 
   // close file
-  f_close(fileIoOperation->File);
+  f_close(&file);
 
   // free memory
-  free(fileIoOperation->File);
   free(fileIoOperation);
 
   // fire event for FileIO operation complete
@@ -93,16 +117,15 @@ static void WriteBinaryWorkingThread(void *arg) {
   if (threadOperationResult != FR_OK) {
     // free memory
     free(fileIoOperation);
-    return;
+    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+    vTaskDelete(NULL);
   }
 
   threadOperationResult = f_write(&file, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesWritten);
-
-  if ((threadOperationResult == FR_OK) && (bytesWritten == fileIoOperation->ContentLength)) {
-    // expected number of bytes written
-    threadOperationResult = FR_OK;
+  if (bytesWritten != fileIoOperation->ContentLength)
+  {
+    threadOperationResult = FR_DISK_ERR;
   }
-
   // close file
   f_close(&file);
 
@@ -117,22 +140,34 @@ static void WriteBinaryWorkingThread(void *arg) {
 
 // ReadBinary working thread
 static void ReadBinaryWorkingThread(void *arg) {
-  UINT bytesRead;
-
+  
   FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(arg);
 
-  threadOperationResult = f_read(fileIoOperation->File, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesRead);
+  FIL file;
 
-  if ((threadOperationResult == FR_OK) && (bytesRead == fileIoOperation->ContentLength)) {
-    // expected number of bytes read
-    threadOperationResult = FR_OK;
+  // need an extra one for the terminator
+  UINT bytesRead = fileIoOperation->ContentLength + 1;
+
+  // open file (which is supposed to already exist)
+  // need to use FA_OPEN_EXISTING because we are reading an existing file content from start
+  threadOperationResult = f_open(&file, fileIoOperation->FileName, FA_OPEN_EXISTING | FA_READ);
+
+  if (threadOperationResult != FR_OK) {
+    // free memory
+    free(fileIoOperation);
+    Events_Set(SYSTEM_EVENT_FLAG_STORAGE_IO);
+    vTaskDelete(NULL);
   }
 
-  // close file
-  f_close(fileIoOperation->File);
+  threadOperationResult = f_read(&file, fileIoOperation->Content, fileIoOperation->ContentLength, &bytesRead);
 
-  // free memory
-  free(fileIoOperation->File);
+  if (bytesRead != fileIoOperation->ContentLength) {
+    threadOperationResult = FR_DISK_ERR;
+  }  
+
+  // close file
+  f_close(&file);
+
   free(fileIoOperation);
 
   // fire event for FileIO operation complete
@@ -164,7 +199,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
 
     const TCHAR*        filePath;
     
-
     char*               buffer;
     uint32_t            bufferLength;
 
@@ -243,122 +277,98 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteBytes___STATIC__
             NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
         }
     }
-
     // pop timeout heap block from stack
     stack.PopValue();
 
     NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__VOID__WindowsStorageIStorageFile__STRING( CLR_RT_StackFrame& stack )
-{
-    NANOCLR_HEADER();
+HRESULT Library_win_storage_native_Windows_Storage_FileIO::WriteText___STATIC__VOID__WindowsStorageIStorageFile__STRING(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
 
-    CLR_RT_HeapBlock_String* content;
+  CLR_RT_HeapBlock_String *content;
 
-    CLR_RT_HeapBlock    hbTimeout;
-    CLR_INT64*          timeout;
-    bool                eventResult = true;
+  CLR_RT_HeapBlock hbTimeout;
+  CLR_INT64 *timeout;
+  bool eventResult = true;
 
-    const TCHAR*         filePath;
-    FIL*                file;
-    FRESULT             operationResult;
+  const TCHAR *filePath;
 
-    // get a pointer to the managed object instance and check that it's not NULL
-    CLR_RT_HeapBlock* pThis = stack.This();  FAULT_ON_NULL(pThis);
-        
-    // get a pointer to the content
-    content = stack.Arg1().DereferenceString();
+  // get a pointer to the managed object instance and check that it's not NULL
+  CLR_RT_HeapBlock *pThis = stack.This();
+  FAULT_ON_NULL(pThis);
 
-    // get a pointer to the file path
-    filePath = (TCHAR*)pThis[ StorageFile::FIELD___path ].DereferenceString()->StringText();
+  // get a pointer to the content
+  content = stack.Arg1().DereferenceString();
 
-    // !! need to cast to CLR_INT64 otherwise it wont setup a proper timeout infinite
-    hbTimeout.SetInteger((CLR_INT64)-1);
+  // get a pointer to the file path
+  filePath = (TCHAR *)pThis[StorageFile::FIELD___path].DereferenceString()->StringText();
 
-    NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks( hbTimeout, timeout ));
-    
-    if(stack.m_customState == 1)
-    {   
-        // create file struct
-        file = (FIL*)malloc(sizeof(FIL));
-        // check allocation
-        if(file == NULL)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-        }
+  // !! need to cast to CLR_INT64 otherwise it wont setup a proper timeout infinite
+  hbTimeout.SetInteger((CLR_INT64)-1);
 
-        // open file (which is supposed to already exist)
-        // need to use FA_OPEN_ALWAYS because we are writting the file content from start
-        operationResult = f_open(file, filePath, FA_OPEN_ALWAYS | FA_WRITE);
-        
-        if(operationResult != FR_OK)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-        }
-        else
-        {
-            // protect the StorageFile and the content buffer from GC so the working thread can access those
-            CLR_RT_ProtectFromGC gcStorageFile( *pThis );
-            CLR_RT_ProtectFromGC gcContent( *content );
+  NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks(hbTimeout, timeout));
 
-            // setup FileIO operation
-            FileOperation* fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
+  if (stack.m_customState == 1) 
+  {
+    // protect the StorageFile and the content buffer from GC so the working thread can access those
+    CLR_RT_ProtectFromGC gcStorageFile(*pThis);
+    CLR_RT_ProtectFromGC gcContent(*content);
 
-            fileIoOperation->File = file;
-            fileIoOperation->Content = (char*)content->StringText();
-            fileIoOperation->ContentLength = hal_strlen_s(fileIoOperation->Content);
+    // setup FileIO operation
+    FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
 
-            // spawn working thread to perform the write transaction
-            BaseType_t ret;
-            ret = xTaskCreate(WriteTextWorkingThread, "WriteText", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+    fileIoOperation->FileName = filePath;
+    fileIoOperation->Content = (char *)content->StringText();
+    fileIoOperation->ContentLength = hal_strlen_s(fileIoOperation->Content);
 
-            if (ret != pdPASS)
-            {
-                NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
-            }
+    // spawn working thread to perform the write transaction
+    BaseType_t ret;
+    ret = xTaskCreate(WriteTextWorkingThread, "WriteText", configMINIMAL_STACK_SIZE + 400, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
-            // bump custom state
-            stack.m_customState = 2;
-        }
-    }
-
-    while(eventResult)
+    if (ret != pdPASS) 
     {
-        // non-blocking wait allowing other threads to run while we wait for the write operation to complete
-        NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents( stack.m_owningThread, *timeout, CLR_RT_ExecutionEngine::c_Event_StorageIo, eventResult ));
-
-        if(eventResult)
-        {
-            // event occurred
-
-            if(threadOperationResult == FR_DISK_ERR)
-            {
-                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_IO );
-            }
-            else if(threadOperationResult == FR_NO_FILE)
-            {
-                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_NOT_FOUND );
-            }
-            else if(threadOperationResult == FR_INVALID_DRIVE)
-            {
-                // failed to change drive
-                NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
-            }
-
-            // done here
-            break;
-        }
-        else
-        {
-            NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
-        }
+      NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
     }
 
-    // pop timeout heap block from stack
-    stack.PopValue();
+    // bump custom state
+    stack.m_customState = 2;
+  }
 
-    NANOCLR_NOCLEANUP();
+  while (eventResult) 
+  {
+    // non-blocking wait allowing other threads to run while we wait for the write operation to complete
+    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents(stack.m_owningThread, *timeout, CLR_RT_ExecutionEngine::c_Event_StorageIo, eventResult));
+
+    if (eventResult) 
+    {
+      // event occurred
+      if (threadOperationResult == FR_DISK_ERR) 
+      {
+        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
+      } 
+      else if (threadOperationResult == FR_NO_FILE) 
+      {
+        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
+      } 
+      else if (threadOperationResult == FR_INVALID_DRIVE) 
+      {
+        // failed to change drive
+        NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
+      }
+
+      // done here
+      break;
+    }
+    else 
+    {
+      NANOCLR_SET_AND_LEAVE(CLR_E_TIMEOUT);
+    }
+  }
+  // pop timeout heap block from stack
+  stack.PopValue();
+
+  NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___STATIC__VOID__WindowsStorageIStorageFile__BYREF_SZARRAY_U1( CLR_RT_StackFrame& stack )
@@ -370,9 +380,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
     bool                eventResult = true;
 
     const TCHAR*        filePath;
-
-    FIL*                file;
-    FRESULT             operationResult;
 
     // get a pointer to the managed object instance and check that it's not NULL
     CLR_RT_HeapBlock* pThis = stack.This();  FAULT_ON_NULL(pThis);
@@ -387,23 +394,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
    
     if(stack.m_customState == 1)
     {
-        // create file struct
-        file = (FIL*)malloc(sizeof(FIL));
-        // check allocation
-        if(file == NULL)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-        }
-
-        // open file (which is supposed to already exist)
-        // need to use FA_OPEN_EXISTING because we are reading an existing file content from start
-        operationResult = f_open(file, filePath, FA_OPEN_EXISTING | FA_READ);
-        
-        if(operationResult != FR_OK)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-        }
-        
         // get file details
         static FILINFO fileInfo;
         f_stat(filePath, &fileInfo);
@@ -424,13 +414,13 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
         // setup FileIO operation
         FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
 
-        fileIoOperation->File = file;
+        fileIoOperation->FileName = filePath;
         fileIoOperation->Content = (char*)bufferArray->GetFirstElement();
         fileIoOperation->ContentLength = bufferArray->m_numOfElements;
 
         // spawn working thread to perform the read transaction
         BaseType_t ret;
-        ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+        ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", configMINIMAL_STACK_SIZE + 600, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
         if (ret != pdPASS)
         {
@@ -464,7 +454,6 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
                 // failed to change drive
                 NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
             }
-
             // done here
             break;
         }
@@ -473,135 +462,103 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
             NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
         }
     }
-
     // pop timeout heap block from stack
     stack.PopValue();
 
     NANOCLR_NOCLEANUP();
 }
 
-HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STATIC__VOID__WindowsStorageIStorageFile__BYREF_STRING( CLR_RT_StackFrame& stack )
-{
-    NANOCLR_HEADER();
+HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadTextNative___STATIC__VOID__WindowsStorageIStorageFile__BYREF_STRING(CLR_RT_StackFrame &stack) {
+  NANOCLR_HEADER();
 
-    CLR_RT_HeapBlock    hbTimeout;
-    CLR_INT64*          timeout;
-    bool                eventResult = true;
+  CLR_RT_HeapBlock hbTimeout;
+  CLR_INT64 *timeout;
+  bool eventResult = true;
 
-    const TCHAR*        filePath;
+  const TCHAR *filePath;
 
-    FIL*                file;
-    static FILINFO      fileInfo;
-    FRESULT             operationResult;
+  static FILINFO fileInfo;
 
-    // get a pointer to the managed object instance and check that it's not NULL
-    CLR_RT_HeapBlock* pThis = stack.This();  FAULT_ON_NULL(pThis);
+  // get a pointer to the managed object instance and check that it's not NULL
+  CLR_RT_HeapBlock *pThis = stack.This();
+  FAULT_ON_NULL(pThis);
 
-    // !! need to cast to CLR_INT64 otherwise it wont setup a proper timeout infinite
-    hbTimeout.SetInteger((CLR_INT64)-1);
+  // !! need to cast to CLR_INT64 otherwise it wont setup a proper timeout infinite
+  hbTimeout.SetInteger((CLR_INT64)-1);
 
-    NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks( hbTimeout, timeout ));
+  NANOCLR_CHECK_HRESULT(stack.SetupTimeoutFromTicks(hbTimeout, timeout));
 
-    // get a pointer to the file path
-    filePath = (TCHAR*)pThis[ StorageFile::FIELD___path ].DereferenceString()->StringText();
-   
-    if(stack.m_customState == 1)
-    {
-        // protect the StorageFile and the content buffer from GC so the working thread can access those
-        CLR_RT_ProtectFromGC gcStorageFile( *pThis );
-        
-        char workingDrive[DRIVE_LETTER_LENGTH];
-        // copy the first 2 letters of the path for the drive
-        // path is 'D:\folder\file.txt', so we need 'D:'
-        memcpy(workingDrive, filePath, DRIVE_LETTER_LENGTH);
+  // get a pointer to the file path
+  filePath = (TCHAR *)pThis[StorageFile::FIELD___path].DereferenceString()->StringText();
 
-        // create file struct
-        file = (FIL*)malloc(sizeof(FIL));
-        // check allocation
-        if(file == NULL)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-        }
+  if (stack.m_customState == 1) {
+    // protect the StorageFile and the content buffer from GC so the working thread can access those
+    CLR_RT_ProtectFromGC gcStorageFile(*pThis);
 
-        // open file (which is supposed to already exist)
-        // need to use FA_OPEN_EXISTING because we are reading an existing file content from start
-        operationResult = f_open(file, filePath, FA_OPEN_EXISTING | FA_READ);
-        
-        if(operationResult != FR_OK)
-        {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
-        }
-        else
-        {
-            // get file details
-            f_stat(filePath, &fileInfo);
+    // get file details
+    f_stat(filePath, &fileInfo);
 
-            // create a new string object with the appropriate size
-            CLR_RT_HeapBlock  hbText;
-            hbText.SetObjectReference( NULL );
-            CLR_RT_ProtectFromGC gc( hbText );
+    // create a new string object with the appropriate size
+    CLR_RT_HeapBlock hbText;
+    hbText.SetObjectReference(NULL);
+    CLR_RT_ProtectFromGC gc(hbText);
 
-            CLR_RT_HeapBlock_String* textString = CLR_RT_HeapBlock_String::CreateInstance( hbText, (CLR_UINT32)fileInfo.fsize );
-            FAULT_ON_NULL(textString);
+    CLR_RT_HeapBlock_String *textString = CLR_RT_HeapBlock_String::CreateInstance(hbText, (CLR_UINT32)fileInfo.fsize);
+    FAULT_ON_NULL(textString);
 
-            // store this to the argument passed byref
-            NANOCLR_CHECK_HRESULT(hbText.StoreToReference( stack.Arg1(), 0 ));
+    // store this to the argument passed byref
+    NANOCLR_CHECK_HRESULT(hbText.StoreToReference(stack.Arg1(), 0));
 
-            // setup FileIO operation
-            FileOperation *fileIoOperation = reinterpret_cast<FileOperation *>(malloc(sizeof(FileOperation)));
+    // setup FileIO operation
+    FileOperation *fileIoOperation = (FileOperation *)malloc(sizeof(FileOperation));
 
-            fileIoOperation->File = file;
-            fileIoOperation->Content = (char*)textString->StringText();
-            fileIoOperation->ContentLength = fileInfo.fsize;
+    fileIoOperation->FileName = filePath;
+    fileIoOperation->Content = (char *)textString->StringText();
+    fileIoOperation->ContentLength = fileInfo.fsize;
 
-            // spawn working thread to perform the read transaction
-            BaseType_t ret;
-            ret = xTaskCreate(ReadTextWorkingThread, "ReadText", configMINIMAL_STACK_SIZE + 100, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+    // spawn working thread to perform the read transaction
+    BaseType_t ret;
+    ret = xTaskCreate(ReadTextWorkingThread, "ReadText", configMINIMAL_STACK_SIZE + 300, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
-            if (ret != pdPASS)
-            {
-                NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
-            }
-
-            // bump custom state
-            stack.m_customState = 2;
-        }
+    if (ret != pdPASS) {
+      NANOCLR_SET_AND_LEAVE(CLR_E_PROCESS_EXCEPTION);
     }
 
-    while(eventResult)
+    // bump custom state
+    stack.m_customState = 2;
+  }
+
+  while (eventResult) {
+    // non-blocking wait allowing other threads to run while we wait for the write operation to complete
+    NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents(stack.m_owningThread, *timeout, CLR_RT_ExecutionEngine::c_Event_StorageIo, eventResult));
+
+    if (eventResult) {
+      // event occurred
+
+      if (threadOperationResult == FR_DISK_ERR) 
+      {
+        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_IO);
+      }
+      else if (threadOperationResult == FR_NO_FILE) 
+      {
+        NANOCLR_SET_AND_LEAVE(CLR_E_FILE_NOT_FOUND);
+      } 
+      else if (threadOperationResult == FR_INVALID_DRIVE) 
+      {
+        // failed to change drive
+        NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
+      }
+
+      // done here
+      break;
+    } 
+    else 
     {
-        // non-blocking wait allowing other threads to run while we wait for the write operation to complete
-        NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents( stack.m_owningThread, *timeout, CLR_RT_ExecutionEngine::c_Event_StorageIo, eventResult ));
-
-        if(eventResult)
-        {
-            // event occurred
-
-            if(threadOperationResult == FR_DISK_ERR)
-            {
-                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_IO );
-            }
-            else if(threadOperationResult == FR_NO_FILE)
-            {
-                NANOCLR_SET_AND_LEAVE( CLR_E_FILE_NOT_FOUND );
-            }
-            else if(threadOperationResult == FR_INVALID_DRIVE)
-            {
-                // failed to change drive
-                NANOCLR_SET_AND_LEAVE(CLR_E_VOLUME_NOT_FOUND);
-            }
-
-            // done here
-            break;
-        }
-        else
-        {
-            NANOCLR_SET_AND_LEAVE( CLR_E_TIMEOUT );
-        }
+      NANOCLR_SET_AND_LEAVE(CLR_E_TIMEOUT);
     }
+  }
+  // pop timeout heap block from stack
+  stack.PopValue();
 
-    // pop timeout heap block from stack
-    stack.PopValue();
-
-    NANOCLR_NOCLEANUP();
+  NANOCLR_NOCLEANUP();
 }
