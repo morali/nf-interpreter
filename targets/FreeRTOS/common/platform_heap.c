@@ -8,9 +8,12 @@
 #include "stddef.h"
 #include <string.h>
 
-void *platform_malloc(size_t size)
-{
+void *platform_malloc(size_t size) {
+  if (size > 0) {
     return pvPortMalloc(size);
+  } else {
+    return NULL;
+  }
 }
 
 void platform_free(void *ptr)
