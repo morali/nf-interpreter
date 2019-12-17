@@ -69,8 +69,6 @@ int WP_TransmitMessage(WP_Message* message)
     s_cdc_data_p->xWriteToNotify = xTaskGetCurrentTaskHandle();
 
     uint8_t * send_addr = (uint8_t *) &(message->m_header);
-    if (send_addr == NULL)
-        return 0;
     uint32_t send_size = sizeof(message->m_header);
 
     /* Check for buffer overflow */
