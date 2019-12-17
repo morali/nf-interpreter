@@ -205,16 +205,15 @@ static bool Set_Analog_Value_OutOfService(uint32_t object_instance, bool set) {
     return false;
 
   uint8_t __status = 0;
+  Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+
   if (set) {
-    __status |= 1U << (STATUS_FLAG_OUT_OF_SERVICE);
-    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-    return true;
+    __status |= 1U << (STATUS_FLAG_OUT_OF_SERVICE);    
   } else {
     __status &= ~(1U << STATUS_FLAG_OUT_OF_SERVICE);
-    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-    return true;
   }
-  return false;
+  Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+  return true;
 }
 
 /* return apdu len, or BACNET_STATUS_ERROR on error */

@@ -348,17 +348,18 @@ bool Set_AnalogValue_WithPriority(bacObj_AV_t *av_instance, float incoming_float
   float return_value = 0;
 
   /* Set status flag override if there's a number on priority 10 or 1 */
-  if (value_not_null[9] == true || value_not_null[0] == true) {
-    uint8_t __status = 0;
-    Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-    __status |= 1U << (STATUS_FLAG_OVERRIDDEN);
-    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);    
-  } else if ((value_not_null[9] == false) && (value_not_null[0] == false)) {
-    uint8_t __status = 0;
-    Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-    __status &= ~(1U << STATUS_FLAG_OVERRIDDEN);
-    Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
-  }
+  //TODO: not needed right now, page 166 in bacnet documentation
+  // if (value_not_null[9] == true || value_not_null[0] == true) {
+  //   uint8_t __status = 0;
+  //   Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+  //   __status |= 1U << (STATUS_FLAG_OVERRIDDEN);
+  //   Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);    
+  // } else if ((value_not_null[9] == false) && (value_not_null[0] == false)) {
+  //   uint8_t __status = 0;
+  //   Get_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+  //   __status &= ~(1U << STATUS_FLAG_OVERRIDDEN);
+  //   Set_AnalogValue(_statusFlags, (void *)&__status, av_instance);
+  // }
   /* We call this function to update present value */
   return_value = value[16]; /* relinquish defaults (17th priority) */
   for (uint8_t i = 0; i < BACNET_MAX_PRIORITY + 1; i++) {
