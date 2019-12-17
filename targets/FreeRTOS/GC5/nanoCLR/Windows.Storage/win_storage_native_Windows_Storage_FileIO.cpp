@@ -420,7 +420,7 @@ HRESULT Library_win_storage_native_Windows_Storage_FileIO::ReadBufferNative___ST
 
         // spawn working thread to perform the read transaction
         BaseType_t ret;
-        ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", configMINIMAL_STACK_SIZE + 300, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
+        ret = xTaskCreate(ReadBinaryWorkingThread, "ReadBin", configMINIMAL_STACK_SIZE + 600, fileIoOperation, configMAX_PRIORITIES - 2, NULL);
 
         if (ret != pdPASS)
         {
